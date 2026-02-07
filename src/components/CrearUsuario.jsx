@@ -1,23 +1,42 @@
 import { useState } from 'react'
+import { API_URL } from '../config/api'
 
 function CrearUsuario({ onUsuarioCreado }) {
   const [nombre, setNombre] = useState('')
   const [contraseña, setContraseña] = useState('')
   const [telefono, setTelefono] = useState('')
+  const [cargando, setCargando] = useState(false)
+  const [error, setError] = useState('')
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    if (nombre && contraseña && telefono) {
-      onUsuarioCreado({ nombre, contraseña, telefono })
+    setError('')
+    if (!nombre || !contraseña || !telefono) return
+
+    setCargando(true)
+    try {
+      const res = await fetch(`${API_URL}/usuarios`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nombre, contraseña, tel: telefono })
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Error al crear")
+      onUsuarioCreado(data)
       setNombre('')
       setContraseña('')
       setTelefono('')
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setCargando(false)
     }
   }
 
   return (
     <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md space-y-4">
       <h2 className="text-xl font-bold text-gray-800 mb-4">Crear Usuario</h2>
+      {error && <p className="text-red-600 text-sm">{error}</p>}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
         <input
@@ -50,9 +69,10 @@ function CrearUsuario({ onUsuarioCreado }) {
       </div>
       <button
         type="submit"
-        className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+        disabled={cargando}
+        className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
       >
-        Crear Usuario
+        {cargando ? "Creando..." : "Crear Usuario"}
       </button>
     </form>
   )

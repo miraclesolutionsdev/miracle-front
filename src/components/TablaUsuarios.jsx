@@ -10,11 +10,11 @@ function TablaUsuarios({ usuarios }) {
           </tr>
         </thead>
         <tbody>
-          {usuarios.map((u, i) => (
-            <tr key={i} className="border-t border-gray-200">
+          {usuarios.map((u) => (
+            <tr key={u.id} className="border-t border-gray-200">
               <td className="px-4 py-3">{u.nombre}</td>
               <td className="px-4 py-3">{u.contraseña}</td>
-              <td className="px-4 py-3">{u.telefono}</td>
+              <td className="px-4 py-3">{u.tel}</td>
             </tr>
           ))}
         </tbody>
