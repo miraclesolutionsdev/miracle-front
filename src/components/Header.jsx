@@ -1,9 +1,9 @@
-function Header() {
+export function Header() {
   return (
-    <header className="w-full flex-shrink-0 bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 shadow-sm">
-      <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 tracking-tight">
+    <header className="fixed top-0 left-0 right-0 z-30 flex h-14 items-center border-b border-border bg-card px-6">
+      <span className="text-lg font-bold tracking-tight text-foreground">
         Miracle Solutions
-      </h1>
+      </span>
     </header>
   )
 }
