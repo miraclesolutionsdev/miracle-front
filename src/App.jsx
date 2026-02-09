@@ -1,44 +1,18 @@
-import { useState, useEffect, useCallback } from 'react'
-import CrearUsuario from './components/CrearUsuario'
-import ListaUsuarios from './components/ListaUsuarios'
-import { API_URL } from './config/api'
+import Header from './components/Header'
+import Sidebar from './components/Sidebar'
 import './App.css'
 
 function App() {
-  const [usuarios, setUsuarios] = useState([])
-  const [cargando, setCargando] = useState(false)
-
-  const cargarUsuarios = useCallback(async () => {
-    setCargando(true)
-    try {
-      const res = await fetch(`${API_URL}/usuarios`)
-      const data = await res.json()
-      setUsuarios(data)
-    } catch (err) {
-      console.error("Error al cargar usuarios:", err)
-      setUsuarios([])
-    } finally {
-      setCargando(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    cargarUsuarios()
-  }, [cargarUsuarios])
-
-  const handleUsuarioCreado = () => {
-    cargarUsuarios()
-  }
-
   return (
-    <div className="min-h-screen bg-gray-100 py-8 px-4">
-      <div className="max-w-2xl mx-auto space-y-8">
-        <CrearUsuario onUsuarioCreado={handleUsuarioCreado} />
-        <ListaUsuarios
-          usuarios={usuarios}
-          onActualizar={cargarUsuarios}
-          cargando={cargando}
-        />
+    <div className="min-h-screen bg-gray-100 flex flex-col">
+      <Header />
+      <div className="flex flex-1">
+        <Sidebar />
+        <main className="flex-1 p-6">
+          <p className="text-gray-500 text-sm">
+            Selecciona una opción del panel para continuar.
+          </p>
+        </main>
       </div>
     </div>
   )
