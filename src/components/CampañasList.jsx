@@ -5,7 +5,6 @@ const COLUMNAS = [
   'Cliente',
   'Producto',
   'Plataforma',
-  'Presupuesto',
   'Miracle Coins',
   'Estado',
   'Acciones',
@@ -41,7 +40,6 @@ function CampañasList({ campañas, onCrear, onVer, onEditar, onActivarPausar, o
                 <td className="py-3 pr-4 text-card-foreground">{c.cliente}</td>
                 <td className="py-3 pr-4 text-card-foreground">{c.producto}</td>
                 <td className="py-3 pr-4 text-muted-foreground">{c.plataforma}</td>
-                <td className="py-3 pr-4 text-card-foreground">{c.presupuesto}</td>
                 <td className="py-3 pr-4 text-card-foreground">{c.miracleCoins}</td>
                 <td className="py-3 pr-4">
                   <span
@@ -55,7 +53,7 @@ function CampañasList({ campañas, onCrear, onVer, onEditar, onActivarPausar, o
                             : 'bg-muted/80 text-muted-foreground'
                     }`}
                   >
-                    {c.estado}
+                    {c.estado ? c.estado.charAt(0).toUpperCase() + c.estado.slice(1) : ''}
                   </span>
                 </td>
                 <td className="py-3 pr-4">

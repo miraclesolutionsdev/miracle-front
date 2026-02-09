@@ -8,7 +8,7 @@ const materialEjemplo = {
   landing: 'https://ejemplo.com/landing-campana',
 }
 
-function CampañaDetalle({ campaña, onCerrar, onImportarPiezas, onAsociarMaterial, onAsignarPresupuesto, onActivarPausar, onFinalizar }) {
+function CampañaDetalle({ campaña, onCerrar, onImportarPiezas, onAsociarMaterial, onActivarPausar, onFinalizar }) {
   const [material] = useState(materialEjemplo)
 
   if (!campaña) return null
@@ -36,16 +36,12 @@ function CampañaDetalle({ campaña, onCerrar, onImportarPiezas, onAsociarMateri
           </div>
           <dl className="mt-4 grid grid-cols-2 gap-2 text-sm">
             <div>
-              <dt className="text-muted-foreground">Presupuesto</dt>
-              <dd className="text-card-foreground">{campaña.presupuesto}</dd>
-            </div>
-            <div>
-              <dt className="text-muted-foreground">Miracle Coins</dt>
+              <dt className="text-muted-foreground">Miracle Coins Asignadas</dt>
               <dd className="text-card-foreground">{campaña.miracleCoins}</dd>
             </div>
             <div>
               <dt className="text-muted-foreground">Estado</dt>
-              <dd className="text-card-foreground">{campaña.estado}</dd>
+              <dd className="text-card-foreground">{campaña.estado ? campaña.estado.charAt(0).toUpperCase() + campaña.estado.slice(1) : ''}</dd>
             </div>
           </dl>
           <div className="mt-4 flex flex-wrap gap-2">
@@ -62,13 +58,6 @@ function CampañaDetalle({ campaña, onCerrar, onImportarPiezas, onAsociarMateri
               className="rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-card-foreground hover:bg-muted"
             >
               Asociar material audiovisual
-            </button>
-            <button
-              type="button"
-              onClick={() => onAsignarPresupuesto?.(campaña)}
-              className="rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-card-foreground hover:bg-muted"
-            >
-              Asignar presupuesto
             </button>
             {puedeActivarPausar && (
               <button

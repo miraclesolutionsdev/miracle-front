@@ -49,8 +49,20 @@ function ClienteDetalle({ cliente, onCerrar }) {
           </div>
           <dl className="mt-4 grid grid-cols-2 gap-2 text-sm">
             <div>
+              <dt className="text-muted-foreground">Cédula / NIT</dt>
+              <dd className="text-card-foreground">{cliente.cedulaNit || '—'}</dd>
+            </div>
+            <div>
               <dt className="text-muted-foreground">WhatsApp</dt>
               <dd className="text-card-foreground">{cliente.whatsapp}</dd>
+            </div>
+            <div className="col-span-2">
+              <dt className="text-muted-foreground">Dirección</dt>
+              <dd className="text-card-foreground">{cliente.direccion || '—'}</dd>
+            </div>
+            <div>
+              <dt className="text-muted-foreground">Ciudad y Barrio</dt>
+              <dd className="text-card-foreground">{cliente.ciudadBarrio || '—'}</dd>
             </div>
             <div>
               <dt className="text-muted-foreground">Estado</dt>

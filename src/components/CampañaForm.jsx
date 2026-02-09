@@ -9,7 +9,6 @@ function CampañaForm({ campaña, clientes = [], productos = [], onGuardar, onCa
     cliente: '',
     producto: '',
     plataforma: 'Google Ads',
-    presupuesto: '',
     miracleCoins: '',
     estado: 'borrador',
   })
@@ -20,7 +19,6 @@ function CampañaForm({ campaña, clientes = [], productos = [], onGuardar, onCa
         cliente: campaña.cliente,
         producto: campaña.producto,
         plataforma: campaña.plataforma,
-        presupuesto: campaña.presupuesto,
         miracleCoins: campaña.miracleCoins,
         estado: campaña.estado,
       })
@@ -29,7 +27,6 @@ function CampañaForm({ campaña, clientes = [], productos = [], onGuardar, onCa
         cliente: clientes[0]?.nombreEmpresa ?? '',
         producto: productos[0] ?? '',
         plataforma: 'Google Ads',
-        presupuesto: '',
         miracleCoins: '',
         estado: 'borrador',
       })
@@ -65,7 +62,7 @@ function CampañaForm({ campaña, clientes = [], productos = [], onGuardar, onCa
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-muted-foreground">Producto</label>
+            <label className="mb-1 block text-sm font-medium text-muted-foreground">Producto/Servicio</label>
             <input
               type="text"
               value={form.producto}
@@ -76,7 +73,7 @@ function CampañaForm({ campaña, clientes = [], productos = [], onGuardar, onCa
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-muted-foreground">Plataforma</label>
+            <label className="mb-1 block text-sm font-medium text-muted-foreground">Plataforma/Social Media</label>
             <select
               value={form.plataforma}
               onChange={(e) => setForm((f) => ({ ...f, plataforma: e.target.value }))}
@@ -88,17 +85,7 @@ function CampañaForm({ campaña, clientes = [], productos = [], onGuardar, onCa
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-muted-foreground">Presupuesto asignado</label>
-            <input
-              type="text"
-              value={form.presupuesto}
-              onChange={(e) => setForm((f) => ({ ...f, presupuesto: e.target.value }))}
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
-              placeholder="Ej. $1,200"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium text-muted-foreground">Miracle Coins asignadas</label>
+            <label className="mb-1 block text-sm font-medium text-muted-foreground">Miracle Coins Asignadas</label>
             <input
               type="text"
               value={form.miracleCoins}
@@ -115,7 +102,7 @@ function CampañaForm({ campaña, clientes = [], productos = [], onGuardar, onCa
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
             >
               {ESTADOS.map((s) => (
-                <option key={s} value={s}>{s}</option>
+                <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
               ))}
             </select>
           </div>

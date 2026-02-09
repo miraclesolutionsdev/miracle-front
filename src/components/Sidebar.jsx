@@ -1,6 +1,7 @@
-import { Users, Package, Megaphone, Film, BarChart3, ShoppingCart } from 'lucide-react'
+import { LayoutDashboard, Users, Package, Megaphone, Film, BarChart3, ShoppingCart } from 'lucide-react'
 
 const NAV_ITEMS = [
+  { label: 'Dashboard', icon: LayoutDashboard },
   { label: 'Clientes', icon: Users },
   { label: 'Productos', icon: Package },
   { label: 'Campañas', icon: Megaphone },

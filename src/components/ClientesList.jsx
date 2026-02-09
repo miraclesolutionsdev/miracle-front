@@ -3,8 +3,10 @@ import SectionCard from './SectionCard'
 const COLUMNAS = [
   'ID',
   'Nombre / Empresa',
+  'Cédula / NIT',
   'Email',
   'WhatsApp',
+  'Ciudad / Barrio',
   'Estado',
   'Plan',
   'Miracle Coins',
@@ -40,8 +42,10 @@ function ClientesList({ clientes, onCrear, onVer, onEditar }) {
               <tr key={c.id} className="border-b border-border">
                 <td className="py-3 pr-4 text-card-foreground">{c.id}</td>
                 <td className="py-3 pr-4 text-card-foreground">{c.nombreEmpresa}</td>
+                <td className="py-3 pr-4 text-muted-foreground">{c.cedulaNit || '—'}</td>
                 <td className="py-3 pr-4 text-muted-foreground">{c.email}</td>
                 <td className="py-3 pr-4 text-muted-foreground">{c.whatsapp}</td>
+                <td className="py-3 pr-4 text-muted-foreground">{c.ciudadBarrio || '—'}</td>
                 <td className="py-3 pr-4">
                   <span
                     className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
