@@ -1,5 +1,3 @@
-import { useState } from 'react'
-
 const OPCIONES = [
   'Clientes',
   'Productos',
@@ -9,18 +7,16 @@ const OPCIONES = [
   'Ventas'
 ]
 
-function Sidebar() {
-  const [seleccionado, setSeleccionado] = useState(null)
-
+function Sidebar({ seleccionado, onSeleccionar }) {
   return (
-    <aside className="w-56 min-h-full bg-white border-r border-gray-200 shadow-sm">
-      <nav className="p-4 space-y-1">
+    <aside className="flex-shrink-0 w-52 sm:w-56 lg:w-64 min-h-full bg-white border-r border-gray-200 shadow-sm">
+      <nav className="p-3 sm:p-4 space-y-0.5 sm:space-y-1">
         {OPCIONES.map((opcion) => (
           <button
             key={opcion}
             type="button"
-            onClick={() => setSeleccionado(opcion)}
-            className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+            onClick={() => onSeleccionar(opcion)}
+            className={`w-full text-left px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg text-sm sm:text-base font-medium transition-colors ${
               seleccionado === opcion
                 ? 'bg-indigo-100 text-indigo-700'
                 : 'text-gray-700 hover:bg-gray-100'
