@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import ProductosList from './ProductosList'
 import ProductoForm from './ProductoForm'
+import LandingProducto from './LandingProducto'
 
 const PRODUCTOS_INICIALES = [
   {
@@ -61,10 +62,14 @@ function generarId(productos) {
 export default function VistaProductos() {
   const [productos, setProductos] = useState(PRODUCTOS_INICIALES)
   const [formAbierto, setFormAbierto] = useState(null)
+  const [productoLanding, setProductoLanding] = useState(null)
 
   const handleCrear = () => setFormAbierto('crear')
   const handleEditar = (producto) => setFormAbierto(producto)
   const cerrarForm = () => setFormAbierto(null)
+
+  const handleVerLanding = (producto) => setProductoLanding(producto)
+  const cerrarLanding = () => setProductoLanding(null)
 
   const handleGuardarProducto = (payload) => {
     if (payload.id) {
@@ -100,6 +105,7 @@ export default function VistaProductos() {
         onCrear={handleCrear}
         onEditar={handleEditar}
         onToggleEstado={handleToggleEstado}
+        onVerLanding={handleVerLanding}
       />
 
       {formAbierto && (
@@ -108,6 +114,10 @@ export default function VistaProductos() {
           onGuardar={handleGuardarProducto}
           onCancelar={cerrarForm}
         />
+      )}
+
+      {productoLanding && (
+        <LandingProducto producto={productoLanding} onCerrar={cerrarLanding} />
       )}
     </div>
   )

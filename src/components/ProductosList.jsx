@@ -10,7 +10,7 @@ const COLUMNAS = [
   'Acciones',
 ]
 
-function ProductosList({ productos, onCrear, onEditar, onToggleEstado }) {
+function ProductosList({ productos, onCrear, onEditar, onToggleEstado, onVerLanding }) {
   return (
     <SectionCard title="Productos y servicios">
       <div className="mb-4 flex justify-end">
@@ -75,6 +75,13 @@ function ProductosList({ productos, onCrear, onEditar, onToggleEstado }) {
                       className="text-primary hover:underline"
                     >
                       Editar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onVerLanding(p)}
+                      className="text-primary hover:underline"
+                    >
+                      Ver landing
                     </button>
                     <button
                       type="button"
