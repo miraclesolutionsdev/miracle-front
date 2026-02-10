@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useProductos } from '../context/ProductosContext.jsx'
 import SectionCard from './SectionCard'
@@ -6,6 +7,11 @@ function VistaTienda() {
   const { productos } = useProductos()
   const navigate = useNavigate()
 
+  const productosActivos = useMemo(
+    () => productos.filter((p) => p.estado === 'activo'),
+    [productos],
+  )
+
   return (
     <div className="space-y-6">
       <SectionCard title="Tienda de productos">
@@ -13,9 +19,13 @@ function VistaTienda() {
           <p className="text-sm text-muted-foreground">
             Aún no hay productos creados. Crea productos desde la sección &quot;Productos&quot; para verlos aquí.
           </p>
+        ) : productosActivos.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No hay productos activos en la tienda por el momento. Activa alguno desde la sección &quot;Productos&quot;.
+          </p>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {productos.map((p) => (
+            {productosActivos.map((p) => (
               <article
                 key={p.id}
                 className="flex flex-col overflow-hidden rounded-xl border border-border bg-card"

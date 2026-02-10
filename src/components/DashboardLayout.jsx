@@ -5,6 +5,7 @@ import VistaDashboard from './VistaDashboard'
 import VistaClientes from './VistaClientes'
 import VistaProductos from './VistaProductos'
 import VistaTienda from './VistaTienda'
+import VistaConfiguraNegocio from './VistaConfiguraNegocio'
 import VistaCampañas from './VistaCampañas'
 
 function DashboardLayout() {
@@ -20,11 +21,13 @@ function DashboardLayout() {
           {seleccionado === 'Clientes' && <VistaClientes />}
           {seleccionado === 'Productos' && <VistaProductos />}
           {seleccionado === 'Tienda' && <VistaTienda />}
+          {seleccionado === 'Configura Tu Negocio' && <VistaConfiguraNegocio />}
           {seleccionado === 'Campañas' && <VistaCampañas />}
           {seleccionado !== 'Dashboard' &&
             seleccionado !== 'Clientes' &&
             seleccionado !== 'Productos' &&
             seleccionado !== 'Tienda' &&
+            seleccionado !== 'Configura Tu Negocio' &&
             seleccionado !== 'Campañas' && (
               <p className="text-muted-foreground text-sm sm:text-base">
                 Selecciona una opción del panel para continuar.
