@@ -6,13 +6,10 @@ const ESTADOS = ['activo', 'inactivo']
 function ProductoForm({ producto, onGuardar, onCancelar }) {
   const esEdicion = !!producto
   const [form, setForm] = useState({
-    clienteNombre: '',
     nombre: '',
     descripcion: '',
     precio: '',
     tipo: 'servicio',
-    landing: '',
-    vistaTienda: '',
     estado: 'activo',
     imagenes: [],
     nuevaImagen: '',
@@ -21,26 +18,20 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
   useEffect(() => {
     if (producto) {
       setForm({
-        clienteNombre: producto.clienteNombre ?? '',
         nombre: producto.nombre ?? '',
         descripcion: producto.descripcion ?? '',
         precio: producto.precio ?? '',
         tipo: producto.tipo ?? 'servicio',
-        landing: producto.landing ?? '',
-        vistaTienda: producto.vistaTienda ?? '',
         estado: producto.estado ?? 'activo',
         imagenes: producto.imagenes ?? [],
         nuevaImagen: '',
       })
     } else {
       setForm({
-        clienteNombre: '',
         nombre: '',
         descripcion: '',
         precio: '',
         tipo: 'servicio',
-        landing: '',
-        vistaTienda: '',
         estado: 'activo',
         imagenes: [],
         nuevaImagen: '',
@@ -74,20 +65,6 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
           {esEdicion ? 'Editar producto' : 'Crear producto'}
         </h2>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div>
-            <label className="mb-1 block text-sm font-medium text-muted-foreground">
-              Cliente (referencia)
-            </label>
-            <input
-              type="text"
-              value={form.clienteNombre}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, clienteNombre: e.target.value }))
-              }
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
-              placeholder="Ej. Acme Corp"
-            />
-          </div>
           <div>
             <label className="mb-1 block text-sm font-medium text-muted-foreground">
               Nombre del producto/servicio
@@ -166,34 +143,6 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
                 ))}
               </select>
             </div>
-          </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium text-muted-foreground">
-              Landing asociada (URL)
-            </label>
-            <input
-              type="text"
-              value={form.landing}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, landing: e.target.value }))
-              }
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
-              placeholder="https://..."
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium text-muted-foreground">
-              Vista de tienda / referencia
-            </label>
-            <input
-              type="text"
-              value={form.vistaTienda}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, vistaTienda: e.target.value }))
-              }
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
-              placeholder="URL de tienda o preview"
-            />
           </div>
           <div>
             <label className="mb-1 block text-sm font-medium text-muted-foreground">

@@ -1,8 +1,9 @@
+import { useNavigate } from 'react-router-dom'
 import SectionCard from './SectionCard'
 
 const COLUMNAS = [
   'ID',
-  'Cliente',
+  'Stock',
   'Nombre',
   'Tipo',
   'Precio',
@@ -10,7 +11,8 @@ const COLUMNAS = [
   'Acciones',
 ]
 
-function ProductosList({ productos, onCrear, onEditar, onToggleEstado, onVerLanding }) {
+function ProductosList({ productos, onCrear, onEditar, onToggleEstado }) {
+  const navigate = useNavigate()
   return (
     <SectionCard title="Productos y servicios">
       <div className="mb-4 flex justify-end">
@@ -38,7 +40,7 @@ function ProductosList({ productos, onCrear, onEditar, onToggleEstado, onVerLand
               <tr key={p.id} className="border-b border-border">
                 <td className="py-3 pr-4 text-card-foreground">{p.id}</td>
                 <td className="py-3 pr-4 text-card-foreground">
-                  {p.clienteNombre || '—'}
+                  {p.stock ?? '—'}
                 </td>
                 <td className="py-3 pr-4 text-card-foreground">
                   <div className="flex items-center gap-2">
@@ -78,7 +80,7 @@ function ProductosList({ productos, onCrear, onEditar, onToggleEstado, onVerLand
                     </button>
                     <button
                       type="button"
-                      onClick={() => onVerLanding(p)}
+                      onClick={() => navigate(`/landing-producto/${p.id}`)}
                       className="text-primary hover:underline"
                     >
                       Ver landing
