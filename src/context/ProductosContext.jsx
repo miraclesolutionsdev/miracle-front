@@ -15,6 +15,16 @@ const PRODUCTOS_INICIALES = [
       'https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg',
     ],
     stock: 14,
+    usos: [
+      'Gestión de redes sociales (Facebook e Instagram).',
+      'Incluye calendario de contenidos y diseño básico.',
+      'Ideal para emprendedores y pequeñas empresas.',
+    ],
+    caracteristicas: [
+      'Entrega: 20 piezas mensuales.',
+      'Formato: imágenes y reels.',
+      'Soporte: canal de WhatsApp.',
+    ],
   },
   {
     id: 'PROD-002',
@@ -28,6 +38,16 @@ const PRODUCTOS_INICIALES = [
       'https://images.pexels.com/photos/6898859/pexels-photo-6898859.jpeg',
     ],
     stock: 5,
+    usos: [
+      'Presentación de tu empresa o marca.',
+      'Ideal para web, redes y eventos.',
+      'Incluye guion y edición profesional.',
+    ],
+    caracteristicas: [
+      'Duración: 60 segundos.',
+      'Formato: Full HD (1920x1080).',
+      'Entrega: 10 días hábiles.',
+    ],
   },
   {
     id: 'PROD-003',
@@ -54,6 +74,14 @@ const PRODUCTOS_INICIALES = [
       'https://images.pexels.com/photos/4348403/pexels-photo-4348403.jpeg',
     ],
     stock: 10,
+    usos: [
+      'Identidad visual para tu negocio.',
+      'Uso en papelería, web y redes sociales.',
+    ],
+    caracteristicas: [
+      'Entrega: logo en varios formatos (PNG, SVG).',
+      'Incluye guía de marca (colores y tipografías).',
+    ],
   },
   {
     id: 'PROD-005',
@@ -93,6 +121,15 @@ const PRODUCTOS_INICIALES = [
       'https://images.pexels.com/photos/5632371/pexels-photo-5632371.jpeg',
     ],
     stock: 40,
+    usos: [
+      'Montar tu tienda online en poco tiempo.',
+      'Ideal para productos físicos o digitales.',
+    ],
+    caracteristicas: [
+      'Diseño responsive (móvil y escritorio).',
+      'Incluye pasarela de pago integrada.',
+      'Soporte técnico por 30 días.',
+    ],
   },
   {
     id: 'PROD-008',

@@ -13,6 +13,8 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
     estado: 'activo',
     imagenes: [],
     nuevaImagen: '',
+    usosTexto: '',
+    caracteristicasTexto: '',
   })
 
   useEffect(() => {
