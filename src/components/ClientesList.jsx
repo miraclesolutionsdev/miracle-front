@@ -8,7 +8,6 @@ const COLUMNAS = [
   'WhatsApp',
   'Ciudad / Barrio',
   'Estado',
-  'Plan',
   'Miracle Coins',
   'Fecha creación',
   'Acciones',
@@ -40,13 +39,13 @@ function ClientesList({ clientes, onCrear, onVer, onEditar }) {
           <tbody>
             {clientes.map((c) => (
               <tr key={c.id} className="border-b border-border">
-                <td className="py-3 pr-4 text-card-foreground">{c.id}</td>
-                <td className="py-3 pr-4 text-card-foreground">{c.nombreEmpresa}</td>
-                <td className="py-3 pr-4 text-muted-foreground">{c.cedulaNit || '—'}</td>
-                <td className="py-3 pr-4 text-muted-foreground">{c.email}</td>
-                <td className="py-3 pr-4 text-muted-foreground">{c.whatsapp}</td>
-                <td className="py-3 pr-4 text-muted-foreground">{c.ciudadBarrio || '—'}</td>
-                <td className="py-3 pr-4">
+                <td className="py-3 pr-4 text-card-foreground whitespace-nowrap">{c.id}</td>
+                <td className="py-3 pr-4 text-card-foreground whitespace-nowrap">{c.nombreEmpresa}</td>
+                <td className="py-3 pr-4 text-muted-foreground whitespace-nowrap">{c.cedulaNit || '—'}</td>
+                <td className="py-3 pr-4 text-muted-foreground whitespace-nowrap">{c.email}</td>
+                <td className="py-3 pr-4 text-muted-foreground whitespace-nowrap">{c.whatsapp}</td>
+                <td className="py-3 pr-4 text-muted-foreground whitespace-nowrap">{c.ciudadBarrio || '—'}</td>
+                <td className="py-3 pr-4 whitespace-nowrap">
                   <span
                     className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
                       c.estado === 'activo'
@@ -57,10 +56,9 @@ function ClientesList({ clientes, onCrear, onVer, onEditar }) {
                     {c.estado}
                   </span>
                 </td>
-                <td className="py-3 pr-4 text-card-foreground">{c.plan}</td>
-                <td className="py-3 pr-4 text-card-foreground">{c.miracleCoins}</td>
-                <td className="py-3 pr-4 text-muted-foreground">{c.fechaCreacion}</td>
-                <td className="py-3 pr-4">
+                <td className="py-3 pr-4 text-card-foreground whitespace-nowrap">{c.miracleCoins}</td>
+                <td className="py-3 pr-4 text-muted-foreground whitespace-nowrap">{c.fechaCreacion}</td>
+                <td className="py-3 pr-4 whitespace-nowrap">
                   <div className="flex gap-2">
                     <button
                       type="button"

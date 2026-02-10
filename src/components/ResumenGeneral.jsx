@@ -1,27 +1,34 @@
 import SectionCard from './SectionCard'
-import { Users, Megaphone, Package, Coins } from 'lucide-react'
+import { Users, Megaphone, Package, Coins, Film } from 'lucide-react'
 
 const KPI_CARDS = [
   {
     key: 'clientes',
-    label: 'Total clientes',
+    label: 'Clientes',
     value: '3',
     icon: Users,
     desc: 'Clientes registrados',
   },
   {
+    key: 'productos',
+    label: 'Productos',
+    value: '10',
+    icon: Package,
+    desc: 'Productos/servicios',
+  },
+  {
     key: 'campanas',
-    label: 'Campañas activas',
+    label: 'Campañas',
     value: '2',
     icon: Megaphone,
     desc: 'Campañas en curso',
   },
   {
-    key: 'productos',
-    label: 'Productos',
-    value: '5',
-    icon: Package,
-    desc: 'Productos/servicios',
+    key: 'piezas',
+    label: 'Piezas Audiovisuales',
+    value: '—',
+    icon: Film,
+    desc: 'Piezas audiovisuales',
   },
   {
     key: 'coins',
@@ -35,7 +42,7 @@ const KPI_CARDS = [
 export default function ResumenGeneral() {
   return (
     <SectionCard title="Vista general">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {KPI_CARDS.map(({ key, label, value, icon: Icon, desc }) => (
           <div
             key={key}

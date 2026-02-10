@@ -69,10 +69,6 @@ function ClienteDetalle({ cliente, onCerrar }) {
               <dd className="text-card-foreground">{cliente.estado}</dd>
             </div>
             <div>
-              <dt className="text-muted-foreground">Plan</dt>
-              <dd className="text-card-foreground">{cliente.plan}</dd>
-            </div>
-            <div>
               <dt className="text-muted-foreground">Miracle Coins</dt>
               <dd className="text-card-foreground">{cliente.miracleCoins}</dd>
             </div>

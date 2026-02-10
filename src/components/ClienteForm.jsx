@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 
-const PLANES = ['Basico', 'Pro', 'Enterprise']
 const ESTADOS = ['activo', 'pausado']
 
 function ClienteForm({ cliente, onGuardar, onCancelar }) {
@@ -13,7 +12,6 @@ function ClienteForm({ cliente, onGuardar, onCancelar }) {
     direccion: '',
     ciudadBarrio: '',
     estado: 'activo',
-    plan: 'Basico',
     miracleCoins: '0',
   })
 
@@ -27,7 +25,6 @@ function ClienteForm({ cliente, onGuardar, onCancelar }) {
         direccion: cliente.direccion ?? '',
         ciudadBarrio: cliente.ciudadBarrio ?? '',
         estado: cliente.estado ?? 'activo',
-        plan: cliente.plan ?? 'Basico',
         miracleCoins: String(cliente.miracleCoins ?? '0'),
       })
     } else {
@@ -39,7 +36,6 @@ function ClienteForm({ cliente, onGuardar, onCancelar }) {
         direccion: '',
         ciudadBarrio: '',
         estado: 'activo',
-        plan: 'Basico',
         miracleCoins: '0',
       })
     }
@@ -138,18 +134,6 @@ function ClienteForm({ cliente, onGuardar, onCancelar }) {
             >
               {ESTADOS.map((s) => (
                 <option key={s} value={s}>{s === 'activo' ? 'Activo' : 'Pausado'}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium text-muted-foreground">Plan contratado</label>
-            <select
-              value={form.plan}
-              onChange={(e) => setForm((f) => ({ ...f, plan: e.target.value }))}
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
-            >
-              {PLANES.map((p) => (
-                <option key={p} value={p}>{p}</option>
               ))}
             </select>
           </div>
