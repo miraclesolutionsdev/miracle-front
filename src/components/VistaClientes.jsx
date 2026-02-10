@@ -2,6 +2,13 @@ import { useState } from 'react'
 import ClientesList from './ClientesList'
 import ClienteForm from './ClienteForm'
 import ClienteDetalle from './ClienteDetalle'
+import {
+  exportToExcel,
+  readExcelFile,
+  CLIENTES_HEADERS,
+  clientesToRows,
+  rowsToClientes,
+} from '../utils/excel'
 
 const PREFIJO_PAIS = 'CO'
 
@@ -95,6 +102,37 @@ export default function VistaClientes() {
     cerrarForm()
   }
 
+  const handleExportExcel = () => {
+    const rows = clientesToRows(clientes)
+    exportToExcel(CLIENTES_HEADERS, rows, 'clientes')
+  }
+
+  const handleImportExcel = async (file) => {
+    try {
+      const rows = await readExcelFile(file)
+      const importados = rowsToClientes(rows)
+      setClientes((prev) => {
+        let lista = [...prev]
+        return [
+          ...prev,
+          ...importados.map((c) => {
+            const id = c.id && !lista.some((x) => x.id === c.id) ? c.id : generarId(lista)
+            const item = {
+              ...c,
+              id,
+              fechaCreacion: c.fechaCreacion || fechaHoy(),
+            }
+            lista = [...lista, item]
+            return item
+          }),
+        ]
+      })
+    } catch (err) {
+      console.error('Error al importar Excel:', err)
+      alert('No se pudo leer el archivo. Comprueba que sea un Excel (.xlsx) válido.')
+    }
+  }
+
   return (
     <div className="space-y-6">
       <ClientesList
@@ -102,6 +140,8 @@ export default function VistaClientes() {
         onCrear={handleCrear}
         onVer={handleVer}
         onEditar={handleEditar}
+        onExportExcel={handleExportExcel}
+        onImportExcel={handleImportExcel}
       />
 
       {formAbierto && (

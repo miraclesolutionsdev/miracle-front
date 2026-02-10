@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import SectionCard from './SectionCard'
 
 const COLUMNAS = [
@@ -13,10 +14,45 @@ const COLUMNAS = [
   'Acciones',
 ]
 
-function ClientesList({ clientes, onCrear, onVer, onEditar }) {
+function ClientesList({ clientes, onCrear, onVer, onEditar, onExportExcel, onImportExcel }) {
+  const inputFileRef = useRef(null)
+
+  const handleImportClick = () => inputFileRef.current?.click()
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0]
+    if (file && onImportExcel) onImportExcel(file)
+    e.target.value = ''
+  }
+
   return (
     <SectionCard title="Clientes">
-      <div className="mb-4 flex justify-end">
+      <div className="mb-4 flex flex-wrap items-center justify-end gap-2">
+        <input
+          ref={inputFileRef}
+          type="file"
+          accept=".xlsx,.xls"
+          onChange={handleFileChange}
+          className="hidden"
+          aria-hidden
+        />
+        {onExportExcel && (
+          <button
+            type="button"
+            onClick={onExportExcel}
+            className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50"
+          >
+            Exportar Excel
+          </button>
+        )}
+        {onImportExcel && (
+          <button
+            type="button"
+            onClick={handleImportClick}
+            className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50"
+          >
+            Importar Excel
+          </button>
+        )}
         <button
           type="button"
           onClick={onCrear}

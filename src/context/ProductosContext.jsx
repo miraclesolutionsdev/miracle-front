@@ -209,12 +209,25 @@ export function ProductosProvider({ children }) {
     )
   }
 
+  const importarProductos = (nuevos) => {
+    setProductos((prev) => {
+      let lista = [...prev]
+      const aAgregar = nuevos.map((p) => {
+        const id = p.id && !lista.some((x) => x.id === p.id) ? p.id : generarId(lista)
+        const item = { ...p, id }
+        lista = [...lista, item]
+        return item
+      })
+      return [...prev, ...aAgregar]
+    })
+  }
+
   const findProductoById = (id) =>
     productos.find((p) => String(p.id) === String(id)) || null
 
   return (
     <ProductosContext.Provider
-      value={{ productos, guardarProducto, toggleEstadoProducto, findProductoById }}
+      value={{ productos, guardarProducto, toggleEstadoProducto, importarProductos, findProductoById }}
     >
       {children}
     </ProductosContext.Provider>
