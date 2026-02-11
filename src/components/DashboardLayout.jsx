@@ -8,6 +8,9 @@ import VistaTienda from './VistaTienda'
 import VistaConfiguraRedes from './VistaConfiguraRedes'
 import VistaInformacionNegocio from './VistaInformacionNegocio'
 import VistaCampañas from './VistaCampañas'
+import VistaAudiovisual from './VistaAudiovisual'
+import MetricsAds from './MetricsAds'
+import VistaVentas from './VistaVentas'
 
 function DashboardLayout() {
   const [seleccionado, setSeleccionado] = useState('Dashboard')
@@ -19,6 +22,9 @@ function DashboardLayout() {
     if (seleccionado === 'Tienda') return <VistaTienda />
     if (seleccionado === 'Configura tus redes') return <VistaConfiguraRedes />
     if (seleccionado === 'Información del negocio') return <VistaInformacionNegocio />
+    if (seleccionado === 'Audiovisual') return <VistaAudiovisual />
+    if (seleccionado === 'Métricas Ads') return <MetricsAds />
+    if (seleccionado === 'Ventas') return <VistaVentas />
     if (seleccionado === 'Campañas') return <VistaCampañas />
     return (
       <p className="text-sm text-muted-foreground sm:text-base">
