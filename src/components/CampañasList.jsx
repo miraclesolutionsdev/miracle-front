@@ -2,15 +2,23 @@ import SectionCard from './SectionCard'
 
 const COLUMNAS = [
   'ID',
-  'Cliente',
   'Producto',
+  'Pieza (Creativo)',
   'Plataforma',
   'Miracle Coins',
   'Estado',
   'Acciones',
 ]
 
-function CampañasList({ campañas, onCrear, onVer, onEditar, onActivarPausar, onFinalizar }) {
+function CampañasList({
+  campañas,
+  onCrear,
+  onVer,
+  onEditar,
+  onLanzar,
+  onActivarPausar,
+  onFinalizar,
+}) {
   return (
     <SectionCard title="Campañas">
       <div className="mb-4 flex justify-end">
@@ -37,8 +45,8 @@ function CampañasList({ campañas, onCrear, onVer, onEditar, onActivarPausar, o
             {campañas.map((c) => (
               <tr key={c.id} className="border-b border-border">
                 <td className="py-3 pr-4 text-card-foreground">{c.id}</td>
-                <td className="py-3 pr-4 text-card-foreground">{c.cliente}</td>
                 <td className="py-3 pr-4 text-card-foreground">{c.producto}</td>
+                <td className="py-3 pr-4 text-card-foreground">{c.piezaCreativo ?? '—'}</td>
                 <td className="py-3 pr-4 text-muted-foreground">{c.plataforma}</td>
                 <td className="py-3 pr-4 text-card-foreground">{c.miracleCoins}</td>
                 <td className="py-3 pr-4">
@@ -58,6 +66,15 @@ function CampañasList({ campañas, onCrear, onVer, onEditar, onActivarPausar, o
                 </td>
                 <td className="py-3 pr-4">
                   <div className="flex flex-wrap gap-2">
+                    {onLanzar && (
+                      <button
+                        type="button"
+                        onClick={() => onLanzar(c)}
+                        className="text-primary hover:underline"
+                      >
+                        Lanzar
+                      </button>
+                    )}
                     <button
                       type="button"
                       onClick={() => onVer(c)}

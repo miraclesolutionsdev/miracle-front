@@ -23,7 +23,7 @@ function CampañaDetalle({ campaña, onCerrar, onImportarPiezas, onAsociarMateri
           <div className="flex justify-between items-start">
             <div>
               <h2 className="text-lg font-semibold text-card-foreground">{campaña.id} · {campaña.producto}</h2>
-              <p className="text-sm text-muted-foreground">{campaña.plataforma} · {campaña.cliente}</p>
+              <p className="text-sm text-muted-foreground">{campaña.plataforma}{campaña.piezaCreativo ? ` · ${campaña.piezaCreativo}` : ''}</p>
             </div>
             <button
               type="button"

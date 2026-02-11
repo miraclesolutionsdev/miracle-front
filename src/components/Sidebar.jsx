@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard,
   Users,
@@ -33,6 +34,7 @@ const NAV_ITEMS = [
 ]
 
 function Sidebar({ seleccionado, onSeleccionar }) {
+  const navigate = useNavigate()
   const [configuraAbierto, setConfiguraAbierto] = useState(false)
   const isConfiguraActive = CONFIGURA_SUB.some((s) => s.label === seleccionado)
 
@@ -89,11 +91,12 @@ function Sidebar({ seleccionado, onSeleccionar }) {
             )
           }
           const isActive = seleccionado === item.label
+          const isTienda = item.label === 'Tienda'
           return (
             <button
               key={item.label}
               type="button"
-              onClick={() => onSeleccionar(item.label)}
+              onClick={() => (isTienda ? navigate('/tienda') : onSeleccionar(item.label))}
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium ${
                 isActive
                   ? 'bg-sidebar-accent text-sidebar-accent-foreground'

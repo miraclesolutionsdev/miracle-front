@@ -3,11 +3,11 @@ import { useState, useEffect } from 'react'
 const PLATAFORMAS = ['Google Ads', 'Facebook Ads', 'Instagram Ads']
 const ESTADOS = ['borrador', 'activa', 'pausada', 'finalizada']
 
-function CampañaForm({ campaña, clientes = [], productos = [], onGuardar, onCancelar }) {
+function CampañaForm({ campaña, productos = [], piezas = [], onGuardar, onCancelar }) {
   const esEdicion = !!campaña
   const [form, setForm] = useState({
-    cliente: '',
     producto: '',
+    piezaCreativo: '',
     plataforma: 'Google Ads',
     miracleCoins: '',
     estado: 'borrador',
@@ -15,27 +15,39 @@ function CampañaForm({ campaña, clientes = [], productos = [], onGuardar, onCa
 
   useEffect(() => {
     if (campaña) {
+      const productMatch = productos.find((p) => p.nombre === campaña.producto)
+      const piezaMatch = piezas.find(
+        (p) => (p.nombre && p.nombre === campaña.piezaCreativo) || (p.id && p.id === campaña.piezaCreativo)
+      )
       setForm({
-        cliente: campaña.cliente,
-        producto: campaña.producto,
-        plataforma: campaña.plataforma,
-        miracleCoins: campaña.miracleCoins,
-        estado: campaña.estado,
+        producto: productMatch?.id ?? campaña.producto ?? '',
+        piezaCreativo: piezaMatch?.id ?? piezaMatch?.nombre ?? campaña.piezaCreativo ?? '',
+        plataforma: campaña.plataforma ?? 'Google Ads',
+        miracleCoins: campaña.miracleCoins ?? '',
+        estado: campaña.estado ?? 'borrador',
       })
     } else {
       setForm({
-        cliente: clientes[0]?.nombreEmpresa ?? '',
-        producto: productos[0] ?? '',
+        producto: productos[0]?.id ?? '',
+        piezaCreativo: piezas[0]?.id ?? piezas[0]?.nombre ?? '',
         plataforma: 'Google Ads',
         miracleCoins: '',
         estado: 'borrador',
       })
     }
-  }, [campaña, clientes, productos])
+  }, [campaña, productos, piezas])
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    const payload = { ...form }
+    const productoSeleccionado = productos.find((p) => p.id === form.producto)
+    const piezaSeleccionada = piezas.find(
+      (p) => (p.id && p.id === form.piezaCreativo) || (p.nombre && p.nombre === form.piezaCreativo)
+    )
+    const payload = {
+      ...form,
+      producto: productoSeleccionado?.nombre ?? form.producto,
+      piezaCreativo: piezaSeleccionada?.nombre ?? piezaSeleccionada?.id ?? form.piezaCreativo,
+    }
     if (esEdicion) payload.id = campaña.id
     onGuardar(payload)
   }
@@ -48,44 +60,61 @@ function CampañaForm({ campaña, clientes = [], productos = [], onGuardar, onCa
         </h2>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-muted-foreground">Cliente</label>
+            <label className="mb-1 block text-sm font-medium text-muted-foreground">
+              Producto
+            </label>
             <select
-              value={form.cliente}
-              onChange={(e) => setForm((f) => ({ ...f, cliente: e.target.value }))}
+              value={form.producto}
+              onChange={(e) => setForm((f) => ({ ...f, producto: e.target.value }))}
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
               required
             >
-              <option value="">Seleccionar...</option>
-              {clientes.map((c) => (
-                <option key={c.id} value={c.nombreEmpresa}>{c.nombreEmpresa}</option>
+              <option value="">Seleccionar producto...</option>
+              {productos.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.nombre}
+                </option>
               ))}
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-muted-foreground">Producto/Servicio</label>
-            <input
-              type="text"
-              value={form.producto}
-              onChange={(e) => setForm((f) => ({ ...f, producto: e.target.value }))}
+            <label className="mb-1 block text-sm font-medium text-muted-foreground">
+              Pieza Publicidad (Creativo)
+            </label>
+            <select
+              value={form.piezaCreativo}
+              onChange={(e) => setForm((f) => ({ ...f, piezaCreativo: e.target.value }))}
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
-              placeholder="Ej. Pack Social Media"
               required
-            />
+            >
+              <option value="">Seleccionar pieza...</option>
+              {piezas.map((p) => (
+                <option key={p.id || p.nombre} value={p.id || p.nombre}>
+                  {p.nombre ?? p.id}
+                </option>
+              ))}
+            </select>
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-muted-foreground">Plataforma/Social Media</label>
+            <label className="mb-1 block text-sm font-medium text-muted-foreground">
+              Plataforma / Social Media
+            </label>
             <select
               value={form.plataforma}
               onChange={(e) => setForm((f) => ({ ...f, plataforma: e.target.value }))}
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
             >
               {PLATAFORMAS.map((p) => (
-                <option key={p} value={p}>{p}</option>
+                <option key={p} value={p}>
+                  {p}
+                </option>
               ))}
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-muted-foreground">Miracle Coins Asignadas</label>
+            <label className="mb-1 block text-sm font-medium text-muted-foreground">
+              Miracle Coins Asignadas
+            </label>
             <input
               type="text"
               value={form.miracleCoins}
@@ -95,14 +124,18 @@ function CampañaForm({ campaña, clientes = [], productos = [], onGuardar, onCa
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-muted-foreground">Estado</label>
+            <label className="mb-1 block text-sm font-medium text-muted-foreground">
+              Estado
+            </label>
             <select
               value={form.estado}
               onChange={(e) => setForm((f) => ({ ...f, estado: e.target.value }))}
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
             >
               {ESTADOS.map((s) => (
-                <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
+                <option key={s} value={s}>
+                  {s.charAt(0).toUpperCase() + s.slice(1)}
+                </option>
               ))}
             </select>
           </div>

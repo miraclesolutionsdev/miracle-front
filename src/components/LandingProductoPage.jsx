@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { useProductos } from '../context/ProductosContext.jsx'
 
 // Cambia este número por el tuyo en formato internacional, sin "+"
@@ -131,6 +131,13 @@ function LandingProductoPage() {
                 </div>
               )}
             </div>
+
+            <Link
+              to="/tienda"
+              className="inline-flex w-full items-center justify-center rounded-xl border-2 border-primary bg-primary/10 px-5 py-3 text-sm font-semibold text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+            >
+              Ver Tienda
+            </Link>
 
             {/* Bloque WhatsApp: cuadro con logo → al clic muestra formulario */}
             <div className="rounded-2xl bg-card p-6 shadow-xl ring-1 ring-black/5">
