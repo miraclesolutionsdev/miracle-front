@@ -115,6 +115,45 @@ function VistaInformacionNegocio() {
           </ol>
         </div>
 
+        {/* Ubicación de tu audiencia */}
+        <div className="mb-6 rounded-xl border border-border bg-card/40 p-5">
+          <h3 className="text-sm font-semibold text-card-foreground">
+            Ubicación de tu audiencia
+          </h3>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Importante: Seleccione dónde desea mostrar sus anuncios. Esta ubicación se utilizará para
+            generar un mayor interés en su informe.
+          </p>
+
+          {/* Aviso informativo */}
+          <div className="mt-4 rounded-lg border border-border bg-muted/60 p-4 text-xs text-muted-foreground">
+            <p className="font-semibold text-card-foreground">
+              ¿Por qué seleccionar la ubicación ahora?
+            </p>
+            <p className="mt-1">
+              La IA utilizará su ubicación para generar intereses de segmentación más relevantes (por
+              ejemplo, si selecciona &quot;Cali&quot;, la IA buscará intereses específicos en el
+              mercado colombiano).
+            </p>
+          </div>
+
+          {/* Buscar ubicación */}
+          <div className="mt-4 space-y-1">
+            <label className="block text-xs font-medium text-muted-foreground">
+              Buscar ubicación
+            </label>
+            <select
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-card-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            >
+              <option value="">Busca ciudad o país</option>
+              <option value="cali">Cali, Colombia</option>
+              <option value="bogota">Bogotá, Colombia</option>
+              <option value="medellin">Medellín, Colombia</option>
+              <option value="mexico-city">Ciudad de México, México</option>
+            </select>
+          </div>
+        </div>
+
         {/* Un solo modo: Texto | Grabar audio | Subir audio */}
         <div className="flex flex-wrap gap-2">
           {MODOS.map(({ id, label, icon: Icon }) => (
