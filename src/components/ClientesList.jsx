@@ -30,7 +30,7 @@ function ClientesList({ clientes, onCrear, onVer, onEditar, onExportExcel, onImp
         <input
           ref={inputFileRef}
           type="file"
-          accept=".xlsx,.xls"
+          accept=".xlsx,.xls,.csv"
           onChange={handleFileChange}
           className="hidden"
           aria-hidden

@@ -17,17 +17,24 @@ export function exportToExcel(headers, rows, fileName = 'export') {
 }
 
 /**
- * Lee un archivo Excel y devuelve la primera hoja como array de filas (incluye cabecera)
- * @param {File} file - Archivo .xlsx o .xls
+ * Lee un archivo y devuelve la primera hoja como array de filas (incluye cabecera)
+ * Soporta: .xlsx, .xls y .csv
+ * @param {File} file - Archivo .xlsx, .xls o .csv
  * @returns {Promise<any[][]>} [headers, ...rows]
  */
 export function readExcelFile(file) {
+  const isCsv =
+    file.name.toLowerCase().endsWith('.csv') || file.type === 'text/csv'
+
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
+
     reader.onload = (e) => {
       try {
         const data = e.target?.result
-        const workbook = XLSX.read(data, { type: 'binary' })
+        const workbook = XLSX.read(data, {
+          type: isCsv ? 'string' : 'binary',
+        })
         const firstSheet = workbook.Sheets[workbook.SheetNames[0]]
         const aoa = XLSX.utils.sheet_to_json(firstSheet, {
           header: 1,
@@ -39,8 +46,14 @@ export function readExcelFile(file) {
         reject(err)
       }
     }
+
     reader.onerror = () => reject(reader.error)
-    reader.readAsBinaryString(file)
+
+    if (isCsv) {
+      reader.readAsText(file, 'utf-8')
+    } else {
+      reader.readAsBinaryString(file)
+    }
   })
 }
 

@@ -36,7 +36,7 @@ function ProductosList({
         <input
           ref={inputFileRef}
           type="file"
-          accept=".xlsx,.xls"
+          accept=".xlsx,.xls,.csv"
           onChange={handleFileChange}
           className="hidden"
           aria-hidden
