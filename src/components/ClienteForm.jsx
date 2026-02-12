@@ -9,8 +9,6 @@ function ClienteForm({ cliente, onGuardar, onCancelar }) {
     whatsapp: '',
     direccion: '',
     ciudadBarrio: '',
-    estado: 'activo',
-    miracleCoins: '0',
   })
 
   useEffect(() => {
@@ -22,8 +20,6 @@ function ClienteForm({ cliente, onGuardar, onCancelar }) {
         whatsapp: cliente.whatsapp ?? '',
         direccion: cliente.direccion ?? '',
         ciudadBarrio: cliente.ciudadBarrio ?? '',
-        estado: cliente.estado ?? 'activo',
-        miracleCoins: String(cliente.miracleCoins ?? '0'),
       })
     } else {
       setForm({
@@ -33,18 +29,13 @@ function ClienteForm({ cliente, onGuardar, onCancelar }) {
         whatsapp: '',
         direccion: '',
         ciudadBarrio: '',
-        estado: 'activo',
-        miracleCoins: '0',
       })
     }
   }, [cliente])
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    const payload = {
-      ...form,
-      miracleCoins: form.miracleCoins.replace(/\D/g, '') || '0',
-    }
+    const payload = { ...form }
     if (esEdicion) payload.id = cliente.id
     onGuardar(payload)
   }
@@ -78,6 +69,7 @@ function ClienteForm({ cliente, onGuardar, onCancelar }) {
               onChange={(e) => setForm((f) => ({ ...f, cedulaNit: e.target.value }))}
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
               placeholder="Ej. 900.123.456-1"
+              required
             />
           </div>
           <div>
@@ -99,6 +91,7 @@ function ClienteForm({ cliente, onGuardar, onCancelar }) {
               value={form.whatsapp}
               onChange={(e) => setForm((f) => ({ ...f, whatsapp: e.target.value }))}
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
+              required
             />
           </div>
           <div>
@@ -109,6 +102,7 @@ function ClienteForm({ cliente, onGuardar, onCancelar }) {
               onChange={(e) => setForm((f) => ({ ...f, direccion: e.target.value }))}
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
               placeholder="Ej. Calle 50 # 10-20"
+              required
             />
           </div>
           <div>
@@ -121,6 +115,7 @@ function ClienteForm({ cliente, onGuardar, onCancelar }) {
               onChange={(e) => setForm((f) => ({ ...f, ciudadBarrio: e.target.value }))}
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
               placeholder="Ej. Bogotá - Chapinero"
+              required
             />
           </div>
           <div className="flex justify-end gap-2 pt-2">

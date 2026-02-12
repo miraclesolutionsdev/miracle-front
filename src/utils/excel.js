@@ -98,7 +98,7 @@ const CLIENTES_CABECERA_A_CAMPO = {
   'cedula y nit': 'cedulaNit',
   email: 'email',
   correo: 'email',
-  e mail: 'email',
+  'e mail': 'email',
   whatsapp: 'whatsapp',
   telefono: 'whatsapp',
   celular: 'whatsapp',
@@ -112,10 +112,6 @@ const CLIENTES_CABECERA_A_CAMPO = {
   'ciudad/barrio': 'ciudadBarrio',
   'ciudad con barrio': 'ciudadBarrio',
   'ciudad y barrio': 'ciudadBarrio',
-  estado: 'estado',
-  'miracle coins': 'miracleCoins',
-  plan: 'plan',
-  'fecha creacion': 'fechaCreacion',
 }
 
 /** Dado un array de cabeceras (primera fila), devuelve { nombreCampo: índiceColumna } */
@@ -167,33 +163,53 @@ export function validarCabecerasClientes(rows) {
   }
 }
 
+/**
+ * Valida que cada fila de datos tenga todos los campos obligatorios llenos.
+ * @param {any[][]} rows - Filas del Excel (primera = cabecera)
+ * @returns {{ valido: boolean, filasConError: { numeroFila: number, camposFaltantes: string[] }[] }}
+ */
+export function validarFilasClientes(rows) {
+  if (!rows?.length || rows.length < 2) {
+    return { valido: true, filasConError: [] }
+  }
+  const importados = rowsToClientes(rows)
+  const filasConError = []
+  for (let i = 0; i < importados.length; i++) {
+    const c = importados[i]
+    const faltantes = []
+    if (!(c.nombreEmpresa || '').trim()) faltantes.push(CLIENTES_NOMBRES_OBLIGATORIOS.nombreEmpresa)
+    if (!(c.cedulaNit ?? '').toString().trim()) faltantes.push(CLIENTES_NOMBRES_OBLIGATORIOS.cedulaNit)
+    if (!(c.email || '').trim()) faltantes.push(CLIENTES_NOMBRES_OBLIGATORIOS.email)
+    if (!(c.whatsapp ?? '').toString().trim()) faltantes.push(CLIENTES_NOMBRES_OBLIGATORIOS.whatsapp)
+    if (!(c.direccion ?? '').toString().trim()) faltantes.push(CLIENTES_NOMBRES_OBLIGATORIOS.direccion)
+    if (!(c.ciudadBarrio ?? '').toString().trim()) faltantes.push(CLIENTES_NOMBRES_OBLIGATORIOS.ciudadBarrio)
+    if (faltantes.length) {
+      filasConError.push({ numeroFila: i + 2, camposFaltantes: faltantes })
+    }
+  }
+  return {
+    valido: filasConError.length === 0,
+    filasConError,
+  }
+}
+
 export const CLIENTES_HEADERS = [
-  'ID',
-  'Nombre Empresa',
-  'Cédula/NIT',
+  'Nombre / Empresa',
+  'Cédula / NIT',
   'Email',
   'WhatsApp',
   'Dirección',
-  'Ciudad/Barrio',
-  'Estado',
-  'Plan',
-  'Miracle Coins',
-  'Fecha creación',
+  'Ciudad / Barrio',
 ]
 
 export function clientesToRows(clientes) {
   return clientes.map((c) => [
-    c.id ?? '',
     c.nombreEmpresa ?? '',
     c.cedulaNit ?? '',
     c.email ?? '',
     c.whatsapp ?? '',
     c.direccion ?? '',
     c.ciudadBarrio ?? '',
-    c.estado ?? '',
-    c.plan ?? '',
-    c.miracleCoins ?? '',
-    c.fechaCreacion ?? '',
   ])
 }
 
@@ -219,20 +235,13 @@ export function rowsToClientes(rows) {
       const cedulaNit = get(row, 'cedulaNit')
       const direccion = get(row, 'direccion')
       const ciudadBarrio = get(row, 'ciudadBarrio')
-      const estadoRaw = get(row, 'estado')
-      const miracleCoinsRaw = get(row, 'miracleCoins')
-
       return {
-        id: '', // Al importar no usamos ID del Excel; el backend lo genera al crear
         nombreEmpresa: nombreEmpresa || '',
         cedulaNit: cedulaNit || '',
         email: email || '',
         whatsapp: whatsapp || '',
         direccion: direccion || '',
         ciudadBarrio: ciudadBarrio || '',
-        estado: estadoRaw === 'pausado' || estadoRaw === 'inactivo' ? estadoRaw : 'activo',
-        miracleCoins: miracleCoinsRaw.replace(/\D/g, '') || '0',
-        fechaCreacion: get(row, 'fechaCreacion') || '',
       }
     })
 }

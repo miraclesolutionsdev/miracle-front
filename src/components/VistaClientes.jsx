@@ -10,12 +10,12 @@ import {
   clientesToRows,
   rowsToClientes,
   validarCabecerasClientes,
+  validarFilasClientes,
 } from '../utils/excel'
 
 function formatClienteFromApi(c) {
   return {
     ...c,
-    miracleCoins: c.miracleCoins ?? 0,
     fechaCreacion: c.fechaCreacion
       ? new Date(c.fechaCreacion).toLocaleDateString('es-CO', {
           day: '2-digit',
@@ -58,14 +58,12 @@ export default function VistaClientes() {
 
   const handleGuardarCliente = async (payload) => {
     const body = {
-      nombreEmpresa: payload.nombreEmpresa,
-      cedulaNit: payload.cedulaNit ?? '',
-      email: payload.email,
-      whatsapp: payload.whatsapp ?? '',
-      direccion: payload.direccion ?? '',
-      ciudadBarrio: payload.ciudadBarrio ?? '',
-      estado: payload.estado ?? 'activo',
-      miracleCoins: Number(String(payload.miracleCoins).replace(/\D/g, '')) || 0,
+      nombreEmpresa: (payload.nombreEmpresa || '').trim(),
+      cedulaNit: (payload.cedulaNit ?? '').trim(),
+      email: (payload.email || '').trim(),
+      whatsapp: (payload.whatsapp ?? '').trim(),
+      direccion: (payload.direccion ?? '').trim(),
+      ciudadBarrio: (payload.ciudadBarrio ?? '').trim(),
     }
     try {
       if (payload.id) {
@@ -98,24 +96,28 @@ export default function VistaClientes() {
         )
         return
       }
+      const validacionFilas = validarFilasClientes(rows)
+      if (!validacionFilas.valido) {
+        const msg = validacionFilas.filasConError
+          .map((e) => `Fila ${e.numeroFila}: faltan ${e.camposFaltantes.join(', ')}`)
+          .join('\n')
+        alert('No se puede importar: hay filas con datos incompletos. Todos los campos son obligatorios.\n\n' + msg)
+        return
+      }
       const importados = rowsToClientes(rows)
       if (importados.length === 0) {
         alert('No hay filas de datos para importar. Revisa que haya datos debajo de la cabecera en el Excel.')
         return
       }
       let importadosOk = 0
-      for (let i = 0; i < importados.length; i++) {
-        const c = importados[i]
-        const emailValido = (c.email || '').trim()
+      for (const c of importados) {
         const body = {
-          nombreEmpresa: (c.nombreEmpresa || '').trim() || 'Sin nombre',
-          cedulaNit: c.cedulaNit ?? '',
-          email: emailValido || `importado-${Date.now()}-${i}@sin-email.local`,
-          whatsapp: c.whatsapp ?? '',
-          direccion: c.direccion ?? '',
-          ciudadBarrio: c.ciudadBarrio ?? '',
-          estado: c.estado === 'pausado' || c.estado === 'inactivo' ? c.estado : 'activo',
-          miracleCoins: Number(String(c.miracleCoins || '0').replace(/\D/g, '')) || 0,
+          nombreEmpresa: (c.nombreEmpresa || '').trim(),
+          cedulaNit: (c.cedulaNit ?? '').trim(),
+          email: (c.email || '').trim(),
+          whatsapp: (c.whatsapp ?? '').trim(),
+          direccion: (c.direccion ?? '').trim(),
+          ciudadBarrio: (c.ciudadBarrio ?? '').trim(),
         }
         try {
           await clientesApi.crear(body)

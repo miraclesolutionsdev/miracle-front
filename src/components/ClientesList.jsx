@@ -7,6 +7,7 @@ const COLUMNAS = [
   'Cédula / NIT',
   'Email',
   'WhatsApp',
+  'Dirección',
   'Ciudad / Barrio',
   'Fecha creación',
   'Acciones',
@@ -78,6 +79,7 @@ function ClientesList({ clientes, onCrear, onVer, onEditar, onExportExcel, onImp
                 <td className="py-3 pr-4 text-muted-foreground whitespace-nowrap">{c.cedulaNit || '—'}</td>
                 <td className="py-3 pr-4 text-muted-foreground whitespace-nowrap">{c.email}</td>
                 <td className="py-3 pr-4 text-muted-foreground whitespace-nowrap">{c.whatsapp}</td>
+                <td className="py-3 pr-4 text-muted-foreground whitespace-nowrap">{c.direccion || '—'}</td>
                 <td className="py-3 pr-4 text-muted-foreground whitespace-nowrap">{c.ciudadBarrio || '—'}</td>
                 <td className="py-3 pr-4 text-muted-foreground whitespace-nowrap">{c.fechaCreacion}</td>
                 <td className="py-3 pr-4 whitespace-nowrap">

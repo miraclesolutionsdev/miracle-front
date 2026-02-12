@@ -24,8 +24,6 @@ export const clientesApi = {
     request('clientes', { method: 'POST', body: JSON.stringify(body) }),
   actualizar: (id, body) =>
     request(`clientes/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
-  inactivar: (id) =>
-    request(`clientes/${id}/inactivar`, { method: 'PATCH' }),
 }
 
 export const productosApi = {
