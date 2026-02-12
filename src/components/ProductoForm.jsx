@@ -115,6 +115,34 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
           </div>
           <div>
             <label className="mb-1 block text-sm font-medium text-muted-foreground">
+              Usos del producto/servicio
+            </label>
+            <textarea
+              value={form.usosTexto}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, usosTexto: e.target.value }))
+              }
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-card-foreground"
+              rows={3}
+              placeholder="Escribe un uso por línea..."
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-muted-foreground">
+              Características principales
+            </label>
+            <textarea
+              value={form.caracteristicasTexto}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, caracteristicasTexto: e.target.value }))
+              }
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-card-foreground"
+              rows={3}
+              placeholder="Escribe una característica por línea..."
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-muted-foreground">
               Precio
             </label>
             <input
@@ -199,34 +227,6 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
                 ))}
               </div>
             )}
-          </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium text-muted-foreground">
-              Usos del producto/servicio
-            </label>
-            <textarea
-              value={form.usosTexto}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, usosTexto: e.target.value }))
-              }
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-card-foreground"
-              rows={3}
-              placeholder="Escribe un uso por línea..."
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium text-muted-foreground">
-              Características principales
-            </label>
-            <textarea
-              value={form.caracteristicasTexto}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, caracteristicasTexto: e.target.value }))
-              }
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-card-foreground"
-              rows={3}
-              placeholder="Escribe una característica por línea..."
-            />
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <button
