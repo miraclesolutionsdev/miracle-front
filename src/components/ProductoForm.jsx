@@ -146,7 +146,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
           </div>
           <div>
             <label className="mb-1 block text-sm font-medium text-muted-foreground">
-              Precio
+              Precio (COP)
             </label>
             <input
               type="text"
@@ -155,7 +155,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
                 setForm((f) => ({ ...f, precio: e.target.value }))
               }
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
-              placeholder="Ej. $1,200"
+              placeholder="Ej. $50.000 o 50000"
             />
           </div>
           <div>

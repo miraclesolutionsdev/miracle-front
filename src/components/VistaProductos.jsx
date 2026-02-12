@@ -8,6 +8,8 @@ import {
   PRODUCTOS_HEADERS,
   productosToRows,
   rowsToProductos,
+  validarCabecerasProductos,
+  validarFilasProductos,
 } from '../utils/excel.js'
 
 export default function VistaProductos() {
@@ -35,8 +37,30 @@ export default function VistaProductos() {
   const handleImportExcel = async (file) => {
     try {
       const rows = await readExcelFile(file)
+      const validacionCabeceras = validarCabecerasProductos(rows)
+      if (!validacionCabeceras.valido) {
+        alert(
+          'No se puede importar: faltan columnas obligatorias. Faltan: ' +
+            validacionCabeceras.faltantes.join(', ') +
+            '. Revisa que la primera fila tenga esas cabeceras (Nombre, Precio en COP, Tipo, Stock, Estado).'
+        )
+        return
+      }
+      const validacionFilas = validarFilasProductos(rows)
+      if (!validacionFilas.valido) {
+        const msg = validacionFilas.filasConError
+          .map((e) => `Fila ${e.numeroFila}: faltan ${e.camposFaltantes.join(', ')}`)
+          .join('\n')
+        alert('No se puede importar: hay filas con datos incompletos. Todos los campos obligatorios deben estar llenos.\n\n' + msg)
+        return
+      }
       const importados = rowsToProductos(rows)
-      if (importados.length) importarProductos(importados)
+      if (importados.length === 0) {
+        alert('No hay filas de datos para importar. Revisa que haya datos debajo de la cabecera en el Excel.')
+        return
+      }
+      await importarProductos(importados)
+      alert(`Se importaron ${importados.length} productos.`)
     } catch (err) {
       console.error('Error al importar Excel:', err)
       alert('No se pudo leer el archivo. Comprueba que sea un Excel (.xlsx) válido.')

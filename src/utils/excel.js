@@ -248,12 +248,110 @@ export function rowsToClientes(rows) {
     })
 }
 
-// --- Productos: cabeceras y mapeo (arrays con SEP)
+// --- Productos: mapeo por cabecera (como clientes)
+/** Mapeo: cabecera normalizada -> nombre del campo en nuestro modelo */
+const PRODUCTOS_CABECERA_A_CAMPO = {
+  id: 'id',
+  nombre: 'nombre',
+  'nombre del producto': 'nombre',
+  'nombre del servicio': 'nombre',
+  'nombre producto': 'nombre',
+  'nombre servicio': 'nombre',
+  producto: 'nombre',
+  servicio: 'nombre',
+  descripcion: 'descripcion',
+  uso: 'usos',
+  usos: 'usos',
+  caracteristicas: 'caracteristicas',
+  precio: 'precio',
+  'precio cop': 'precio',
+  'precio (cop)': 'precio',
+  stock: 'stock',
+  tipo: 'tipo',
+  'tipo de servicio': 'tipo',
+  'tipo servicio': 'tipo',
+  'tipo de producto': 'tipo',
+  estado: 'estado',
+  imagen: 'imagenes',
+  imagenes: 'imagenes',
+  'url imagen': 'imagenes',
+  'url de imagen': 'imagenes',
+  imagen-url: 'imagenes',
+}
+
+function indicesPorCabeceraProductos(headerRow) {
+  const indices = {}
+  for (let i = 0; i < (headerRow?.length ?? 0); i++) {
+    const norm = normalizarCabecera(headerRow[i])
+    const campo = PRODUCTOS_CABECERA_A_CAMPO[norm]
+    if (campo != null) indices[campo] = i
+  }
+  return indices
+}
+
+/** Campos obligatorios para importar productos */
+const PRODUCTOS_CAMPOS_OBLIGATORIOS = ['nombre', 'precio', 'tipo', 'stock', 'estado']
+const PRODUCTOS_NOMBRES_OBLIGATORIOS = {
+  nombre: 'Nombre',
+  precio: 'Precio (COP)',
+  tipo: 'Tipo',
+  stock: 'Stock',
+  estado: 'Estado',
+}
+
+export function validarCabecerasProductos(rows) {
+  if (!rows?.length) {
+    return { valido: false, faltantes: ['El archivo está vacío o no tiene cabecera.'] }
+  }
+  const headerRow = rows[0]
+  const header = Array.isArray(headerRow) ? headerRow : [headerRow]
+  const indices = indicesPorCabeceraProductos(header)
+  const faltantes = PRODUCTOS_CAMPOS_OBLIGATORIOS.filter((campo) => indices[campo] == null)
+  const nombresFaltantes = faltantes.map((c) => PRODUCTOS_NOMBRES_OBLIGATORIOS[c] || c)
+  return {
+    valido: faltantes.length === 0,
+    faltantes: nombresFaltantes,
+  }
+}
+
+function parseLista(val, separador = SEP) {
+  if (val == null || String(val).trim() === '') return []
+  return String(val)
+    .split(separador)
+    .map((s) => s.trim())
+    .filter(Boolean)
+}
+
+export function validarFilasProductos(rows) {
+  if (!rows?.length || rows.length < 2) {
+    return { valido: true, filasConError: [] }
+  }
+  const importados = rowsToProductos(rows)
+  const filasConError = []
+  for (let i = 0; i < importados.length; i++) {
+    const p = importados[i]
+    const faltantes = []
+    if (!(p.nombre || '').trim()) faltantes.push(PRODUCTOS_NOMBRES_OBLIGATORIOS.nombre)
+    if ((p.precio ?? '') === '' && p.precio !== 0) faltantes.push(PRODUCTOS_NOMBRES_OBLIGATORIOS.precio)
+    if (!(p.tipo ?? '').toString().trim()) faltantes.push(PRODUCTOS_NOMBRES_OBLIGATORIOS.tipo)
+    const stockVal = (p.stock ?? '').toString().trim()
+    if (stockVal === '') faltantes.push(PRODUCTOS_NOMBRES_OBLIGATORIOS.stock)
+    if (!(p.estado ?? '').toString().trim()) faltantes.push(PRODUCTOS_NOMBRES_OBLIGATORIOS.estado)
+    if (faltantes.length) {
+      filasConError.push({ numeroFila: i + 2, camposFaltantes: faltantes })
+    }
+  }
+  return {
+    valido: filasConError.length === 0,
+    filasConError,
+  }
+}
+
 export const PRODUCTOS_HEADERS = [
   'ID',
   'Nombre',
   'Descripción',
-  'Precio',
+  'Precio (COP)',
   'Tipo',
   'Estado',
   'Stock',
@@ -279,24 +377,46 @@ export function productosToRows(productos) {
 
 export function rowsToProductos(rows) {
   if (!rows.length) return []
-  const [, ...dataRows] = rows
+  const [headerRow, ...dataRows] = rows
+  const header = Array.isArray(headerRow) ? headerRow : [headerRow]
+  const indices = indicesPorCabeceraProductos(header)
+
+  const get = (row, campo) => {
+    const i = indices[campo]
+    if (i == null) return ''
+    const val = row[i]
+    return val != null ? String(val).trim() : ''
+  }
+
   return dataRows
-    .filter((row) => row && row[1] != null && String(row[1]).trim() !== '')
+    .filter((row) => row && row.some((cell) => cell != null && String(cell).trim() !== ''))
     .map((row) => {
-      const imagenes = String(row[7] ?? '').trim()
-      const usos = String(row[8] ?? '').trim()
-      const caracteristicas = String(row[9] ?? '').trim()
+      const nombre = get(row, 'nombre')
+      const descripcion = get(row, 'descripcion')
+      const precioRaw = get(row, 'precio')
+      const tipoRaw = get(row, 'tipo')
+      const estadoRaw = get(row, 'estado')
+      const stockRaw = get(row, 'stock')
+      const usosRaw = get(row, 'usos')
+      const caracteristicasRaw = get(row, 'caracteristicas')
+      const imagenesRaw = get(row, 'imagenes')
+
+      const precioNum = parseFloat(String(precioRaw).replace(/[^0-9.]/g, '')) || 0
+      const stockNum = parseInt(String(stockRaw).replace(/\D/g, ''), 10) || 0
+      const tipo = (tipoRaw || 'servicio').toLowerCase().trim()
+      const tipoFinal = tipo === 'producto' ? 'producto' : 'servicio'
+      const estadoFinal = (estadoRaw || 'activo').toLowerCase().trim() === 'inactivo' ? 'inactivo' : 'activo'
+
       return {
-        id: row[0] ? String(row[0]).trim() : undefined,
-        nombre: String(row[1] ?? '').trim(),
-        descripcion: String(row[2] ?? '').trim(),
-        precio: String(row[3] ?? '').trim(),
-        tipo: String(row[4] ?? 'servicio').trim() || 'servicio',
-        estado: String(row[5] ?? 'activo').trim() || 'activo',
-        stock: parseInt(String(row[6] ?? '0').replace(/\D/g, ''), 10) || 0,
-        imagenes: imagenes ? imagenes.split(SEP).map((s) => s.trim()).filter(Boolean) : [],
-        usos: usos ? usos.split(SEP).map((s) => s.trim()).filter(Boolean) : [],
-        caracteristicas: caracteristicas ? caracteristicas.split(SEP).map((s) => s.trim()).filter(Boolean) : [],
+        nombre: nombre || '',
+        descripcion: descripcion || '',
+        precio: precioNum,
+        tipo: tipoFinal,
+        estado: estadoFinal,
+        stock: stockNum,
+        usos: parseLista(usosRaw),
+        caracteristicas: parseLista(caracteristicasRaw),
+        imagenes: parseLista(imagenesRaw),
       }
     })
 }

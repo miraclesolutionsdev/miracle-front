@@ -8,7 +8,7 @@ function formatProductoFromApi(p) {
     ...p,
     precio:
       typeof p.precio === 'number'
-        ? `$${p.precio.toLocaleString('es-CO')}`
+        ? `$${Number(p.precio).toLocaleString('es-CO')} COP`
         : p.precio ?? '',
   }
 }
@@ -60,20 +60,19 @@ export function ProductosProvider({ children }) {
   const importarProductos = async (nuevos) => {
     for (const p of nuevos) {
       const body = {
-        nombre: p.nombre || 'Sin nombre',
-        descripcion: p.descripcion ?? '',
-        precio: p.precio ?? '',
+        nombre: (p.nombre || '').trim() || 'Sin nombre',
+        descripcion: (p.descripcion ?? '').trim(),
+        precio: typeof p.precio === 'number' ? p.precio : parseFloat(String(p.precio || '0').replace(/[^0-9.]/g, '')) || 0,
         tipo: p.tipo === 'producto' ? 'producto' : 'servicio',
         estado: p.estado === 'inactivo' ? 'inactivo' : 'activo',
         imagenes: Array.isArray(p.imagenes) ? p.imagenes : [],
-        stock: p.stock ?? 0,
+        stock: Math.max(0, parseInt(String(p.stock ?? '0').replace(/\D/g, ''), 10) || 0),
         usos: Array.isArray(p.usos) ? p.usos : [],
         caracteristicas: Array.isArray(p.caracteristicas) ? p.caracteristicas : [],
       }
       try {
         await productosApi.crear(body)
       } catch (err) {
-        // ignorar errores por fila (duplicados, etc.)
         console.error('Error al crear producto importado:', err)
       }
     }

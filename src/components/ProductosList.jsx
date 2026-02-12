@@ -7,7 +7,7 @@ const COLUMNAS = [
   'Stock',
   'Nombre',
   'Tipo',
-  'Precio',
+  'Precio (COP)',
   'Estado',
   'Acciones',
 ]
