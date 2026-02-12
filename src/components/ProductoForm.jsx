@@ -15,6 +15,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
     nuevaImagen: '',
     usosTexto: '',
     caracteristicasTexto: '',
+    stock: 0,
   })
 
   useEffect(() => {
@@ -31,6 +32,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
         caracteristicasTexto: Array.isArray(producto.caracteristicas)
           ? producto.caracteristicas.join('\n')
           : '',
+        stock: producto.stock ?? 0,
       })
     } else {
       setForm({
@@ -43,6 +45,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
         nuevaImagen: '',
         usosTexto: '',
         caracteristicasTexto: '',
+        stock: 0,
       })
     }
   }, [producto])
@@ -153,6 +156,21 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
               }
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
               placeholder="Ej. $1,200"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-muted-foreground">
+              Stock disponible
+            </label>
+            <input
+              type="number"
+              min={0}
+              value={form.stock}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, stock: Number(e.target.value) || 0 }))
+              }
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
+              placeholder="Ej. 10"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
