@@ -104,6 +104,8 @@ const CLIENTES_CABECERA_A_CAMPO = {
   celular: 'whatsapp',
   contacto: 'whatsapp',
   tel: 'whatsapp',
+  'whatsapp telefono': 'whatsapp',
+  'telefono whatsapp': 'whatsapp',
   direccion: 'direccion',
   dir: 'direccion',
   ciudad: 'ciudadBarrio',
