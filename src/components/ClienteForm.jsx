@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react'
 
-const ESTADOS = ['activo', 'pausado']
-
 function ClienteForm({ cliente, onGuardar, onCancelar }) {
   const esEdicion = !!cliente
   const [form, setForm] = useState({
@@ -123,29 +121,6 @@ function ClienteForm({ cliente, onGuardar, onCancelar }) {
               onChange={(e) => setForm((f) => ({ ...f, ciudadBarrio: e.target.value }))}
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
               placeholder="Ej. Bogotá - Chapinero"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium text-muted-foreground">Estado</label>
-            <select
-              value={form.estado}
-              onChange={(e) => setForm((f) => ({ ...f, estado: e.target.value }))}
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
-            >
-              {ESTADOS.map((s) => (
-                <option key={s} value={s}>{s === 'activo' ? 'Activo' : 'Pausado'}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium text-muted-foreground">
-              Miracle Coins disponibles
-            </label>
-            <input
-              type="text"
-              value={form.miracleCoins}
-              onChange={(e) => setForm((f) => ({ ...f, miracleCoins: e.target.value }))}
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
             />
           </div>
           <div className="flex justify-end gap-2 pt-2">
