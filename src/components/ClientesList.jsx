@@ -8,8 +8,6 @@ const COLUMNAS = [
   'Email',
   'WhatsApp',
   'Ciudad / Barrio',
-  'Estado',
-  'Miracle Coins',
   'Fecha creación',
   'Acciones',
 ]
@@ -81,18 +79,6 @@ function ClientesList({ clientes, onCrear, onVer, onEditar, onExportExcel, onImp
                 <td className="py-3 pr-4 text-muted-foreground whitespace-nowrap">{c.email}</td>
                 <td className="py-3 pr-4 text-muted-foreground whitespace-nowrap">{c.whatsapp}</td>
                 <td className="py-3 pr-4 text-muted-foreground whitespace-nowrap">{c.ciudadBarrio || '—'}</td>
-                <td className="py-3 pr-4 whitespace-nowrap">
-                  <span
-                    className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-                      c.estado === 'activo'
-                        ? 'bg-primary/10 text-primary'
-                        : 'bg-muted text-muted-foreground'
-                    }`}
-                  >
-                    {c.estado}
-                  </span>
-                </td>
-                <td className="py-3 pr-4 text-card-foreground whitespace-nowrap">{c.miracleCoins}</td>
                 <td className="py-3 pr-4 text-muted-foreground whitespace-nowrap">{c.fechaCreacion}</td>
                 <td className="py-3 pr-4 whitespace-nowrap">
                   <div className="flex gap-2">
