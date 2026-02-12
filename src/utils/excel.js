@@ -255,6 +255,8 @@ const PRODUCTOS_CABECERA_A_CAMPO = {
   nombre: 'nombre',
   'nombre del producto': 'nombre',
   'nombre del servicio': 'nombre',
+  'nombre del producto servicio': 'nombre',
+  'nombre producto servicio': 'nombre',
   'nombre producto': 'nombre',
   'nombre servicio': 'nombre',
   producto: 'nombre',
@@ -276,6 +278,7 @@ const PRODUCTOS_CABECERA_A_CAMPO = {
   imagenes: 'imagenes',
   'url imagen': 'imagenes',
   'url de imagen': 'imagenes',
+  'url para una imagen': 'imagenes',
   'imagen-url': 'imagenes',
 }
 
