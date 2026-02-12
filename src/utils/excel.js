@@ -276,7 +276,7 @@ const PRODUCTOS_CABECERA_A_CAMPO = {
   imagenes: 'imagenes',
   'url imagen': 'imagenes',
   'url de imagen': 'imagenes',
-  imagen-url: 'imagenes',
+  'imagen-url': 'imagenes',
 }
 
 function indicesPorCabeceraProductos(headerRow) {
