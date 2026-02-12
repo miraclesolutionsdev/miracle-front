@@ -58,6 +58,58 @@ export function readExcelFile(file) {
 }
 
 // --- Clientes: cabeceras y mapeo fila <-> objeto
+
+/** Normaliza texto de cabecera para comparar (minúsculas, sin tildes, espacios unificados) */
+function normalizarCabecera(texto) {
+  return String(texto ?? '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .replace(/[\s_\-/]+/g, ' ')
+    .trim()
+}
+
+/** Mapeo: cabecera normalizada -> nombre del campo en nuestro modelo */
+const CLIENTES_CABECERA_A_CAMPO = {
+  id: 'id',
+  nombre: 'nombreEmpresa',
+  'nombre empresa': 'nombreEmpresa',
+  'nombre o empresa': 'nombreEmpresa',
+  empresa: 'nombreEmpresa',
+  cedula: 'cedulaNit',
+  nit: 'cedulaNit',
+  'cedula nit': 'cedulaNit',
+  'cedula/nit': 'cedulaNit',
+  'cedula o nit': 'cedulaNit',
+  email: 'email',
+  whatsapp: 'whatsapp',
+  telefono: 'whatsapp',
+  celular: 'whatsapp',
+  contacto: 'whatsapp',
+  direccion: 'direccion',
+  ciudad: 'ciudadBarrio',
+  barrio: 'ciudadBarrio',
+  'ciudad barrio': 'ciudadBarrio',
+  'ciudad/barrio': 'ciudadBarrio',
+  'ciudad con barrio': 'ciudadBarrio',
+  'ciudad y barrio': 'ciudadBarrio',
+  estado: 'estado',
+  'miracle coins': 'miracleCoins',
+  plan: 'plan',
+  'fecha creacion': 'fechaCreacion',
+}
+
+/** Dado un array de cabeceras (primera fila), devuelve { nombreCampo: índiceColumna } */
+function indicesPorCabecera(headerRow) {
+  const indices = {}
+  for (let i = 0; i < (headerRow?.length ?? 0); i++) {
+    const norm = normalizarCabecera(headerRow[i])
+    const campo = CLIENTES_CABECERA_A_CAMPO[norm]
+    if (campo != null) indices[campo] = i
+  }
+  return indices
+}
+
 export const CLIENTES_HEADERS = [
   'ID',
   'Nombre Empresa',
@@ -90,22 +142,42 @@ export function clientesToRows(clientes) {
 
 export function rowsToClientes(rows) {
   if (!rows.length) return []
-  const [header, ...dataRows] = rows
+  const [headerRow, ...dataRows] = rows
+  const header = Array.isArray(headerRow) ? headerRow : [headerRow]
+  const indices = indicesPorCabecera(header)
+
+  const get = (row, campo) => {
+    const i = indices[campo]
+    if (i == null) return ''
+    const val = row[i]
+    return val != null ? String(val).trim() : ''
+  }
+
   return dataRows
     .filter((row) => row && row.some((cell) => cell != null && String(cell).trim() !== ''))
-    .map((row) => ({
-      id: row[0] ? String(row[0]).trim() : '',
-      nombreEmpresa: String(row[1] ?? '').trim(),
-      cedulaNit: String(row[2] ?? '').trim(),
-      email: String(row[3] ?? '').trim(),
-      whatsapp: String(row[4] ?? '').trim(),
-      direccion: String(row[5] ?? '').trim(),
-      ciudadBarrio: String(row[6] ?? '').trim(),
-      estado: String(row[7] ?? 'activo').trim() || 'activo',
-      plan: String(row[8] ?? '').trim(),
-      miracleCoins: String(row[9] ?? '0').trim().replace(/\D/g, '') || '0',
-      fechaCreacion: String(row[10] ?? '').trim(),
-    }))
+    .map((row) => {
+      const nombreEmpresa = get(row, 'nombreEmpresa')
+      const email = get(row, 'email')
+      const whatsapp = get(row, 'whatsapp')
+      const cedulaNit = get(row, 'cedulaNit')
+      const direccion = get(row, 'direccion')
+      const ciudadBarrio = get(row, 'ciudadBarrio')
+      const estadoRaw = get(row, 'estado')
+      const miracleCoinsRaw = get(row, 'miracleCoins')
+
+      return {
+        id: '', // Al importar no usamos ID del Excel; el backend lo genera al crear
+        nombreEmpresa: nombreEmpresa || '',
+        cedulaNit: cedulaNit || '',
+        email: email || '',
+        whatsapp: whatsapp || '',
+        direccion: direccion || '',
+        ciudadBarrio: ciudadBarrio || '',
+        estado: estadoRaw === 'pausado' || estadoRaw === 'inactivo' ? estadoRaw : 'activo',
+        miracleCoins: miracleCoinsRaw.replace(/\D/g, '') || '0',
+        fechaCreacion: get(row, 'fechaCreacion') || '',
+      }
+    })
 }
 
 // --- Productos: cabeceras y mapeo (arrays con SEP)
