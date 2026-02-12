@@ -59,14 +59,27 @@ export function readExcelFile(file) {
 
 // --- Clientes: cabeceras y mapeo fila <-> objeto
 
+/** Quita tildes de forma compatible con todos los navegadores */
+function quitarTildes(s) {
+  const map = { á: 'a', é: 'e', í: 'i', ó: 'o', ú: 'u', ñ: 'n', Á: 'a', É: 'e', Í: 'i', Ó: 'o', Ú: 'u', Ñ: 'n' }
+  return s.replace(/[áéíóúñÁÉÍÓÚÑ]/g, (c) => map[c] ?? c)
+}
+
 /** Normaliza texto de cabecera para comparar (minúsculas, sin tildes, espacios unificados) */
 function normalizarCabecera(texto) {
-  return String(texto ?? '')
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/\p{Diacritic}/gu, '')
-    .replace(/[\s_\-/]+/g, ' ')
-    .trim()
+  const s = String(texto ?? '').toLowerCase().replace(/[\s_\-/]+/g, ' ').trim()
+  try {
+    if (typeof s.normalize === 'function') {
+      return s
+        .normalize('NFD')
+        .replace(/\p{Diacritic}/gu, '')
+        .replace(/[\s_\-/]+/g, ' ')
+        .trim()
+    }
+  } catch {
+    // ignore
+  }
+  return quitarTildes(s).replace(/[\s_\-/]+/g, ' ').trim()
 }
 
 /** Mapeo: cabecera normalizada -> nombre del campo en nuestro modelo */
@@ -75,18 +88,24 @@ const CLIENTES_CABECERA_A_CAMPO = {
   nombre: 'nombreEmpresa',
   'nombre empresa': 'nombreEmpresa',
   'nombre o empresa': 'nombreEmpresa',
+  'nombre y empresa': 'nombreEmpresa',
   empresa: 'nombreEmpresa',
   cedula: 'cedulaNit',
   nit: 'cedulaNit',
   'cedula nit': 'cedulaNit',
   'cedula/nit': 'cedulaNit',
   'cedula o nit': 'cedulaNit',
+  'cedula y nit': 'cedulaNit',
   email: 'email',
+  correo: 'email',
+  e mail: 'email',
   whatsapp: 'whatsapp',
   telefono: 'whatsapp',
   celular: 'whatsapp',
   contacto: 'whatsapp',
+  tel: 'whatsapp',
   direccion: 'direccion',
+  dir: 'direccion',
   ciudad: 'ciudadBarrio',
   barrio: 'ciudadBarrio',
   'ciudad barrio': 'ciudadBarrio',

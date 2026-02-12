@@ -99,11 +99,18 @@ export default function VistaClientes() {
         return
       }
       const importados = rowsToClientes(rows)
-      for (const c of importados) {
+      if (importados.length === 0) {
+        alert('No hay filas de datos para importar. Revisa que haya datos debajo de la cabecera en el Excel.')
+        return
+      }
+      let importadosOk = 0
+      for (let i = 0; i < importados.length; i++) {
+        const c = importados[i]
+        const emailValido = (c.email || '').trim()
         const body = {
-          nombreEmpresa: c.nombreEmpresa || 'Sin nombre',
+          nombreEmpresa: (c.nombreEmpresa || '').trim() || 'Sin nombre',
           cedulaNit: c.cedulaNit ?? '',
-          email: c.email || '',
+          email: emailValido || `importado-${Date.now()}-${i}@sin-email.local`,
           whatsapp: c.whatsapp ?? '',
           direccion: c.direccion ?? '',
           ciudadBarrio: c.ciudadBarrio ?? '',
@@ -112,11 +119,13 @@ export default function VistaClientes() {
         }
         try {
           await clientesApi.crear(body)
+          importadosOk += 1
         } catch {
           // ignorar duplicados o errores por fila
         }
       }
       await loadClientes()
+      alert(`Se importaron ${importadosOk} de ${importados.length} clientes.`)
     } catch (err) {
       console.error('Error al importar Excel:', err)
       alert('No se pudo leer el archivo. Comprueba que sea un Excel (.xlsx) válido.')
