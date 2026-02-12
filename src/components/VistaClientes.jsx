@@ -9,6 +9,7 @@ import {
   CLIENTES_HEADERS,
   clientesToRows,
   rowsToClientes,
+  validarCabecerasClientes,
 } from '../utils/excel'
 
 function formatClienteFromApi(c) {
@@ -88,6 +89,15 @@ export default function VistaClientes() {
   const handleImportExcel = async (file) => {
     try {
       const rows = await readExcelFile(file)
+      const validacion = validarCabecerasClientes(rows)
+      if (!validacion.valido) {
+        alert(
+          'No se puede importar: el archivo no cumple con todas las columnas obligatorias. Faltan: ' +
+            validacion.faltantes.join(', ') +
+            '. Revisa que la primera fila tenga esas cabeceras.'
+        )
+        return
+      }
       const importados = rowsToClientes(rows)
       for (const c of importados) {
         const body = {

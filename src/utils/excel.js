@@ -110,6 +110,44 @@ function indicesPorCabecera(headerRow) {
   return indices
 }
 
+/** Columnas obligatorias para importar clientes y sus nombres para mostrar al usuario */
+const CLIENTES_CAMPOS_OBLIGATORIOS = [
+  'nombreEmpresa',
+  'cedulaNit',
+  'email',
+  'whatsapp',
+  'direccion',
+  'ciudadBarrio',
+]
+const CLIENTES_NOMBRES_OBLIGATORIOS = {
+  nombreEmpresa: 'Nombre o empresa',
+  cedulaNit: 'Cédula/NIT',
+  email: 'Email',
+  whatsapp: 'WhatsApp',
+  direccion: 'Dirección',
+  ciudadBarrio: 'Ciudad/Barrio',
+}
+
+/**
+ * Valida que el Excel tenga todas las columnas obligatorias para clientes.
+ * @param {any[][]} rows - Filas del Excel (primera = cabecera)
+ * @returns {{ valido: boolean, faltantes: string[] }}
+ */
+export function validarCabecerasClientes(rows) {
+  if (!rows?.length) {
+    return { valido: false, faltantes: ['El archivo está vacío o no tiene cabecera.'] }
+  }
+  const headerRow = rows[0]
+  const header = Array.isArray(headerRow) ? headerRow : [headerRow]
+  const indices = indicesPorCabecera(header)
+  const faltantes = CLIENTES_CAMPOS_OBLIGATORIOS.filter((campo) => indices[campo] == null)
+  const nombresFaltantes = faltantes.map((c) => CLIENTES_NOMBRES_OBLIGATORIOS[c] || c)
+  return {
+    valido: faltantes.length === 0,
+    faltantes: nombresFaltantes,
+  }
+}
+
 export const CLIENTES_HEADERS = [
   'ID',
   'Nombre Empresa',
