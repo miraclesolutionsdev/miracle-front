@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useProductos } from '../context/ProductosContext.jsx'
+import { getProductoImagenSrc } from '../utils/api'
 
 export default function TiendaPage() {
   const { productos } = useProductos()
@@ -39,9 +40,9 @@ export default function TiendaPage() {
                 key={p.id}
                 className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-lg ring-1 ring-black/5"
               >
-                {p.imagenes?.[0] && (
+                {getProductoImagenSrc(p, 0) && (
                   <img
-                    src={p.imagenes[0]}
+                    src={getProductoImagenSrc(p, 0)}
                     alt={p.nombre}
                     className="h-48 w-full object-cover"
                   />

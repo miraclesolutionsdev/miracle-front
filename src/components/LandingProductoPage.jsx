@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useProductos } from '../context/ProductosContext.jsx'
+import { getProductoImagenSrc } from '../utils/api'
 
 // Cambia este número por el tuyo en formato internacional, sin "+"
 const WHATSAPP_NUMBER = '573001234567'
@@ -52,21 +53,21 @@ function LandingProductoPage() {
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-14 lg:items-start">
           {/* Columna izquierda: imagen(es) */}
-          {producto.imagenes?.length > 0 && (
+          {producto.imagenes?.length > 0 && getProductoImagenSrc(producto, 0) && (
             <section className="space-y-4">
               <div className="overflow-hidden rounded-2xl bg-card shadow-xl ring-1 ring-black/5">
                 <img
-                  src={producto.imagenes[0]}
+                  src={getProductoImagenSrc(producto, 0)}
                   alt={producto.nombre}
                   className="aspect-[4/3] w-full object-cover"
                 />
               </div>
               {producto.imagenes.length > 1 && (
                 <div className="grid grid-cols-3 gap-3">
-                  {producto.imagenes.slice(1, 4).map((url, i) => (
+                  {[1, 2, 3].map((idx) => getProductoImagenSrc(producto, idx)).filter(Boolean).map((src, i) => (
                     <img
                       key={i}
-                      src={url}
+                      src={src}
                       alt={`${producto.nombre} ${i + 2}`}
                       className="aspect-square w-full rounded-xl object-cover ring-1 ring-black/5"
                     />

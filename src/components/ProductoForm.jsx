@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { productosApi } from '../utils/api'
 
 const TIPOS = ['servicio', 'producto']
 const ESTADOS = ['activo', 'inactivo']
@@ -11,8 +12,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
     precio: '',
     tipo: 'servicio',
     estado: 'activo',
-    imagenes: [],
-    nuevaImagen: '',
+    archivosImagen: [],
     usosTexto: '',
     caracteristicasTexto: '',
     stock: 0,
@@ -26,8 +26,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
         precio: producto.precio ?? '',
         tipo: producto.tipo ?? 'servicio',
         estado: producto.estado ?? 'activo',
-        imagenes: producto.imagenes ?? [],
-        nuevaImagen: '',
+        archivosImagen: [],
         usosTexto: Array.isArray(producto.usos) ? producto.usos.join('\n') : '',
         caracteristicasTexto: Array.isArray(producto.caracteristicas)
           ? producto.caracteristicas.join('\n')
@@ -41,8 +40,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
         precio: '',
         tipo: 'servicio',
         estado: 'activo',
-        imagenes: [],
-        nuevaImagen: '',
+        archivosImagen: [],
         usosTexto: '',
         caracteristicasTexto: '',
         stock: 0,
@@ -50,35 +48,44 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
     }
   }, [producto])
 
+  const usos = form.usosTexto.split('\n').map((s) => s.trim()).filter(Boolean)
+  const caracteristicas = form.caracteristicasTexto.split('\n').map((s) => s.trim()).filter(Boolean)
+  const imagenesExistentes = Array.isArray(producto?.imagenes) ? producto.imagenes : []
+
   const handleSubmit = (e) => {
     e.preventDefault()
+    const tieneArchivos = form.archivosImagen?.length > 0
 
-     const usos = form.usosTexto
-      .split('\n')
-      .map((s) => s.trim())
-      .filter(Boolean)
-
-    const caracteristicas = form.caracteristicasTexto
-      .split('\n')
-      .map((s) => s.trim())
-      .filter(Boolean)
-
-    const payload = {
-      ...form,
-      imagenes: form.imagenes,
-      usos,
-      caracteristicas,
+    if (tieneArchivos) {
+      const formData = new FormData()
+      formData.append('nombre', form.nombre)
+      formData.append('descripcion', form.descripcion)
+      formData.append('precio', String(form.precio).replace(/[^0-9.]/g, '') || '0')
+      formData.append('tipo', form.tipo)
+      formData.append('estado', form.estado)
+      formData.append('stock', String(form.stock))
+      formData.append('usos', JSON.stringify(usos))
+      formData.append('caracteristicas', JSON.stringify(caracteristicas))
+      form.archivosImagen.forEach((file) => formData.append('imagenes', file))
+      const payload = { formData }
+      if (esEdicion) payload.id = producto.id
+      onGuardar(payload)
+    } else {
+      const payload = {
+        ...form,
+        usos,
+        caracteristicas,
+        imagenes: imagenesExistentes,
+      }
+      if (esEdicion) payload.id = producto.id
+      onGuardar(payload)
     }
-    if (esEdicion) payload.id = producto.id
-    onGuardar(payload)
   }
 
-  const agregarImagen = () => {
-    if (!form.nuevaImagen) return
+  const quitarArchivo = (i) => {
     setForm((f) => ({
       ...f,
-      imagenes: [...(f.imagenes || []), f.nuevaImagen],
-      nuevaImagen: '',
+      archivosImagen: f.archivosImagen.filter((_, j) => j !== i),
     }))
   }
 
@@ -213,38 +220,51 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
           </div>
           <div>
             <label className="mb-1 block text-sm font-medium text-muted-foreground">
-              Imágenes (URL)
+              Imágenes
             </label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={form.nuevaImagen}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, nuevaImagen: e.target.value }))
-                }
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
-                placeholder="https://..."
-              />
-              <button
-                type="button"
-                onClick={agregarImagen}
-                className="shrink-0 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
-              >
-                Agregar
-              </button>
-            </div>
-            {form.imagenes?.length > 0 && (
-              <div className="mt-3 grid grid-cols-3 gap-2">
-                {form.imagenes.map((url, i) => (
-                  <img
-                    key={i}
-                    src={url}
-                    alt={`Imagen ${i + 1}`}
-                    className="h-20 w-full rounded object-cover"
-                  />
-                ))}
-              </div>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={(e) =>
+                setForm((f) => ({
+                  ...f,
+                  archivosImagen: [...(f.archivosImagen || []), ...(e.target.files || [])],
+                }))
+              }
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-card-foreground file:mr-2 file:rounded file:border-0 file:bg-primary file:px-3 file:py-1 file:text-sm file:text-primary-foreground"
+            />
+            {imagenesExistentes.length > 0 && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                Imágenes actuales del producto:
+              </p>
             )}
+            <div className="mt-2 flex flex-wrap gap-2">
+              {imagenesExistentes.map((img, i) => (
+                <img
+                  key={i}
+                  src={typeof img === 'string' ? img : productosApi.urlImagen(producto.id, i)}
+                  alt={`Imagen ${i + 1}`}
+                  className="h-20 w-20 rounded object-cover"
+                />
+              ))}
+              {form.archivosImagen?.map((file, i) => (
+                <div key={`f-${i}`} className="relative">
+                  <img
+                    src={URL.createObjectURL(file)}
+                    alt={`Nueva ${i + 1}`}
+                    className="h-20 w-20 rounded object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => quitarArchivo(i)}
+                    className="absolute -right-1 -top-1 rounded-full bg-destructive px-1.5 py-0.5 text-xs text-destructive-foreground"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <button

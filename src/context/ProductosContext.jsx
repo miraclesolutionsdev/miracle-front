@@ -31,6 +31,16 @@ export function ProductosProvider({ children }) {
   }, [loadProductos])
 
   const guardarProducto = async (payload) => {
+    if (payload.formData instanceof FormData) {
+      if (payload.id) {
+        await productosApi.actualizarConArchivos(payload.id, payload.formData)
+      } else {
+        await productosApi.crearConArchivos(payload.formData)
+      }
+      await loadProductos()
+      return
+    }
+
     const body = {
       nombre: payload.nombre,
       descripcion: payload.descripcion ?? '',

@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useProductos } from '../context/ProductosContext.jsx'
 import SectionCard from './SectionCard'
+import { getProductoImagenSrc } from '../utils/api'
 
 function VistaTienda() {
   const { productos } = useProductos()
@@ -30,9 +31,9 @@ function VistaTienda() {
                 key={p.id}
                 className="flex flex-col overflow-hidden rounded-xl border border-border bg-card"
               >
-                {p.imagenes?.[0] && (
+                {getProductoImagenSrc(p, 0) && (
                   <img
-                    src={p.imagenes[0]}
+                    src={getProductoImagenSrc(p, 0)}
                     alt={p.nombre}
                     className="h-40 w-full object-cover"
                   />

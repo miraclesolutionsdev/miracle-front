@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import SectionCard from './SectionCard'
+import { getProductoImagenSrc } from '../utils/api'
 
 const COLUMNAS = [
   'ID',
@@ -87,9 +88,9 @@ function ProductosList({
                 </td>
                 <td className="py-3 pr-4 text-card-foreground">
                   <div className="flex items-center gap-2">
-                    {p.imagenes?.[0] && (
+                    {getProductoImagenSrc(p, 0) && (
                       <img
-                        src={p.imagenes[0]}
+                        src={getProductoImagenSrc(p, 0)}
                         alt={p.nombre}
                         className="h-8 w-8 rounded object-cover"
                       />
