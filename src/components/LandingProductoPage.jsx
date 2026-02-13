@@ -24,8 +24,8 @@ function LandingProductoPage() {
 
   if (!producto) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-background">
-        <p className="text-muted-foreground">Producto no encontrado.</p>
+      <main className="flex min-h-screen items-center justify-center bg-neutral-950">
+        <p className="text-neutral-400">Producto no encontrado.</p>
       </main>
     )
   }
@@ -49,13 +49,13 @@ function LandingProductoPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-background to-muted/30">
-      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-14 lg:items-start">
-          {/* Columna izquierda: imagen(es) */}
+    <main className="min-h-screen bg-neutral-950 text-neutral-100">
+      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-20 lg:py-24">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-16 lg:items-start">
+          {/* Columna izquierda: imagen(es) — protagonistas */}
           {producto.imagenes?.length > 0 && getProductoImagenSrc(producto, 0) && (
-            <section className="space-y-4">
-              <div className="flex min-h-0 w-full justify-center overflow-hidden rounded-2xl bg-card shadow-xl ring-1 ring-black/5">
+            <section className="space-y-5">
+              <div className="flex min-h-0 w-full justify-center overflow-hidden rounded-2xl bg-neutral-900/80 shadow-2xl shadow-black/40 ring-1 ring-neutral-700/50">
                 <img
                   src={getProductoImagenSrc(producto, 0)}
                   alt={producto.nombre}
@@ -63,13 +63,13 @@ function LandingProductoPage() {
                 />
               </div>
               {producto.imagenes.length > 1 && (
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-3 gap-4">
                   {[1, 2, 3].map((idx) => getProductoImagenSrc(producto, idx)).filter(Boolean).map((src, i) => (
                     <img
                       key={i}
                       src={src}
                       alt={`${producto.nombre} ${i + 2}`}
-                      className="aspect-square w-full rounded-xl object-contain ring-1 ring-black/5"
+                      className="aspect-square w-full rounded-xl object-contain shadow-lg ring-1 ring-neutral-700/50"
                     />
                   ))}
                 </div>
@@ -77,38 +77,38 @@ function LandingProductoPage() {
             </section>
           )}
 
-          {/* Columna derecha: título, precio, descripción */}
+          {/* Columna derecha: título, precio, descripción, beneficios, CTA */}
           <div className="flex flex-col gap-8">
-            <div className="rounded-2xl bg-card p-8 shadow-xl ring-1 ring-black/5">
-              <span className="inline-flex rounded-full bg-primary/10 px-3.5 py-1 text-xs font-semibold uppercase tracking-wide text-primary">
+            <div className="rounded-2xl bg-neutral-900/60 p-8 shadow-xl ring-1 ring-neutral-800 sm:p-10">
+              <span className="inline-flex rounded-full bg-pink-500/20 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-pink-400">
                 {producto.tipo === 'servicio' ? 'Servicio' : 'Producto'}
               </span>
-              <h1 className="mt-4 text-3xl font-bold tracking-tight text-card-foreground sm:text-4xl">
+              <h1 className="mt-6 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-[2.5rem]">
                 {producto.nombre}
               </h1>
               {producto.precio && (
-                <p className="mt-3 text-2xl font-bold text-primary">
+                <p className="mt-4 text-2xl font-bold text-pink-400 sm:text-3xl">
                   {producto.precio}
                 </p>
               )}
-              <div className="mt-6 border-t border-border pt-6">
-                <h2 className="text-sm font-semibold uppercase tracking-wide text-card-foreground">
+              <div className="mt-8 border-t border-neutral-700/80 pt-8">
+                <h2 className="text-sm font-semibold uppercase tracking-wider text-pink-400/90">
                   Descripción
                 </h2>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                <p className="mt-4 text-base leading-relaxed text-neutral-300">
                   {producto.descripcion || 'Sin descripción disponible.'}
                 </p>
               </div>
 
               {producto.usos?.length > 0 && (
-                <div className="mt-6 border-t border-border pt-6">
-                  <h2 className="text-sm font-semibold uppercase tracking-wide text-card-foreground">
+                <div className="mt-8 border-t border-neutral-700/80 pt-8">
+                  <h2 className="text-sm font-semibold uppercase tracking-wider text-pink-400/90">
                     Usos
                   </h2>
-                  <ul className="mt-3 space-y-2 text-sm leading-relaxed text-muted-foreground">
+                  <ul className="mt-4 space-y-3 text-base leading-relaxed text-neutral-300">
                     {producto.usos.map((uso, i) => (
-                      <li key={i} className="flex gap-2">
-                        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                      <li key={i} className="flex gap-3">
+                        <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-pink-500" />
                         {uso}
                       </li>
                     ))}
@@ -117,14 +117,14 @@ function LandingProductoPage() {
               )}
 
               {producto.caracteristicas?.length > 0 && (
-                <div className="mt-6 border-t border-border pt-6">
-                  <h2 className="text-sm font-semibold uppercase tracking-wide text-card-foreground">
+                <div className="mt-8 border-t border-neutral-700/80 pt-8">
+                  <h2 className="text-sm font-semibold uppercase tracking-wider text-pink-400/90">
                     Características
                   </h2>
-                  <ul className="mt-3 space-y-2 text-sm leading-relaxed text-muted-foreground">
+                  <ul className="mt-4 space-y-3 text-base leading-relaxed text-neutral-300">
                     {producto.caracteristicas.map((c, i) => (
-                      <li key={i} className="flex gap-2">
-                        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                      <li key={i} className="flex gap-3">
+                        <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-pink-500" />
                         {c}
                       </li>
                     ))}
@@ -135,80 +135,80 @@ function LandingProductoPage() {
 
             <Link
               to="/tienda"
-              className="inline-flex w-full items-center justify-center rounded-xl border-2 border-primary bg-primary/10 px-5 py-3 text-sm font-semibold text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+              className="inline-flex w-full items-center justify-center rounded-xl bg-pink-500 px-6 py-4 text-base font-semibold text-white shadow-lg shadow-pink-500/25 transition-all hover:bg-pink-600 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 focus:ring-offset-neutral-950"
             >
               Ver Tienda
             </Link>
 
-            {/* Bloque WhatsApp: cuadro con logo → al clic muestra formulario */}
-            <div className="rounded-2xl bg-card p-6 shadow-xl ring-1 ring-black/5">
+            {/* Bloque WhatsApp */}
+            <div className="rounded-2xl bg-neutral-900/60 p-6 shadow-xl ring-1 ring-neutral-800 sm:p-8">
               {!showWhatsappForm ? (
                 <button
                   type="button"
                   onClick={() => setShowWhatsappForm(true)}
-                  className="flex w-full flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed border-[#25D366]/40 bg-[#25D366]/5 py-10 transition-colors hover:border-[#25D366] hover:bg-[#25D366]/10 focus:outline-none focus:ring-2 focus:ring-[#25D366]/30 focus:ring-offset-2"
+                  className="flex w-full flex-col items-center justify-center gap-5 rounded-xl border-2 border-dashed border-emerald-500/40 bg-emerald-500/5 py-12 transition-colors hover:border-emerald-500/70 hover:bg-emerald-500/10 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:ring-offset-2 focus:ring-offset-neutral-950"
                   aria-label="Abrir formulario de contacto por WhatsApp"
                 >
                   <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-[#25D366] text-white shadow-lg">
                     <WhatsAppIcon className="h-10 w-10" />
                   </div>
-                  <span className="text-base font-semibold text-card-foreground">
+                  <span className="text-base font-semibold text-neutral-100">
                     Contáctanos por WhatsApp
                   </span>
-                  <span className="text-sm text-muted-foreground">
+                  <span className="text-sm text-neutral-400">
                     Haz clic para dejar tus datos y te redirigimos
                   </span>
                 </button>
               ) : (
                 <>
-                  <div className="mb-5 flex items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#25D366] text-white">
-                      <WhatsAppIcon className="h-5 w-5" />
+                  <div className="mb-6 flex items-center gap-4">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#25D366] text-white">
+                      <WhatsAppIcon className="h-6 w-6" />
                     </div>
                     <div>
-                      <h2 className="text-lg font-semibold text-card-foreground">
+                      <h2 className="text-lg font-semibold text-white">
                         ¿Hablamos por WhatsApp?
                       </h2>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-neutral-400">
                         Completa y te redirigimos al chat.
                       </p>
                     </div>
                   </div>
 
-                  <form onSubmit={handleWhatsapp} className="grid gap-4 sm:grid-cols-2">
+                  <form onSubmit={handleWhatsapp} className="grid gap-5 sm:grid-cols-2">
                     <div className="sm:col-span-1">
-                      <label className="mb-1.5 block text-sm font-medium text-card-foreground">
+                      <label className="mb-2 block text-sm font-medium text-neutral-200">
                         Nombre
                       </label>
                       <input
                         type="text"
                         value={nombre}
                         onChange={(e) => setNombre(e.target.value)}
-                        className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-card-foreground transition-colors placeholder:text-muted-foreground focus:border-[#25D366] focus:outline-none focus:ring-2 focus:ring-[#25D366]/20"
+                        className="w-full rounded-xl border border-neutral-700 bg-neutral-800/80 px-4 py-3 text-sm text-white placeholder:text-neutral-500 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                         placeholder="Tu nombre"
                       />
                     </div>
                     <div className="sm:col-span-1">
-                      <label className="mb-1.5 block text-sm font-medium text-card-foreground">
+                      <label className="mb-2 block text-sm font-medium text-neutral-200">
                         Número de celular
                       </label>
                       <input
                         type="tel"
                         value={telefono}
                         onChange={(e) => setTelefono(e.target.value)}
-                        className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-card-foreground transition-colors placeholder:text-muted-foreground focus:border-[#25D366] focus:outline-none focus:ring-2 focus:ring-[#25D366]/20"
+                        className="w-full rounded-xl border border-neutral-700 bg-neutral-800/80 px-4 py-3 text-sm text-white placeholder:text-neutral-500 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                         placeholder="+57 300 000 0000"
                       />
                     </div>
                     <div className="flex flex-col gap-2 sm:col-span-2">
                       <button
                         type="submit"
-                        className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#25D366] px-5 py-3 text-sm font-semibold text-white shadow-md transition-colors hover:bg-[#20BD5A] focus:outline-none focus:ring-2 focus:ring-[#25D366]/40 focus:ring-offset-2"
+                        className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#25D366] px-5 py-3.5 text-sm font-semibold text-white shadow-md transition-colors hover:bg-[#20BD5A] focus:outline-none focus:ring-2 focus:ring-[#25D366]/50 focus:ring-offset-2 focus:ring-offset-neutral-950"
                       >
                         <WhatsAppIcon className="h-5 w-5" />
                         Ir a WhatsApp
                       </button>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-neutral-500">
                         Usamos estos datos solo para el mensaje inicial en WhatsApp.
                       </p>
                     </div>
@@ -217,7 +217,7 @@ function LandingProductoPage() {
                   <button
                     type="button"
                     onClick={() => setShowWhatsappForm(false)}
-                    className="mt-4 text-sm text-muted-foreground underline hover:text-card-foreground"
+                    className="mt-5 text-sm text-neutral-400 underline hover:text-neutral-200"
                   >
                     Volver al cuadro de contacto
                   </button>
