@@ -55,11 +55,11 @@ function LandingProductoPage() {
           {/* Columna izquierda: imagen(es) */}
           {producto.imagenes?.length > 0 && getProductoImagenSrc(producto, 0) && (
             <section className="space-y-4">
-              <div className="overflow-hidden rounded-2xl bg-card shadow-xl ring-1 ring-black/5">
+              <div className="flex min-h-0 w-full justify-center overflow-hidden rounded-2xl bg-card shadow-xl ring-1 ring-black/5">
                 <img
                   src={getProductoImagenSrc(producto, 0)}
                   alt={producto.nombre}
-                  className="aspect-[4/3] w-full object-cover"
+                  className="max-h-[70vh] w-full object-contain"
                 />
               </div>
               {producto.imagenes.length > 1 && (
@@ -69,7 +69,7 @@ function LandingProductoPage() {
                       key={i}
                       src={src}
                       alt={`${producto.nombre} ${i + 2}`}
-                      className="aspect-square w-full rounded-xl object-cover ring-1 ring-black/5"
+                      className="aspect-square w-full rounded-xl object-contain ring-1 ring-black/5"
                     />
                   ))}
                 </div>
