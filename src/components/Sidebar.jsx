@@ -33,7 +33,19 @@ const NAV_ITEMS = [
   { label: 'Ventas', icon: ShoppingCart },
 ]
 
-function Sidebar({ seleccionado, onSeleccionar }) {
+const LABEL_TO_PATH = {
+  'Dashboard': '/',
+  'Clientes': '/clientes',
+  'Productos': '/productos',
+  'Configura tus redes': '/configura-redes',
+  'Información del negocio': '/informacion-negocio',
+  'Campañas': '/campanas',
+  'Audiovisual': '/audiovisual',
+  'Métricas Ads': '/metricas-ads',
+  'Ventas': '/ventas',
+}
+
+function Sidebar({ seleccionado }) {
   const navigate = useNavigate()
   const [configuraAbierto, setConfiguraAbierto] = useState(false)
   const isConfiguraActive = CONFIGURA_SUB.some((s) => s.label === seleccionado)
@@ -73,7 +85,7 @@ function Sidebar({ seleccionado, onSeleccionar }) {
                         <button
                           key={sub.label}
                           type="button"
-                          onClick={() => onSeleccionar(sub.label)}
+                          onClick={() => navigate(LABEL_TO_PATH[sub.label])}
                           className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm ${
                             isActive
                               ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
@@ -96,7 +108,7 @@ function Sidebar({ seleccionado, onSeleccionar }) {
             <button
               key={item.label}
               type="button"
-              onClick={() => (isTienda ? navigate('/tienda') : onSeleccionar(item.label))}
+              onClick={() => (isTienda ? navigate('/tienda') : navigate(LABEL_TO_PATH[item.label]))}
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium ${
                 isActive
                   ? 'bg-sidebar-accent text-sidebar-accent-foreground'

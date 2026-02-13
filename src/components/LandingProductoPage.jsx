@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useProductos } from '../context/ProductosContext.jsx'
 import { getProductoImagenSrc } from '../utils/api'
 
@@ -14,9 +14,14 @@ const WhatsAppIcon = ({ className = 'h-6 w-6' }) => (
 
 function LandingProductoPage() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const { findProductoById } = useProductos()
 
   const producto = findProductoById(id)
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [id])
 
   const [nombre, setNombre] = useState('')
   const [telefono, setTelefono] = useState('')
@@ -133,12 +138,13 @@ function LandingProductoPage() {
               )}
             </div>
 
-            <Link
-              to="/tienda"
+            <button
+              type="button"
+              onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/tienda'))}
               className="inline-flex w-full items-center justify-center rounded-xl bg-pink-500 px-6 py-4 text-base font-semibold text-white shadow-lg shadow-pink-500/25 transition-all hover:bg-pink-600 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 focus:ring-offset-neutral-950"
             >
-              Ver Tienda
-            </Link>
+              Volver
+            </button>
 
             {/* Bloque WhatsApp */}
             <div className="rounded-2xl bg-neutral-900/60 p-6 shadow-xl ring-1 ring-neutral-800 sm:p-8">

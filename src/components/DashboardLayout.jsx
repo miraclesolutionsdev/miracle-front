@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useMemo } from 'react'
+import { useLocation } from 'react-router-dom'
 import Header from './Header'
 import Sidebar from './Sidebar'
 import VistaDashboard from './VistaDashboard'
@@ -12,8 +13,25 @@ import VistaAudiovisual from './VistaAudiovisual'
 import MetricsAds from './MetricsAds'
 import VistaVentas from './VistaVentas'
 
+const PATH_TO_LABEL = {
+  '/': 'Dashboard',
+  '/dashboard': 'Dashboard',
+  '/clientes': 'Clientes',
+  '/productos': 'Productos',
+  '/configura-redes': 'Configura tus redes',
+  '/informacion-negocio': 'Información del negocio',
+  '/campanas': 'Campañas',
+  '/audiovisual': 'Audiovisual',
+  '/metricas-ads': 'Métricas Ads',
+  '/ventas': 'Ventas',
+}
+
 function DashboardLayout() {
-  const [seleccionado, setSeleccionado] = useState('Dashboard')
+  const { pathname } = useLocation()
+  const seleccionado = useMemo(() => {
+    const path = pathname.replace(/\/$/, '') || '/'
+    return PATH_TO_LABEL[path] ?? 'Dashboard'
+  }, [pathname])
 
   const renderContenido = () => {
     if (seleccionado === 'Dashboard') return <VistaDashboard />
@@ -36,7 +54,7 @@ function DashboardLayout() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <Sidebar seleccionado={seleccionado} onSeleccionar={setSeleccionado} />
+      <Sidebar seleccionado={seleccionado} />
       <main className="ml-56 pt-14 min-h-screen">
         <div className="flex flex-col gap-6 p-6">{renderContenido()}</div>
       </main>
