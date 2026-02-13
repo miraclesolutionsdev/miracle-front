@@ -20,9 +20,13 @@ export default function VistaProductos() {
   const handleEditar = (producto) => setFormAbierto(producto)
   const cerrarForm = () => setFormAbierto(null)
 
-  const handleGuardarProducto = (payload) => {
-    guardarProducto(payload)
-    cerrarForm()
+  const handleGuardarProducto = async (payload) => {
+    try {
+      await guardarProducto(payload)
+      cerrarForm()
+    } catch (err) {
+      alert(err.message || 'No se pudo guardar el producto')
+    }
   }
 
   const handleToggleEstado = (producto) => {
@@ -59,8 +63,12 @@ export default function VistaProductos() {
         alert('No hay filas de datos para importar. Revisa que haya datos debajo de la cabecera en el Excel.')
         return
       }
-      await importarProductos(importados)
-      alert(`Se importaron ${importados.length} productos.`)
+      const { importadosOk, duplicados, total } = await importarProductos(importados)
+      const msg =
+        duplicados > 0
+          ? `Se importaron ${importadosOk} de ${total} productos. ${duplicados} ya existían (nombre duplicado).`
+          : `Se importaron ${importadosOk} de ${total} productos.`
+      alert(msg)
     } catch (err) {
       console.error('Error al importar Excel:', err)
       alert('No se pudo leer el archivo. Comprueba que sea un Excel (.xlsx) válido.')

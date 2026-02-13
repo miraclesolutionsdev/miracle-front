@@ -68,6 +68,8 @@ export function ProductosProvider({ children }) {
   }
 
   const importarProductos = async (nuevos) => {
+    let importadosOk = 0
+    let duplicados = 0
     for (const p of nuevos) {
       const body = {
         nombre: (p.nombre || '').trim() || 'Sin nombre',
@@ -82,11 +84,15 @@ export function ProductosProvider({ children }) {
       }
       try {
         await productosApi.crear(body)
+        importadosOk += 1
       } catch (err) {
-        console.error('Error al crear producto importado:', err)
+        if (err.message && err.message.includes('Ya existe un producto o servicio con ese nombre')) {
+          duplicados += 1
+        }
       }
     }
     await loadProductos()
+    return { importadosOk, duplicados, total: nuevos.length }
   }
 
   const findProductoById = (id) =>

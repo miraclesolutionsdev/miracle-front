@@ -110,6 +110,7 @@ export default function VistaClientes() {
         return
       }
       let importadosOk = 0
+      let duplicados = 0
       for (const c of importados) {
         const body = {
           nombreEmpresa: (c.nombreEmpresa || '').trim(),
@@ -122,12 +123,18 @@ export default function VistaClientes() {
         try {
           await clientesApi.crear(body)
           importadosOk += 1
-        } catch {
-          // ignorar duplicados o errores por fila
+        } catch (err) {
+          if (err.message && err.message.includes('Ya existe un cliente con esta cédula/NIT')) {
+            duplicados += 1
+          }
         }
       }
       await loadClientes()
-      alert(`Se importaron ${importadosOk} de ${importados.length} clientes.`)
+      const msg =
+        duplicados > 0
+          ? `Se importaron ${importadosOk} de ${importados.length} clientes. ${duplicados} ya existían (cédula/NIT duplicada).`
+          : `Se importaron ${importadosOk} de ${importados.length} clientes.`
+      alert(msg)
     } catch (err) {
       console.error('Error al importar Excel:', err)
       alert('No se pudo leer el archivo. Comprueba que sea un Excel (.xlsx) válido.')
