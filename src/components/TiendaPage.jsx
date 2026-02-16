@@ -1,11 +1,9 @@
 import { useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useProductos } from '../context/ProductosContext.jsx'
 import { getProductoImagenSrc } from '../utils/api'
 
 export default function TiendaPage() {
   const { productos } = useProductos()
-  const navigate = useNavigate()
 
   const productosActivos = useMemo(
     () => productos.filter((p) => p.estado === 'activo'),
@@ -68,7 +66,7 @@ export default function TiendaPage() {
                   </div>
                   <button
                     type="button"
-                    onClick={() => navigate(`/landing-producto/${p.id}`)}
+                    onClick={() => window.open(`${window.location.origin}/landing-producto/${p.id}`, '_blank', 'noopener,noreferrer')}
                     className="mt-5 w-full rounded-xl bg-pink-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-pink-500/20 transition-colors hover:bg-pink-600 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 focus:ring-offset-neutral-900"
                   >
                     Ver detalle
