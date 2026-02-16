@@ -1,5 +1,4 @@
 import { useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
 import SectionCard from './SectionCard'
 import { getProductoImagenSrc } from '../utils/api'
 
@@ -21,7 +20,6 @@ function ProductosList({
   onExportExcel,
   onImportExcel,
 }) {
-  const navigate = useNavigate()
   const inputFileRef = useRef(null)
 
   const handleImportClick = () => inputFileRef.current?.click()
@@ -124,7 +122,7 @@ function ProductosList({
                     </button>
                     <button
                       type="button"
-                      onClick={() => navigate(`/landing-producto/${p.id}`)}
+                      onClick={() => window.open(`${window.location.origin}/landing-producto/${p.id}`, '_blank', 'noopener,noreferrer')}
                       className="text-primary hover:underline"
                     >
                       Ver landing

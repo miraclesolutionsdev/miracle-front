@@ -1,12 +1,10 @@
 import { useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useProductos } from '../context/ProductosContext.jsx'
 import SectionCard from './SectionCard'
 import { getProductoImagenSrc } from '../utils/api'
 
 function VistaTienda() {
   const { productos } = useProductos()
-  const navigate = useNavigate()
 
   const productosActivos = useMemo(
     () => productos.filter((p) => p.estado === 'activo'),
@@ -15,6 +13,15 @@ function VistaTienda() {
 
   return (
     <div className="space-y-6">
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={() => window.open(`${window.location.origin}/tienda`, '_blank', 'noopener,noreferrer')}
+          className="rounded-xl bg-pink-500 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-pink-600"
+        >
+          Ver tienda
+        </button>
+      </div>
       <SectionCard title="Tienda de productos" className="border-neutral-800 bg-neutral-900/40 [&_h2]:text-white">
         {productos.length === 0 ? (
           <p className="text-sm text-neutral-400">
@@ -63,7 +70,7 @@ function VistaTienda() {
                   </div>
                   <button
                     type="button"
-                    onClick={() => navigate(`/landing-producto/${p.id}`)}
+                    onClick={() => window.open(`${window.location.origin}/landing-producto/${p.id}`, '_blank', 'noopener,noreferrer')}
                     className="mt-3 w-full rounded-xl bg-pink-500 px-3 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-pink-600"
                   >
                     Ver detalle
