@@ -13,7 +13,7 @@ const COLUMNAS = [
 ]
 
 const formatPrecio = (valor) =>
-  (Number(valor) || 0).toLocaleString('es-CO')
+  `$${(Number(valor) || 0).toLocaleString('es-CO')}`
 
 function ProductosList({
   productos,
