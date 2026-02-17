@@ -8,7 +8,8 @@ const DURACIONES = ['15s', '30s', '60s', '90s']
 const RESOLUCIONES_IMAGEN = ['1080x1080', '1200x628', '1080x1920', '1200x1200']
 
 const RATIOS_VIDEO = { '9:16': 9 / 16, '16:9': 16 / 9, '1:1': 1 }
-const LIMITES_DURACION = { '15s': 16, '30s': 31, '60s': 61, '90s': 91 }
+const DURACION_ESPERADA = { '15s': 15, '30s': 30, '60s': 60, '90s': 90 }
+const TOLERANCIA_DURACION = 2
 
 function parseResolucionImagen(str) {
   const [w, h] = (str || '').split('x').map(Number)
@@ -24,10 +25,10 @@ function validarVideo(file, resolucion, duracionLimite) {
       const ratio = video.videoWidth / video.videoHeight
       const duracion = video.duration
       const ratioEsperado = RATIOS_VIDEO[resolucion]
-      const limite = LIMITES_DURACION[duracionLimite] ?? 999
+      const duracionEsperada = DURACION_ESPERADA[duracionLimite] ?? 0
       const toleranciaRatio = 0.03
       const okRatio = ratioEsperado != null && Math.abs(ratio - ratioEsperado) < toleranciaRatio
-      const okDuracion = duracion <= limite
+      const okDuracion = duracionEsperada > 0 && Math.abs(duracion - duracionEsperada) <= TOLERANCIA_DURACION
       resolve({
         ok: okRatio && okDuracion,
         width: video.videoWidth,
@@ -35,7 +36,7 @@ function validarVideo(file, resolucion, duracionLimite) {
         duracion: Math.round(duracion),
         errores: [
           !okRatio && `Resolucion debe ser ${resolucion} (archivo: ${video.videoWidth}x${video.videoHeight})`,
-          !okDuracion && `Duracion max ${duracionLimite} (archivo: ~${Math.round(duracion)}s)`,
+          !okDuracion && `Duracion debe ser ~${duracionLimite} (archivo: ~${Math.round(duracion)}s)`,
         ].filter(Boolean),
       })
     }
