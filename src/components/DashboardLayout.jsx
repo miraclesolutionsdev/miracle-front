@@ -45,8 +45,8 @@ function DashboardLayout() {
     if (seleccionado === 'Ventas') return <VistaVentas />
     if (seleccionado === 'Campañas') return <VistaCampañas />
     return (
-      <p className="text-sm text-muted-foreground sm:text-base">
-        Selecciona una opción del panel para continuar.
+      <p className="text-sm text-muted-foreground">
+        Selecciona una opcion del panel para continuar.
       </p>
     )
   }
@@ -56,7 +56,12 @@ function DashboardLayout() {
       <Header />
       <Sidebar seleccionado={seleccionado} />
       <main className="ml-56 pt-14 min-h-screen">
-        <div className="flex flex-col gap-6 p-6">{renderContenido()}</div>
+        <div className="flex flex-col gap-6 p-6">
+          <div className="flex items-center justify-between">
+            <h1 className="text-lg font-semibold tracking-tight text-foreground">{seleccionado}</h1>
+          </div>
+          {renderContenido()}
+        </div>
       </main>
     </div>
   )
