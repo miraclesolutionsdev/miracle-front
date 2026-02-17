@@ -56,6 +56,22 @@ export const productosApi = {
     `${BASE_URL.replace(/\/$/, '')}/productos/${productoId}/imagenes/${index}`,
 }
 
+export const audiovisualApi = {
+  listar: (params) => {
+    const q = new URLSearchParams(params || {}).toString()
+    return request(`audiovisual${q ? `?${q}` : ''}`)
+  },
+  crearConArchivo: async (formData) => {
+    const url = `${BASE_URL.replace(/\/$/, '')}/audiovisual`
+    const res = await fetch(url, { method: 'POST', body: formData })
+    const data = await res.json().catch(() => ({}))
+    if (!res.ok) throw new Error(data.error || res.statusText)
+    return data
+  },
+  actualizarEstado: (id, estado) =>
+    request(`audiovisual/${id}/estado`, { method: 'PATCH', body: JSON.stringify({ estado }) }),
+}
+
 export function getProductoImagenSrc(producto, index) {
   const img = producto?.imagenes?.[index]
   if (!img) return null
