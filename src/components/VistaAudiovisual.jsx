@@ -50,9 +50,9 @@ function validarImagen(file, resolucionEsperada) {
     img.onload = () => {
       URL.revokeObjectURL(img.src)
       const { width: wEsp, height: hEsp } = parseResolucionImagen(resolucionEsperada)
-      const tolerancia = 2
-      const okW = Math.abs(img.width - wEsp) <= tolerancia
-      const okH = Math.abs(img.height - hEsp) <= tolerancia
+      // Validación estricta: dimensiones exactas
+      const okW = img.width === wEsp
+      const okH = img.height === hEsp
       const ok = okW && okH
       resolve({
         ok,

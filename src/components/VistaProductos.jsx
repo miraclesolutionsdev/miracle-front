@@ -15,6 +15,7 @@ import {
 export default function VistaProductos() {
   const { productos, guardarProducto, toggleEstadoProducto, importarProductos } = useProductos()
   const [formAbierto, setFormAbierto] = useState(null)
+  const [busqueda, setBusqueda] = useState('')
 
   const handleCrear = () => setFormAbierto('crear')
   const handleEditar = (producto) => setFormAbierto(producto)
@@ -75,10 +76,29 @@ export default function VistaProductos() {
     }
   }
 
+  const productosFiltrados = productos.filter((p) => {
+    const q = busqueda.toLowerCase().trim()
+    if (!q) return true
+    return (
+      (p.nombre || '').toLowerCase().includes(q) ||
+      (p.tipo || '').toString().toLowerCase().includes(q) ||
+      (p.estado || '').toString().toLowerCase().includes(q)
+    )
+  })
+
   return (
     <div className="space-y-6">
+      <div className="flex justify-between items-center gap-2">
+        <input
+          type="text"
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          placeholder="Buscar por nombre, tipo o estado..."
+          className="w-full max-w-md rounded-lg border border-border bg-background px-3 py-2 text-sm text-card-foreground"
+        />
+      </div>
       <ProductosList
-        productos={productos}
+        productos={productosFiltrados}
         onCrear={handleCrear}
         onEditar={handleEditar}
         onToggleEstado={handleToggleEstado}

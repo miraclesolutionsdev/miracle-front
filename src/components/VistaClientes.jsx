@@ -32,6 +32,7 @@ export default function VistaClientes() {
   const [error, setError] = useState(null)
   const [formAbierto, setFormAbierto] = useState(null)
   const [clienteDetalle, setClienteDetalle] = useState(null)
+  const [busqueda, setBusqueda] = useState('')
 
   const loadClientes = useCallback(async () => {
     try {
@@ -141,6 +142,18 @@ export default function VistaClientes() {
     }
   }
 
+  const clientesFiltrados = clientes.filter((c) => {
+    const q = busqueda.toLowerCase().trim()
+    if (!q) return true
+    return (
+      (c.nombreEmpresa || '').toLowerCase().includes(q) ||
+      (c.cedulaNit || '').toString().toLowerCase().includes(q) ||
+      (c.email || '').toLowerCase().includes(q) ||
+      (c.whatsapp || '').toString().toLowerCase().includes(q) ||
+      (c.ciudadBarrio || '').toLowerCase().includes(q)
+    )
+  })
+
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -163,8 +176,17 @@ export default function VistaClientes() {
           </button>
         </div>
       )}
+      <div className="flex justify-between items-center gap-2">
+        <input
+          type="text"
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          placeholder="Buscar por nombre, cédula, email, WhatsApp o ciudad/barrio..."
+          className="w-full max-w-md rounded-lg border border-border bg-background px-3 py-2 text-sm text-card-foreground"
+        />
+      </div>
       <ClientesList
-        clientes={clientes}
+        clientes={clientesFiltrados}
         onCrear={handleCrear}
         onVer={handleVer}
         onEditar={handleEditar}
