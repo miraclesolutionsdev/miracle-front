@@ -15,7 +15,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
     archivosImagen: [],
     usosTexto: '',
     caracteristicasTexto: '',
-    stock: 0,
+    stock: '',
   })
 
   useEffect(() => {
@@ -31,7 +31,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
         caracteristicasTexto: Array.isArray(producto.caracteristicas)
           ? producto.caracteristicas.join('\n')
           : '',
-        stock: producto.stock ?? 0,
+        stock: producto.stock != null ? String(producto.stock) : '',
       })
     } else {
       setForm({
@@ -43,7 +43,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
         archivosImagen: [],
         usosTexto: '',
         caracteristicasTexto: '',
-        stock: 0,
+        stock: '',
       })
     }
   }, [producto])
@@ -60,10 +60,10 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
       const formData = new FormData()
       formData.append('nombre', form.nombre)
       formData.append('descripcion', form.descripcion)
-      formData.append('precio', String(form.precio).replace(/[^0-9.]/g, '') || '0')
+      formData.append('precio', String(form.precio).replace(/\D/g, '') || '0')
       formData.append('tipo', form.tipo)
       formData.append('estado', form.estado)
-      formData.append('stock', String(form.stock))
+      formData.append('stock', String(Number(form.stock) || 0))
       formData.append('usos', JSON.stringify(usos))
       formData.append('caracteristicas', JSON.stringify(caracteristicas))
       form.archivosImagen.forEach((file) => formData.append('imagenes', file))
@@ -73,6 +73,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
     } else {
       const payload = {
         ...form,
+        stock: Number(form.stock) || 0,
         usos,
         caracteristicas,
         imagenes: imagenesExistentes,
@@ -174,7 +175,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
               min={0}
               value={form.stock}
               onChange={(e) =>
-                setForm((f) => ({ ...f, stock: Number(e.target.value) || 0 }))
+                setForm((f) => ({ ...f, stock: e.target.value }))
               }
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
               placeholder="Ej. 10"

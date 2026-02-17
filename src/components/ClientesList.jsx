@@ -2,7 +2,6 @@ import { useRef } from 'react'
 import SectionCard from './SectionCard'
 
 const COLUMNAS = [
-  'ID',
   'Nombre / Empresa',
   'Cédula / NIT',
   'Email',
@@ -74,7 +73,6 @@ function ClientesList({ clientes, onCrear, onVer, onEditar, onExportExcel, onImp
           <tbody>
             {clientes.map((c) => (
               <tr key={c.id} className="border-b border-border">
-                <td className="py-3 pr-4 text-card-foreground whitespace-nowrap">{c.id}</td>
                 <td className="py-3 pr-4 text-card-foreground whitespace-nowrap">{c.nombreEmpresa}</td>
                 <td className="py-3 pr-4 text-muted-foreground whitespace-nowrap">{c.cedulaNit || '—'}</td>
                 <td className="py-3 pr-4 text-muted-foreground whitespace-nowrap">{c.email}</td>

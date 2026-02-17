@@ -12,6 +12,9 @@ const COLUMNAS = [
   'Acciones',
 ]
 
+const formatPrecio = (valor) =>
+  (Number(valor) || 0).toLocaleString('es-CO')
+
 function ProductosList({
   productos,
   onCrear,
@@ -99,7 +102,9 @@ function ProductosList({
                 <td className="py-3 pr-4 text-muted-foreground">
                   {p.tipo === 'servicio' ? 'Servicio' : 'Producto'}
                 </td>
-                <td className="py-3 pr-4 text-card-foreground">{p.precio}</td>
+                <td className="py-3 pr-4 text-card-foreground">
+                  {formatPrecio(p.precio)}
+                </td>
                 <td className="py-3 pr-4">
                   <span
                     className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
