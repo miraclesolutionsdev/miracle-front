@@ -18,6 +18,7 @@ const PATH_TO_LABEL = {
   '/dashboard': 'Dashboard',
   '/clientes': 'Clientes',
   '/productos': 'Productos',
+  '/configurar-tienda': 'Tienda',
   '/configura-redes': 'Configura tus redes',
   '/informacion-negocio': 'Información del negocio',
   '/campanas': 'Campañas',

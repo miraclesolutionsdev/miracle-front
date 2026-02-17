@@ -37,6 +37,7 @@ const LABEL_TO_PATH = {
   'Dashboard': '/',
   'Clientes': '/clientes',
   'Productos': '/productos',
+  'Tienda': '/configurar-tienda',
   'Configura tus redes': '/configura-redes',
   'Información del negocio': '/informacion-negocio',
   'Campañas': '/campanas',
@@ -106,12 +107,11 @@ function Sidebar({ seleccionado }) {
             )
           }
           const isActive = seleccionado === item.label
-          const isTienda = item.label === 'Tienda'
           return (
             <button
               key={item.label}
               type="button"
-              onClick={() => (isTienda ? navigate('/tienda') : navigate(LABEL_TO_PATH[item.label]))}
+              onClick={() => navigate(LABEL_TO_PATH[item.label])}
               className={`flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors ${
                 isActive
                   ? 'bg-sidebar-accent text-sidebar-accent-foreground'
