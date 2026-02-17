@@ -6,10 +6,8 @@ const ProductosContext = createContext(null)
 function formatProductoFromApi(p) {
   return {
     ...p,
-    precio:
-      typeof p.precio === 'number'
-        ? `$${Number(p.precio).toLocaleString('es-CO')} COP`
-        : p.precio ?? '',
+    // Mantener el precio como número crudo; se formatea solo en las vistas
+    precio: typeof p.precio === 'number' ? p.precio : Number(String(p.precio || '0').replace(/\D/g, '')) || 0,
   }
 }
 
