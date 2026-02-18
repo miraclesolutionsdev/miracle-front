@@ -23,10 +23,23 @@ function ThemeToggle() {
     <button
       type="button"
       onClick={toggleTheme}
-      className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+      role="switch"
+      aria-checked={isDark}
       aria-label={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+      className="relative flex h-8 w-16 shrink-0 rounded-full bg-muted p-0.5 transition-colors hover:bg-muted/80 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
     >
-      {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+      <span
+        className="absolute left-0.5 top-0.5 flex h-7 w-[calc(50%-0.125rem)] items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition-[transform] duration-300 ease-out"
+        style={{ transform: isDark ? 'translateX(100%)' : 'translateX(0)' }}
+      >
+        {isDark ? <Moon className="h-3.5 w-3.5" /> : <Sun className="h-3.5 w-3.5" />}
+      </span>
+      <span className="relative z-10 flex w-1/2 items-center justify-center text-muted-foreground">
+        <Sun className="h-4 w-4" />
+      </span>
+      <span className="relative z-10 flex w-1/2 items-center justify-center text-muted-foreground">
+        <Moon className="h-4 w-4" />
+      </span>
     </button>
   )
 }
