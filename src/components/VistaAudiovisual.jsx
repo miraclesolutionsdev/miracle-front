@@ -4,19 +4,37 @@ import { audiovisualApi } from '../utils/api'
 
 const PLATAFORMAS = ['YouTube', 'TikTok', 'Meta', 'Shorts']
 const RESOLUCIONES_VIDEO = ['9:16', '16:9', '1:1']
-const DURACIONES = ['15s', '30s', '60s', '90s']
-const RESOLUCIONES_IMAGEN = ['1080x1080', '1200x628', '1080x1920', '1200x1200']
+const FORMATOS_IMAGEN = [
+  { value: 'image/jpeg', label: 'JPG / JPEG' },
+  { value: 'image/png', label: 'PNG' },
+  { value: 'image/webp', label: 'WEBP' },
+  { value: 'image/gif', label: 'GIF' },
+]
 
 const RATIOS_VIDEO = { '9:16': 9 / 16, '16:9': 16 / 9, '1:1': 1 }
-const DURACION_ESPERADA = { '15s': 15, '30s': 30, '60s': 60, '90s': 90 }
-const TOLERANCIA_DURACION = 2
+const TOLERANCIA_DURACION = 5
 
-function parseResolucionImagen(str) {
-  const [w, h] = (str || '').split('x').map(Number)
-  return { width: w, height: h }
+function getFormatoDesdeRatio(ratio) {
+  if (!ratio || !Number.isFinite(ratio)) return null
+
+  let mejorClave = null
+  let mejorDiff = Infinity
+
+  for (const [clave, valor] of Object.entries(RATIOS_VIDEO)) {
+    const diff = Math.abs(ratio - valor)
+    if (diff < mejorDiff) {
+      mejorDiff = diff
+      mejorClave = clave
+    }
+  }
+
+  // Si está razonablemente cerca de alguno de los formatos conocidos, usamos ese nombre
+  if (mejorDiff < 0.05) return mejorClave
+
+  return null
 }
 
-function validarVideo(file, resolucion, duracionLimite) {
+function validarVideo(file, resolucion, duracionLimiteSegundos) {
   return new Promise((resolve, reject) => {
     const video = document.createElement('video')
     video.preload = 'metadata'
@@ -25,18 +43,26 @@ function validarVideo(file, resolucion, duracionLimite) {
       const ratio = video.videoWidth / video.videoHeight
       const duracion = video.duration
       const ratioEsperado = RATIOS_VIDEO[resolucion]
-      const duracionEsperada = DURACION_ESPERADA[duracionLimite] ?? 0
+      const duracionEsperada = Number(duracionLimiteSegundos) || 0
       const toleranciaRatio = 0.03
       const okRatio = ratioEsperado != null && Math.abs(ratio - ratioEsperado) < toleranciaRatio
-      const okDuracion = duracionEsperada > 0 && Math.abs(duracion - duracionEsperada) <= TOLERANCIA_DURACION
+      const okDuracion =
+        duracionEsperada > 0 &&
+        Math.abs(duracion - duracionEsperada) <= TOLERANCIA_DURACION
+
+      const formatoArchivo = getFormatoDesdeRatio(ratio)
       resolve({
         ok: okRatio && okDuracion,
         width: video.videoWidth,
         height: video.videoHeight,
         duracion: Math.round(duracion),
         errores: [
-          !okRatio && `Resolucion debe ser ${resolucion} (archivo: ${video.videoWidth}x${video.videoHeight})`,
-          !okDuracion && `Duracion debe ser ~${duracionLimite} (archivo: ~${Math.round(duracion)}s)`,
+          !okRatio &&
+            `Formato debe ser ${resolucion}${
+              formatoArchivo ? ` (archivo: ${formatoArchivo})` : ''
+            }`,
+          !okDuracion &&
+            `Duracion debe ser ~${duracionEsperada}s (archivo: ~${Math.round(duracion)}s)`,
         ].filter(Boolean),
       })
     }
@@ -45,23 +71,47 @@ function validarVideo(file, resolucion, duracionLimite) {
   })
 }
 
-function validarImagen(file, resolucionEsperada) {
+function validarImagen(file, formatoEsperado) {
   return new Promise((resolve, reject) => {
+    if (!file) {
+      resolve({
+        ok: false,
+        width: 0,
+        height: 0,
+        errores: ['No se recibió archivo de imagen'],
+      })
+      return
+    }
+
+    const tipoArchivo = file.type || ''
+    const okFormato = formatoEsperado
+      ? tipoArchivo === formatoEsperado
+      : tipoArchivo.startsWith('image/')
+
+    if (!okFormato) {
+      const etiquetaEsperada =
+        FORMATOS_IMAGEN.find((f) => f.value === formatoEsperado)?.label || 'imagen válida'
+      resolve({
+        ok: false,
+        width: 0,
+        height: 0,
+        errores: [
+          `Formato debe ser ${etiquetaEsperada} (archivo: ${
+            tipoArchivo || 'desconocido'
+          })`,
+        ],
+      })
+      return
+    }
+
     const img = new Image()
     img.onload = () => {
       URL.revokeObjectURL(img.src)
-      const { width: wEsp, height: hEsp } = parseResolucionImagen(resolucionEsperada)
-      // Validación estricta: dimensiones exactas
-      const okW = img.width === wEsp
-      const okH = img.height === hEsp
-      const ok = okW && okH
       resolve({
-        ok,
+        ok: true,
         width: img.width,
         height: img.height,
-        errores: !ok
-          ? [`Resolucion debe ser ${resolucionEsperada} (archivo: ${img.width}x${img.height})`]
-          : [],
+        errores: [],
       })
     }
     img.onerror = () => reject(new Error('No se pudo leer la imagen'))
@@ -80,7 +130,7 @@ const formInitial = {
   tipo: 'Video',
   plataforma: '',
   resolucion: '',
-  duracion: '',
+  duracion: 15, // segundos por defecto
   archivo: null,
 }
 
@@ -122,8 +172,12 @@ export default function VistaAudiovisual() {
       setError('Debe adjuntar un archivo (video o imagen)')
       return
     }
-    if (!form.resolucion) {
-      setError('Seleccione una resolucion')
+    if (form.tipo === 'Video' && !form.resolucion) {
+      setError('Seleccione una resolucion de video')
+      return
+    }
+    if (form.tipo === 'Imagen' && !form.resolucion) {
+      setError('Seleccione un formato de imagen')
       return
     }
     if (form.tipo === 'Video' && !form.duracion) {
@@ -364,27 +418,29 @@ export default function VistaAudiovisual() {
                   </div>
                   <div>
                     <label className="mb-1 block text-sm font-medium text-muted-foreground">
-                      Duración
+                      Duración (segundos)
                     </label>
-                    <select
-                      value={form.duracion}
-                      onChange={(e) => setForm((f) => ({ ...f, duracion: e.target.value }))}
-                      className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-card-foreground"
-                      required
-                    >
-                      <option value="">Seleccionar...</option>
-                      {DURACIONES.map((d) => (
-                        <option key={d} value={d}>
-                          {d}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="range"
+                        min={1}
+                        max={60}
+                        value={Number(form.duracion) || 1}
+                        onChange={(e) =>
+                          setForm((f) => ({ ...f, duracion: Number(e.target.value) }))
+                        }
+                        className="w-full"
+                      />
+                      <span className="w-12 text-right text-sm text-card-foreground">
+                        {Number(form.duracion) || 1}s
+                      </span>
+                    </div>
                   </div>
                 </>
               ) : (
                 <div>
                   <label className="mb-1 block text-sm font-medium text-muted-foreground">
-                    Resolución
+                    Formato de imagen
                   </label>
                   <select
                     value={form.resolucion}
@@ -393,9 +449,9 @@ export default function VistaAudiovisual() {
                     required
                   >
                     <option value="">Seleccionar...</option>
-                    {RESOLUCIONES_IMAGEN.map((r) => (
-                      <option key={r} value={r}>
-                        {r}
+                    {FORMATOS_IMAGEN.map((f) => (
+                      <option key={f.value} value={f.value}>
+                        {f.label}
                       </option>
                     ))}
                   </select>
