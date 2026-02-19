@@ -5,8 +5,8 @@ import { getProductoImagenSrc } from '../utils/api'
 import { ArrowLeft, Check, Package, ChevronRight } from 'lucide-react'
 import LandingMetodoPago from './LandingMetodoPago'
 
-// Cambia este numero por el tuyo en formato internacional, sin "+"
-const WHATSAPP_NUMBER = '573001234567'
+// Número de WhatsApp en formato internacional (Colombia), sin "+"
+const WHATSAPP_NUMBER = '573243524983'
 
 const WhatsAppIcon = ({ className = 'h-6 w-6' }) => (
   <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden>
@@ -120,10 +120,6 @@ function LandingProductoPage() {
     window.scrollTo(0, 0)
   }, [id])
 
-  const [nombre, setNombre] = useState('')
-  const [telefono, setTelefono] = useState('')
-  const [showWhatsappForm, setShowWhatsappForm] = useState(false)
-
   if (!producto) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#0d0d10]">
@@ -144,14 +140,12 @@ function LandingProductoPage() {
   }
 
   const handleWhatsapp = (e) => {
-    e.preventDefault()
+    e?.preventDefault?.()
     const base = `https://wa.me/${WHATSAPP_NUMBER}`
     const texto = [
       'Hola, estoy interesado en el siguiente producto:',
       `Producto: ${producto.nombre}`,
       producto.precio ? `Precio mostrado: ${producto.precio}` : '',
-      nombre ? `Mi nombre: ${nombre}` : '',
-      telefono ? `Mi numero de contacto: ${telefono}` : '',
     ]
       .filter(Boolean)
       .join('\n')
@@ -182,9 +176,13 @@ function LandingProductoPage() {
         </div>
       </nav>
 
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-16">
-          <ImageGallery producto={producto} />
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+        <div className="grid grid-cols-1 gap-14 lg:grid-cols-2 lg:gap-20 lg:items-center">
+          <div className="flex w-full justify-center lg:max-h-[70vh]">
+            <div className="w-full max-w-xl">
+              <ImageGallery producto={producto} />
+            </div>
+          </div>
 
           <div className="flex flex-col gap-8">
             <div className="flex flex-col gap-4">
@@ -258,7 +256,7 @@ function LandingProductoPage() {
 
             <div className="h-px bg-white/[0.06]" />
 
-            <section className="flex flex-col gap-6">
+            <section className="flex flex-col gap-8">
               <div>
                 <h2 className="text-xs font-semibold uppercase tracking-[0.15em] text-white/40">
                   Completa tu compra
@@ -267,91 +265,30 @@ function LandingProductoPage() {
                   Consulta por WhatsApp o paga de forma segura.
                 </p>
               </div>
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:items-stretch">
-                <div className="flex flex-col rounded-2xl bg-[#141418] p-6 ring-1 ring-white/[0.06] sm:p-8">
-                  {!showWhatsappForm ? (
-                    <button
-                      type="button"
-                      onClick={() => setShowWhatsappForm(true)}
-                      className="flex flex-1 flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-[#25D366]/30 bg-[#25D366]/[0.04] py-8 transition-all duration-200 hover:border-[#25D366]/60 hover:bg-[#25D366]/[0.08] focus:outline-none focus:ring-2 focus:ring-[#25D366]/30 focus:ring-offset-2 focus:ring-offset-[#141418]"
-                      aria-label="Abrir formulario de contacto por WhatsApp"
-                    >
-                      <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-[#25D366] text-white shadow-lg shadow-[#25D366]/20">
-                        <WhatsAppIcon className="h-7 w-7" />
-                      </div>
-                      <div className="flex flex-col items-center gap-0.5 text-center">
-                        <span className="text-sm font-semibold text-white">
-                          Consulta por WhatsApp
-                        </span>
-                        <span className="text-xs text-white/40">
-                          Deja tus datos y te redirigimos al chat
-                        </span>
-                      </div>
-                    </button>
-                  ) : (
-                    <div className="flex flex-col gap-5">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#25D366] text-white">
-                          <WhatsAppIcon className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <h3 className="text-sm font-semibold text-white">
-                            Hablemos por WhatsApp
-                          </h3>
-                          <p className="text-xs text-white/40">
-                            Completa y te redirigimos al chat.
-                          </p>
-                        </div>
-                      </div>
-                      <form onSubmit={handleWhatsapp} className="flex flex-col gap-4">
-                        <div className="grid gap-3 sm:grid-cols-2">
-                          <div>
-                            <label className="mb-1 block text-xs font-medium text-white/60">
-                              Nombre
-                            </label>
-                            <input
-                              type="text"
-                              value={nombre}
-                              onChange={(e) => setNombre(e.target.value)}
-                              className="w-full rounded-lg border border-white/[0.08] bg-white/[0.04] px-3 py-2.5 text-sm text-white placeholder:text-white/25 transition-colors focus:border-[#25D366]/40 focus:outline-none focus:ring-1 focus:ring-[#25D366]/20"
-                              placeholder="Tu nombre"
-                            />
-                          </div>
-                          <div>
-                            <label className="mb-1 block text-xs font-medium text-white/60">
-                              Celular
-                            </label>
-                            <input
-                              type="tel"
-                              value={telefono}
-                              onChange={(e) => setTelefono(e.target.value)}
-                              className="w-full rounded-lg border border-white/[0.08] bg-white/[0.04] px-3 py-2.5 text-sm text-white placeholder:text-white/25 transition-colors focus:border-[#25D366]/40 focus:outline-none focus:ring-1 focus:ring-[#25D366]/20"
-                              placeholder="+57 300 000 0000"
-                            />
-                          </div>
-                        </div>
-                        <button
-                          type="submit"
-                          className="flex items-center justify-center gap-2 rounded-xl bg-[#25D366] px-4 py-3 text-sm font-semibold text-white shadow-md shadow-[#25D366]/20 transition-all hover:bg-[#20BD5A] focus:outline-none focus:ring-2 focus:ring-[#25D366]/40 focus:ring-offset-2 focus:ring-offset-[#141418]"
-                        >
-                          <WhatsAppIcon className="h-4 w-4" />
-                          Ir a WhatsApp
-                        </button>
-                        <p className="text-[11px] text-white/25">
-                          Solo para el mensaje inicial en WhatsApp.
-                        </p>
-                      </form>
-                      <button
-                        type="button"
-                        onClick={() => setShowWhatsappForm(false)}
-                        className="self-start text-xs text-white/30 underline transition-colors hover:text-white/60"
-                      >
-                        Cerrar
-                      </button>
+              <div className="flex flex-col gap-6 sm:flex-row sm:items-stretch sm:gap-8">
+                <div className="flex-1 sm:max-w-md">
+                  <button
+                    type="button"
+                    onClick={handleWhatsapp}
+                    className="flex w-full flex-col items-center justify-center gap-5 rounded-2xl bg-[#25D366] px-8 py-10 text-left shadow-lg shadow-[#25D366]/25 transition-all duration-200 hover:scale-[1.02] hover:shadow-xl hover:shadow-[#25D366]/30 focus:outline-none focus:ring-2 focus:ring-[#25D366]/50 focus:ring-offset-2 focus:ring-offset-[#0d0d10]"
+                    aria-label="Abrir chat de WhatsApp"
+                  >
+                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 text-white">
+                      <WhatsAppIcon className="h-9 w-9" />
                     </div>
-                  )}
+                    <div className="flex flex-col items-center gap-1 text-center">
+                      <span className="text-base font-bold text-white">
+                        Consulta por WhatsApp
+                      </span>
+                      <span className="text-sm text-white/90">
+                        Te redirigimos al chat para que nos cuentes
+                      </span>
+                    </div>
+                  </button>
                 </div>
-                <LandingMetodoPago producto={producto} />
+                <div className="flex-1 sm:max-w-md">
+                  <LandingMetodoPago producto={producto} />
+                </div>
               </div>
             </section>
           </div>

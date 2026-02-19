@@ -37,7 +37,7 @@ function LandingMetodoPago({ producto }) {
   }
 
   return (
-    <div className="flex h-full flex-col rounded-2xl bg-[#141418] p-6 ring-1 ring-white/[0.06] sm:p-8">
+    <div className="flex h-full flex-col rounded-2xl bg-[#141418] p-6 ring-1 ring-white/[0.06] transition-all duration-200 hover:ring-amber-400/20 sm:p-8">
       <div className="flex flex-1 flex-col gap-6">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-400/10 text-amber-400">
@@ -85,7 +85,7 @@ function LandingMetodoPago({ producto }) {
         <button
           type="button"
           onClick={handlePagar}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-400 px-5 py-3.5 text-sm font-semibold text-[#0d0d10] shadow-md shadow-amber-400/20 transition-all duration-200 hover:bg-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-400/40 focus:ring-offset-2 focus:ring-offset-[#141418]"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-400 px-5 py-3.5 text-sm font-semibold text-[#0d0d10] shadow-md shadow-amber-400/20 transition-all duration-200 hover:scale-[1.02] hover:bg-amber-300 hover:shadow-lg hover:shadow-amber-400/25 focus:outline-none focus:ring-2 focus:ring-amber-400/40 focus:ring-offset-2 focus:ring-offset-[#141418]"
           aria-label="Pagar ahora (próximamente)"
         >
           <Shield className="h-4 w-4" strokeWidth={2} />
