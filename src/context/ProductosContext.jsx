@@ -17,7 +17,8 @@ export function ProductosProvider({ children }) {
   const loadProductos = useCallback(async () => {
     try {
       const data = await productosApi.listar()
-      setProductos((data || []).map(formatProductoFromApi))
+      const list = Array.isArray(data) ? data : (data?.productos ?? [])
+      setProductos((list || []).map(formatProductoFromApi))
     } catch (err) {
       console.error('Error al cargar productos:', err)
       setProductos([])

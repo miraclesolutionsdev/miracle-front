@@ -1,3 +1,4 @@
+// URL del backend en producción (Vercel). Sobrescribir con VITE_API_URL en .env si el backend está en otra URL.
 const BACKEND_VERCEL = 'https://miracle-front-lcdn.vercel.app'
 export const BASE_URL =
   import.meta.env.VITE_API_URL ||
