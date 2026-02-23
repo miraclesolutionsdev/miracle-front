@@ -116,6 +116,7 @@ const CLIENTES_CABECERA_A_CAMPO = {
   'ciudad/barrio': 'ciudadBarrio',
   'ciudad con barrio': 'ciudadBarrio',
   'ciudad y barrio': 'ciudadBarrio',
+  origen: 'origen',
 }
 
 /** Dado un array de cabeceras (primera fila), devuelve { nombreCampo: índiceColumna } */
@@ -204,6 +205,7 @@ export const CLIENTES_HEADERS = [
   'WhatsApp',
   'Dirección',
   'Ciudad / Barrio',
+  'Origen',
 ]
 
 export function clientesToRows(clientes) {
@@ -214,6 +216,7 @@ export function clientesToRows(clientes) {
     c.whatsapp ?? '',
     c.direccion ?? '',
     c.ciudadBarrio ?? '',
+    (c.origen || 'plataforma') === 'whatsapp' ? 'WhatsApp' : 'Plataforma',
   ])
 }
 

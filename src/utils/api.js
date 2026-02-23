@@ -62,6 +62,10 @@ export const audiovisualApi = {
     const q = new URLSearchParams(params || {}).toString()
     return request(`audiovisual${q ? `?${q}` : ''}`)
   },
+  obtenerPresignedUrl: (body) =>
+    request('audiovisual/presigned-url', { method: 'POST', body: JSON.stringify(body) }),
+  confirmarSubida: (body) =>
+    request('audiovisual/confirmar', { method: 'POST', body: JSON.stringify(body) }),
   crearConArchivo: async (formData) => {
     const url = `${BASE_URL.replace(/\/$/, '')}/audiovisual`
     const res = await fetch(url, { method: 'POST', body: formData })

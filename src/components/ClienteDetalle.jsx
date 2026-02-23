@@ -48,7 +48,15 @@ function ClienteDetalle({ cliente, onCerrar }) {
             </div>
             <div>
               <dt className="text-muted-foreground">WhatsApp</dt>
-              <dd className="text-card-foreground">{cliente.whatsapp}</dd>
+              <dd className="text-card-foreground">{cliente.whatsapp || '—'}</dd>
+            </div>
+            <div>
+              <dt className="text-muted-foreground">Origen</dt>
+              <dd className="text-card-foreground">{(cliente.origen || 'plataforma') === 'whatsapp' ? 'WhatsApp' : 'Plataforma'}</dd>
+            </div>
+            <div>
+              <dt className="text-muted-foreground">Fecha de creación</dt>
+              <dd className="text-card-foreground">{cliente.fechaCreacion}</dd>
             </div>
             <div className="col-span-2">
               <dt className="text-muted-foreground">Dirección</dt>
@@ -58,10 +66,18 @@ function ClienteDetalle({ cliente, onCerrar }) {
               <dt className="text-muted-foreground">Ciudad y Barrio</dt>
               <dd className="text-card-foreground">{cliente.ciudadBarrio || '—'}</dd>
             </div>
-            <div>
-              <dt className="text-muted-foreground">Fecha de creación</dt>
-              <dd className="text-card-foreground">{cliente.fechaCreacion}</dd>
-            </div>
+            {(cliente.productoInteres || '').trim() && (
+              <div className="col-span-2">
+                <dt className="text-muted-foreground">Producto de interés</dt>
+                <dd className="text-card-foreground">{cliente.productoInteres}</dd>
+              </div>
+            )}
+            {(cliente.notas || '').trim() && (
+              <div className="col-span-2">
+                <dt className="text-muted-foreground">Notas</dt>
+                <dd className="text-card-foreground">{cliente.notas}</dd>
+              </div>
+            )}
           </dl>
         </div>
 
