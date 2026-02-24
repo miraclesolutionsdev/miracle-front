@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { productosApi } from '../utils/api'
+import { useAuth } from './AuthContext'
 
 const ProductosContext = createContext(null)
 
@@ -12,6 +13,7 @@ function formatProductoFromApi(p) {
 }
 
 export function ProductosProvider({ children }) {
+  const { isAuthenticated, loading: authLoading } = useAuth()
   const [productos, setProductos] = useState([])
 
   const loadProductos = useCallback(async () => {
@@ -25,9 +27,14 @@ export function ProductosProvider({ children }) {
     }
   }, [])
 
+  // Solo cargar productos cuando el usuario esté autenticado (evita GET /productos en login y CORS)
   useEffect(() => {
+    if (authLoading || !isAuthenticated) {
+      setProductos([])
+      return
+    }
     loadProductos()
-  }, [loadProductos])
+  }, [isAuthenticated, authLoading, loadProductos])
 
   const guardarProducto = async (payload) => {
     if (payload.formData instanceof FormData) {
