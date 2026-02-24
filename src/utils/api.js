@@ -4,12 +4,35 @@ export const BASE_URL =
   import.meta.env.VITE_API_URL ||
   (import.meta.env.PROD ? BACKEND_VERCEL : 'http://localhost:3000')
 
+export const authApi = {
+  login: (email, password) =>
+    request('auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
+  register: (body) =>
+    request('auth/register', { method: 'POST', body: JSON.stringify(body) }),
+  crearTienda: (body) =>
+    request('auth/crear-tienda', { method: 'POST', body: JSON.stringify(body) }),
+}
+
+function getAuthToken() {
+  try {
+    const raw = localStorage.getItem('miracle_auth')
+    if (raw) {
+      const data = JSON.parse(raw)
+      return data?.token || null
+    }
+  } catch (_) {}
+  return null
+}
+
 async function request(path, options = {}) {
   const url = `${BASE_URL.replace(/\/$/, '')}/${path.replace(/^\//, '')}`
-  const res = await fetch(url, {
-    headers: { 'Content-Type': 'application/json', ...options.headers },
-    ...options,
-  })
+  const token = getAuthToken()
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...options.headers,
+  }
+  const res = await fetch(url, { headers, ...options })
   const data = await res.json().catch(() => ({}))
   if (!res.ok) throw new Error(data.error || res.statusText || 'Error en la solicitud')
   return data
@@ -37,7 +60,9 @@ export const productosApi = {
     request('productos', { method: 'POST', body: JSON.stringify(body) }),
   crearConArchivos: async (formData) => {
     const url = `${BASE_URL.replace(/\/$/, '')}/productos`
-    const res = await fetch(url, { method: 'POST', body: formData })
+    const token = getAuthToken()
+    const headers = token ? { Authorization: `Bearer ${token}` } : {}
+    const res = await fetch(url, { method: 'POST', headers, body: formData })
     const data = await res.json().catch(() => ({}))
     if (!res.ok) throw new Error(data.error || res.statusText)
     return data
@@ -46,7 +71,9 @@ export const productosApi = {
     request(`productos/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
   actualizarConArchivos: async (id, formData) => {
     const url = `${BASE_URL.replace(/\/$/, '')}/productos/${id}`
-    const res = await fetch(url, { method: 'PUT', body: formData })
+    const token = getAuthToken()
+    const headers = token ? { Authorization: `Bearer ${token}` } : {}
+    const res = await fetch(url, { method: 'PUT', headers, body: formData })
     const data = await res.json().catch(() => ({}))
     if (!res.ok) throw new Error(data.error || res.statusText)
     return data
@@ -68,7 +95,9 @@ export const audiovisualApi = {
     request('audiovisual/confirmar', { method: 'POST', body: JSON.stringify(body) }),
   crearConArchivo: async (formData) => {
     const url = `${BASE_URL.replace(/\/$/, '')}/audiovisual`
-    const res = await fetch(url, { method: 'POST', body: formData })
+    const token = getAuthToken()
+    const headers = token ? { Authorization: `Bearer ${token}` } : {}
+    const res = await fetch(url, { method: 'POST', headers, body: formData })
     const data = await res.json().catch(() => ({}))
     if (!res.ok) throw new Error(data.error || res.statusText)
     return data

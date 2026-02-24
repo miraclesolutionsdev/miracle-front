@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Bell, Search, Sun, Moon, LayoutDashboard, Users, Package, Megaphone, Film, BarChart3, ShoppingCart, ShoppingBag, Settings, Wifi, Info } from 'lucide-react'
+import { Bell, Search, Sun, Moon, LayoutDashboard, Users, Package, Megaphone, Film, BarChart3, ShoppingCart, ShoppingBag, Settings, Wifi, Info, LogOut } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext.jsx'
+import { useAuth } from '../context/AuthContext'
 
 const SEARCH_ITEMS = [
   { label: 'Dashboard', path: '/', icon: LayoutDashboard },
@@ -46,11 +47,14 @@ function ThemeToggle() {
 
 export function Header() {
   const navigate = useNavigate()
+  const { user, logout } = useAuth()
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [notifOpen, setNotifOpen] = useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
   const searchRef = useRef(null)
   const notifRef = useRef(null)
+  const userMenuRef = useRef(null)
 
   const filteredItems = useMemo(() => {
     const q = searchQuery.trim().toLowerCase()
@@ -62,6 +66,7 @@ export function Header() {
     function handleClickOutside(e) {
       if (notifRef.current && !notifRef.current.contains(e.target)) setNotifOpen(false)
       if (searchOpen && searchRef.current && !searchRef.current.contains(e.target)) setSearchOpen(false)
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) setUserMenuOpen(false)
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
@@ -117,8 +122,31 @@ export function Header() {
             )}
           </div>
           <ThemeToggle />
-          <div className="ml-2 flex h-8 w-8 items-center justify-center rounded-full bg-primary/15 text-xs font-medium text-primary">
-            MS
+          <div className="relative ml-2" ref={userMenuRef}>
+            <button
+              type="button"
+              onClick={() => setUserMenuOpen((o) => !o)}
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/15 text-xs font-medium text-primary hover:bg-primary/25"
+              aria-label="Menú de usuario"
+              aria-expanded={userMenuOpen}
+            >
+              {user?.nombre ? (user.nombre.slice(0, 2).toUpperCase() || 'U') : (user?.email?.slice(0, 2).toUpperCase() || 'MS')}
+            </button>
+            {userMenuOpen && (
+              <div className="absolute right-0 top-full z-50 mt-1 w-48 rounded-lg border border-border bg-popover py-2 shadow-lg">
+                <div className="px-3 py-2 text-xs text-muted-foreground border-b border-border">
+                  {user?.email}
+                  {user?.tenantNombre && <span className="block mt-0.5 font-medium text-foreground">{user.tenantNombre}</span>}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { logout(); setUserMenuOpen(false); navigate('/login'); }}
+                  className="flex w-full items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-accent hover:text-accent-foreground"
+                >
+                  <LogOut className="h-4 w-4" /> Cerrar sesión
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </header>
