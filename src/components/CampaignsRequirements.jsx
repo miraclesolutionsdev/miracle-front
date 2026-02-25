@@ -2,10 +2,10 @@ import SectionCard from './SectionCard'
 import { Check } from 'lucide-react'
 
 const CAMPAIGNS_BY_PRODUCT = [
-  'Pack Social Media -- 4 campanas activas',
-  'Video Corporativo -- 2 campanas activas',
-  'Google Ads -- 6 campanas activas',
-  'Diseno de Marca -- 1 campana activa',
+  'Pack Social Media -- 4 campañas activas',
+  'Video Corporativo -- 2 campañas activas',
+  'Google Ads -- 6 campañas activas',
+  'Diseno de Marca -- 1 campaña activa',
 ]
 
 const REQUIREMENTS = [
@@ -19,7 +19,7 @@ const REQUIREMENTS = [
 export function CampaignsRequirements() {
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-      <SectionCard title="Campanas por producto">
+      <SectionCard title="Campañas por producto">
         <ul className="flex flex-col gap-2">
           {CAMPAIGNS_BY_PRODUCT.map((item) => (
             <li
@@ -32,7 +32,7 @@ export function CampaignsRequirements() {
         </ul>
       </SectionCard>
 
-      <SectionCard title="Requerimientos de campanas">
+      <SectionCard title="Requerimientos de campañas">
         <ul className="flex flex-col gap-2.5 pl-0.5">
           {REQUIREMENTS.map((item) => (
             <li

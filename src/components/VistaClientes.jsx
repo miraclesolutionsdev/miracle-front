@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import ClientesList from './ClientesList'
 import ClienteForm from './ClienteForm'
 import ClienteDetalle from './ClienteDetalle'
@@ -50,7 +50,6 @@ export default function VistaClientes() {
     try {
       setError(null)
       const params = {}
-      if (busqueda.trim()) params.busqueda = busqueda.trim()
       if (filtroOrigen) params.origen = filtroOrigen
       if (filtroCiudad.trim()) params.ciudad = filtroCiudad.trim()
       if (filtroFechaDesde) params.fechaDesde = filtroFechaDesde
@@ -63,7 +62,28 @@ export default function VistaClientes() {
     } finally {
       setLoading(false)
     }
-  }, [busqueda, filtroOrigen, filtroCiudad, filtroFechaDesde, filtroFechaHasta])
+  }, [filtroOrigen, filtroCiudad, filtroFechaDesde, filtroFechaHasta])
+
+  const clientesFiltrados = useMemo(() => {
+    const q = busqueda.trim().toLowerCase()
+    if (!q) return clientes
+    return clientes.filter((c) => {
+      const nombre = (c.nombreEmpresa ?? '').toLowerCase()
+      const cedula = (c.cedulaNit ?? '').toLowerCase()
+      const email = (c.email ?? '').toLowerCase()
+      const whatsapp = (c.whatsapp ?? '').toLowerCase()
+      const ciudad = (c.ciudadBarrio ?? '').toLowerCase()
+      const direccion = (c.direccion ?? '').toLowerCase()
+      return (
+        nombre.includes(q) ||
+        cedula.includes(q) ||
+        email.includes(q) ||
+        whatsapp.includes(q) ||
+        ciudad.includes(q) ||
+        direccion.includes(q)
+      )
+    })
+  }, [clientes, busqueda])
 
   useEffect(() => {
     setLoading(true)
@@ -100,7 +120,7 @@ export default function VistaClientes() {
   }
 
   const handleExportExcel = () => {
-    const rows = clientesToRows(clientes)
+    const rows = clientesToRows(clientesFiltrados)
     exportToExcel(CLIENTES_HEADERS, rows, 'clientes')
   }
 
@@ -226,7 +246,7 @@ export default function VistaClientes() {
         />
       </div>
       <ClientesList
-        clientes={clientes}
+        clientes={clientesFiltrados}
         onCrear={handleCrear}
         onVer={handleVer}
         onEditar={handleEditar}

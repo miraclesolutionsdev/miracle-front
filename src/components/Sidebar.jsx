@@ -14,7 +14,6 @@ import {
   ChevronRight,
   Wifi,
   Info,
-  ShieldCheck,
 } from 'lucide-react'
 
 const CONFIGURA_SUB = [
@@ -32,7 +31,6 @@ const NAV_ITEMS = [
   { label: 'Audiovisual', icon: Film },
   { label: 'Métricas Ads', icon: BarChart3 },
   { label: 'Ventas', icon: ShoppingCart },
-  { label: 'Administradores', icon: ShieldCheck },
 ]
 
 const LABEL_TO_PATH = {
@@ -46,7 +44,6 @@ const LABEL_TO_PATH = {
   'Audiovisual': '/audiovisual',
   'Métricas Ads': '/metricas-ads',
   'Ventas': '/ventas',
-  'Administradores': '/administradores',
 }
 
 function Sidebar({ seleccionado }) {

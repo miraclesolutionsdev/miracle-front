@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import SectionCard from './SectionCard'
 import { audiovisualApi } from '../utils/api'
 
@@ -150,6 +150,7 @@ const formInitial = {
 
 export default function VistaAudiovisual() {
   const [piezas, setPiezas] = useState([])
+  const [busqueda, setBusqueda] = useState('')
   const [loading, setLoading] = useState(true)
   const [modalAbierto, setModalAbierto] = useState(false)
   const [form, setForm] = useState(formInitial)
@@ -278,6 +279,19 @@ export default function VistaAudiovisual() {
     alert(`Reutilizar la pieza ${pieza.id} en otras campañas.`)
   }
 
+  const piezasFiltradas = useMemo(() => {
+    const q = busqueda.trim().toLowerCase()
+    if (!q) return piezas
+    return piezas.filter(
+      (p) =>
+        (p.id ?? '').toLowerCase().includes(q) ||
+        (p.tipo ?? '').toLowerCase().includes(q) ||
+        (p.plataforma ?? '').toLowerCase().includes(q) ||
+        (p.formato ?? '').toLowerCase().includes(q) ||
+        (p.estado ?? '').toLowerCase().includes(q)
+    )
+  }, [piezas, busqueda])
+
   const esImagen = (contentType) =>
     contentType && contentType.startsWith('image/')
 
@@ -296,6 +310,18 @@ export default function VistaAudiovisual() {
             Subir pieza audiovisual
           </button>
         </div>
+
+        {!loading && piezas.length > 0 && (
+          <div className="mb-4">
+            <input
+              type="text"
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              placeholder="Buscar por ID, tipo, plataforma, formato, estado..."
+              className="w-full max-w-md rounded-lg border border-border bg-background px-3 py-2 text-sm text-card-foreground"
+            />
+          </div>
+        )}
 
         {loading ? (
           <p className="py-8 text-center text-sm text-muted-foreground">Cargando...</p>
@@ -318,7 +344,7 @@ export default function VistaAudiovisual() {
                 </tr>
               </thead>
               <tbody>
-                {piezas.map((pieza) => (
+                {piezasFiltradas.map((pieza) => (
                   <tr key={pieza.id} className="border-b border-border">
                     <td className="whitespace-nowrap py-3 pr-4 text-card-foreground">
                       {pieza.id.slice(-6)}

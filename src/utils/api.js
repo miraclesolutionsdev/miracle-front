@@ -11,6 +11,16 @@ export const authApi = {
     request('auth/register', { method: 'POST', body: JSON.stringify(body) }),
   crearTienda: (body) =>
     request('auth/crear-tienda', { method: 'POST', body: JSON.stringify(body) }),
+  obtenerPerfil: () => request('auth/me'),
+  actualizarPerfil: (body) =>
+    request('auth/me', { method: 'PATCH', body: JSON.stringify(body) }),
+  cambiarPassword: (contraseñaActual, nuevaContraseña) =>
+    request('auth/cambiar-password', {
+      method: 'POST',
+      body: JSON.stringify({ contraseñaActual, nuevaContraseña }),
+    }),
+  actualizarTenant: (nombre) =>
+    request('auth/tenant', { method: 'PATCH', body: JSON.stringify({ nombre }) }),
 }
 
 function getAuthToken() {

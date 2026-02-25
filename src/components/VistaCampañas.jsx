@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import CampañasList from './CampañasList'
 import CampañaForm from './CampañaForm'
 import CampañaDetalle from './CampañaDetalle'
@@ -20,6 +20,7 @@ export default function VistaCampañas() {
   const { user } = useAuth()
   const { productos } = useProductos()
   const [campañas, setCampañas] = useState([])
+  const [busqueda, setBusqueda] = useState('')
   const [piezas, setPiezas] = useState(PIEZAS_FALLBACK)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -120,6 +121,20 @@ export default function VistaCampañas() {
       .catch((err) => setError(err.message))
   }
 
+  const campañasFiltradas = useMemo(() => {
+    const q = busqueda.trim().toLowerCase()
+    if (!q) return campañas
+    return campañas.filter(
+      (c) =>
+        (c.id ?? '').toLowerCase().includes(q) ||
+        (c.producto ?? '').toLowerCase().includes(q) ||
+        (c.piezaCreativo ?? '').toLowerCase().includes(q) ||
+        (c.plataforma ?? '').toLowerCase().includes(q) ||
+        (c.miracleCoins ?? '').toLowerCase().includes(q) ||
+        (c.estado ?? '').toLowerCase().includes(q)
+    )
+  }, [campañas, busqueda])
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12 text-muted-foreground">
@@ -135,8 +150,17 @@ export default function VistaCampañas() {
           {error}
         </div>
       )}
+      <div className="flex flex-wrap items-center gap-3">
+        <input
+          type="text"
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          placeholder="Buscar por ID, producto, pieza, plataforma, estado..."
+          className="w-full max-w-md rounded-lg border border-border bg-background px-3 py-2 text-sm text-card-foreground"
+        />
+      </div>
       <CampañasList
-        campañas={campañas}
+        campañas={campañasFiltradas}
         onCrear={handleCrear}
         onVer={handleVer}
         onEditar={handleEditar}

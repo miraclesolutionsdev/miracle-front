@@ -10,7 +10,7 @@ const CAMPAIGNS = [
 
 export function CampaignChart() {
   return (
-    <SectionCard title="Rendimiento de campana">
+    <SectionCard title="Rendimiento de campaña">
       <div className="flex flex-col gap-4">
         {CAMPAIGNS.map((c) => (
           <div key={c.name} className="flex items-center gap-4">

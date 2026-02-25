@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import ProductosList from './ProductosList'
 import ProductoForm from './ProductoForm'
 import { useProductos } from '../context/ProductosContext.jsx'
@@ -35,7 +35,7 @@ export default function VistaProductos() {
   }
 
   const handleExportExcel = () => {
-    const rows = productosToRows(productos)
+    const rows = productosToRows(productosFiltrados)
     exportToExcel(PRODUCTOS_HEADERS, rows, 'productos')
   }
 
@@ -76,15 +76,18 @@ export default function VistaProductos() {
     }
   }
 
-  const productosFiltrados = productos.filter((p) => {
-    const q = busqueda.toLowerCase().trim()
-    if (!q) return true
-    return (
-      (p.nombre || '').toLowerCase().includes(q) ||
-      (p.tipo || '').toString().toLowerCase().includes(q) ||
-      (p.estado || '').toString().toLowerCase().includes(q)
+  const productosFiltrados = useMemo(() => {
+    const q = busqueda.trim().toLowerCase()
+    if (!q) return productos
+    return productos.filter(
+      (p) =>
+        (p.nombre || '').toLowerCase().includes(q) ||
+        (p.tipo || '').toString().toLowerCase().includes(q) ||
+        (p.estado || '').toString().toLowerCase().includes(q) ||
+        (p.descripcion || '').toLowerCase().includes(q) ||
+        (p.precio ?? '').toString().toLowerCase().includes(q)
     )
-  })
+  }, [productos, busqueda])
 
   return (
     <div className="space-y-6">

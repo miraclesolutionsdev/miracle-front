@@ -39,7 +39,22 @@ export function AuthProvider({ children }) {
     localStorage.removeItem(STORAGE_KEY)
   }
 
-  const value = { user, token, login, logout, loading, isAuthenticated: !!token }
+  const updateUser = (partial) => {
+    setUser((prev) => {
+      if (!prev) return prev
+      const next = { ...prev, ...partial }
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY)
+        if (raw) {
+          const data = JSON.parse(raw)
+          if (data?.token) localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...data, user: next }))
+        }
+      } catch (_) {}
+      return next
+    })
+  }
+
+  const value = { user, token, login, logout, updateUser, loading, isAuthenticated: !!token }
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 

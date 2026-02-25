@@ -13,6 +13,7 @@ const SEARCH_ITEMS = [
   { label: 'Información del negocio', path: '/informacion-negocio', icon: Info },
   { label: 'Campañas', path: '/campanas', icon: Megaphone },
   { label: 'Audiovisual', path: '/audiovisual', icon: Film },
+  { label: 'Configuración', path: '/configuracion', icon: Settings },
   { label: 'Administradores', path: '/administradores', icon: ShieldCheck },
   { label: 'Métricas Ads', path: '/metricas-ads', icon: BarChart3 },
   { label: 'Ventas', path: '/ventas', icon: ShoppingCart },
@@ -139,6 +140,13 @@ export function Header() {
                   {user?.email}
                   {user?.tenantNombre && <span className="block mt-0.5 font-medium text-foreground">{user.tenantNombre}</span>}
                 </div>
+                <button
+                  type="button"
+                  onClick={() => { setUserMenuOpen(false); navigate('/configuracion'); }}
+                  className="flex w-full items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-accent hover:text-accent-foreground"
+                >
+                  <Settings className="h-4 w-4" /> Configuración
+                </button>
                 <button
                   type="button"
                   onClick={() => { setUserMenuOpen(false); navigate('/administradores'); }}

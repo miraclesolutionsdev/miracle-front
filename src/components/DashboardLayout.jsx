@@ -13,6 +13,7 @@ import VistaAudiovisual from './VistaAudiovisual'
 import MetricsAds from './MetricsAds'
 import VistaVentas from './VistaVentas'
 import VistaAdministradores from './VistaAdministradores'
+import VistaConfiguracion from './VistaConfiguracion'
 
 const PATH_TO_LABEL = {
   '/': 'Dashboard',
@@ -27,6 +28,7 @@ const PATH_TO_LABEL = {
   '/metricas-ads': 'Métricas Ads',
   '/ventas': 'Ventas',
   '/administradores': 'Administradores',
+  '/configuracion': 'Configuración',
 }
 
 function DashboardLayout() {
@@ -48,6 +50,7 @@ function DashboardLayout() {
     if (seleccionado === 'Ventas') return <VistaVentas />
     if (seleccionado === 'Campañas') return <VistaCampañas />
     if (seleccionado === 'Administradores') return <VistaAdministradores />
+    if (seleccionado === 'Configuración') return <VistaConfiguracion />
     return (
       <p className="text-sm text-muted-foreground">
         Selecciona una opcion del panel para continuar.
