@@ -13,7 +13,7 @@ function formatProductoFromApi(p) {
 }
 
 export function ProductosProvider({ children }) {
-  const { isAuthenticated, loading: authLoading } = useAuth()
+  const { user, isAuthenticated, loading: authLoading } = useAuth()
   const [productos, setProductos] = useState([])
 
   const loadProductos = useCallback(async () => {
@@ -27,14 +27,14 @@ export function ProductosProvider({ children }) {
     }
   }, [])
 
-  // Solo cargar productos cuando el usuario esté autenticado (evita GET /productos en login y CORS)
+  // Solo cargar productos cuando el usuario esté autenticado; refetch al cambiar de tenant
   useEffect(() => {
     if (authLoading || !isAuthenticated) {
       setProductos([])
       return
     }
     loadProductos()
-  }, [isAuthenticated, authLoading, loadProductos])
+  }, [isAuthenticated, authLoading, loadProductos, user?.tenantId])
 
   const guardarProducto = async (payload) => {
     if (payload.formData instanceof FormData) {

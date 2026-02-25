@@ -86,7 +86,7 @@ export function Header() {
             <span className="text-sm font-bold text-primary-foreground">M</span>
           </div>
           <span className="text-sm font-semibold tracking-tight text-foreground">
-            Miracle Solutions
+            {user?.tenantNombre || 'Miracle Solutions'}
           </span>
         </div>
 
