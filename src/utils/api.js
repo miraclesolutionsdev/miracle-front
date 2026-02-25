@@ -84,6 +84,30 @@ export const productosApi = {
     `${BASE_URL.replace(/\/$/, '')}/productos/${productoId}/imagenes/${index}`,
 }
 
+export const usersApi = {
+  listar: () => request('users'),
+  crear: (body) =>
+    request('users', { method: 'POST', body: JSON.stringify(body) }),
+  actualizar: (id, body) =>
+    request(`users/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+  eliminar: (id) =>
+    request(`users/${id}`, { method: 'DELETE' }),
+}
+
+export const campanasApi = {
+  listar: (params) => {
+    const q = new URLSearchParams(params || {}).toString()
+    return request(`campanas${q ? `?${q}` : ''}`)
+  },
+  obtener: (id) => request(`campanas/${id}`),
+  crear: (body) =>
+    request('campanas', { method: 'POST', body: JSON.stringify(body) }),
+  actualizar: (id, body) =>
+    request(`campanas/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+  actualizarEstado: (id, estado) =>
+    request(`campanas/${id}/estado`, { method: 'PATCH', body: JSON.stringify({ estado }) }),
+}
+
 export const audiovisualApi = {
   listar: (params) => {
     const q = new URLSearchParams(params || {}).toString()

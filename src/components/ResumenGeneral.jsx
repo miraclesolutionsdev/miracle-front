@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Users, Megaphone, Package, Coins, Film } from 'lucide-react'
-import { clientesApi, audiovisualApi } from '../utils/api'
+import { clientesApi, audiovisualApi, campanasApi } from '../utils/api'
 import { useAuth } from '../context/AuthContext'
 import { useProductos } from '../context/ProductosContext.jsx'
 
@@ -52,6 +52,7 @@ export default function ResumenGeneral() {
   const { productos } = useProductos()
   const [totalClientes, setTotalClientes] = useState(null)
   const [totalPiezas, setTotalPiezas] = useState(null)
+  const [totalCampanas, setTotalCampanas] = useState(null)
 
   useEffect(() => {
     let cancelled = false
@@ -79,11 +80,28 @@ export default function ResumenGeneral() {
     return () => { cancelled = true }
   }, [user?.tenantId])
 
+  useEffect(() => {
+    if (!user?.tenantId) {
+      setTotalCampanas(null)
+      return
+    }
+    let cancelled = false
+    campanasApi
+      .listar()
+      .then((data) => {
+        if (!cancelled) setTotalCampanas(Array.isArray(data) ? data.length : 0)
+      })
+      .catch(() => {
+        if (!cancelled) setTotalCampanas(0)
+      })
+    return () => { cancelled = true }
+  }, [user?.tenantId])
+
   const getValue = (key) => {
     if (key === 'clientes') return totalClientes !== null ? String(totalClientes) : '--'
     if (key === 'productos') return String(productos?.length ?? 0)
     if (key === 'piezas') return totalPiezas !== null ? String(totalPiezas) : '--'
-    if (key === 'campanas') return '0'
+    if (key === 'campanas') return totalCampanas !== null ? String(totalCampanas) : '--'
     if (key === 'coins') return '--'
     return '--'
   }

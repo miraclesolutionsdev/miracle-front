@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Bell, Search, Sun, Moon, LayoutDashboard, Users, Package, Megaphone, Film, BarChart3, ShoppingCart, ShoppingBag, Settings, Wifi, Info, LogOut } from 'lucide-react'
+import { Bell, Search, Sun, Moon, LayoutDashboard, Users, Package, Megaphone, Film, BarChart3, ShoppingCart, ShoppingBag, Settings, Wifi, Info, LogOut, ShieldCheck } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext.jsx'
 import { useAuth } from '../context/AuthContext'
 
@@ -13,6 +13,7 @@ const SEARCH_ITEMS = [
   { label: 'Información del negocio', path: '/informacion-negocio', icon: Info },
   { label: 'Campañas', path: '/campanas', icon: Megaphone },
   { label: 'Audiovisual', path: '/audiovisual', icon: Film },
+  { label: 'Administradores', path: '/administradores', icon: ShieldCheck },
   { label: 'Métricas Ads', path: '/metricas-ads', icon: BarChart3 },
   { label: 'Ventas', path: '/ventas', icon: ShoppingCart },
 ]
@@ -138,6 +139,13 @@ export function Header() {
                   {user?.email}
                   {user?.tenantNombre && <span className="block mt-0.5 font-medium text-foreground">{user.tenantNombre}</span>}
                 </div>
+                <button
+                  type="button"
+                  onClick={() => { setUserMenuOpen(false); navigate('/administradores'); }}
+                  className="flex w-full items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-accent hover:text-accent-foreground"
+                >
+                  <ShieldCheck className="h-4 w-4" /> Administradores
+                </button>
                 <button
                   type="button"
                   onClick={() => { logout(); setUserMenuOpen(false); navigate('/login'); }}

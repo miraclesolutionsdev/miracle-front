@@ -1,11 +1,14 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import CampañasList from './CampañasList'
 import CampañaForm from './CampañaForm'
 import CampañaDetalle from './CampañaDetalle'
 import CampaignChart from './CampaignChart'
 import { useProductos } from '../context/ProductosContext.jsx'
+import { useAuth } from '../context/AuthContext'
+import { campanasApi, audiovisualApi } from '../utils/api'
 
-const PIEZAS_OPCIONES = [
+// Fallback si no hay piezas desde API
+const PIEZAS_FALLBACK = [
   { id: 'AV-001', nombre: 'Pixel Web - Sitio principal' },
   { id: 'AV-002', nombre: 'Pixel Web - Landing campañas' },
   { id: 'AV-003', nombre: 'Catálogo de productos' },
@@ -13,46 +16,49 @@ const PIEZAS_OPCIONES = [
   { id: 'AV-005', nombre: 'Banner 1080x1080 Meta' },
 ]
 
-const CAMPAÑAS_INICIALES = [
-  {
-    id: 'CAMP-001',
-    producto: 'Pack Social Media',
-    piezaCreativo: 'Pixel Web - Sitio principal',
-    plataforma: 'Facebook Ads',
-    miracleCoins: '500',
-    estado: 'activa',
-  },
-  {
-    id: 'CAMP-002',
-    producto: 'Video Corporativo',
-    piezaCreativo: 'Video 15s TikTok',
-    plataforma: 'Google Ads',
-    miracleCoins: '200',
-    estado: 'borrador',
-  },
-  {
-    id: 'CAMP-003',
-    producto: 'Campaña Google Ads',
-    piezaCreativo: 'Banner 1080x1080 Meta',
-    plataforma: 'Instagram Ads',
-    miracleCoins: '800',
-    estado: 'pausada',
-  },
-]
-
-function generarId(campañas) {
-  const nums = campañas
-    .map((c) => parseInt(c.id.replace(/\D/g, ''), 10))
-    .filter((n) => !Number.isNaN(n))
-  const next = nums.length ? Math.max(...nums) + 1 : 1
-  return `CAMP-${String(next).padStart(3, '0')}`
-}
-
 export default function VistaCampañas() {
+  const { user } = useAuth()
   const { productos } = useProductos()
-  const [campañas, setCampañas] = useState(CAMPAÑAS_INICIALES)
+  const [campañas, setCampañas] = useState([])
+  const [piezas, setPiezas] = useState(PIEZAS_FALLBACK)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [formAbierto, setFormAbierto] = useState(null)
   const [campañaDetalle, setCampañaDetalle] = useState(null)
+
+  const cargarCampañas = () => {
+    setError(null)
+    campanasApi
+      .listar()
+      .then((data) => setCampañas(Array.isArray(data) ? data : []))
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false))
+  }
+
+  useEffect(() => {
+    if (!user?.tenantId) {
+      setCampañas([])
+      setLoading(false)
+      return
+    }
+    setLoading(true)
+    cargarCampañas()
+  }, [user?.tenantId])
+
+  useEffect(() => {
+    if (!user?.tenantId) return
+    audiovisualApi
+      .listar()
+      .then((data) => {
+        const list = Array.isArray(data) ? data : []
+        setPiezas(
+          list.length
+            ? list.map((p) => ({ id: p.id, nombre: p.nombre || p.titulo || p.id }))
+            : PIEZAS_FALLBACK
+        )
+      })
+      .catch(() => setPiezas(PIEZAS_FALLBACK))
+  }, [user?.tenantId])
 
   const handleCrear = () => setFormAbierto('crear')
   const handleEditar = (c) => setFormAbierto(c)
@@ -61,53 +67,74 @@ export default function VistaCampañas() {
   const cerrarDetalle = () => setCampañaDetalle(null)
 
   const handleGuardarCampaña = (payload) => {
-    if (payload.id) {
-      setCampañas((prev) =>
-        prev.map((c) => (c.id === payload.id ? { ...c, ...payload } : c))
-      )
-    } else {
-      setCampañas((prev) => [...prev, { ...payload, id: generarId(prev) }])
+    const body = {
+      producto: payload.producto ?? '',
+      piezaCreativo: payload.piezaCreativo ?? '',
+      plataforma: payload.plataforma ?? '',
+      miracleCoins: payload.miracleCoins ?? '',
+      estado: payload.estado ?? 'borrador',
     }
-    cerrarForm()
+    if (payload.id) {
+      campanasApi
+        .actualizar(payload.id, body)
+        .then((actualizada) => {
+          setCampañas((prev) => prev.map((c) => (c.id === actualizada.id ? actualizada : c)))
+          cerrarForm()
+        })
+        .catch((err) => setError(err.message))
+    } else {
+      campanasApi
+        .crear(body)
+        .then((nueva) => {
+          setCampañas((prev) => [nueva, ...prev])
+          cerrarForm()
+        })
+        .catch((err) => setError(err.message))
+    }
+  }
+
+  const actualizarEstadoLocal = (id, estado) => {
+    setCampañas((prev) => prev.map((c) => (c.id === id ? { ...c, estado } : c)))
+    if (campañaDetalle?.id === id) setCampañaDetalle((p) => ({ ...p, estado }))
   }
 
   const handleLanzar = (c) => {
-    setCampañas((prev) =>
-      prev.map((x) => (x.id === c.id ? { ...x, estado: 'activa' } : x))
-    )
-    if (campañaDetalle?.id === c.id) {
-      setCampañaDetalle((prev) => ({ ...prev, estado: 'activa' }))
-    }
-    // Aquí luego se puede conectar con la lógica real de lanzamiento (API, etc.)
+    campanasApi
+      .actualizarEstado(c.id, 'activa')
+      .then(() => actualizarEstadoLocal(c.id, 'activa'))
+      .catch((err) => setError(err.message))
   }
 
   const handleActivarPausar = (c) => {
-    setCampañas((prev) =>
-      prev.map((x) =>
-        x.id === c.id
-          ? { ...x, estado: x.estado === 'activa' ? 'pausada' : 'activa' }
-          : x
-      )
-    )
-    if (campañaDetalle?.id === c.id) {
-      setCampañaDetalle((prev) => ({
-        ...prev,
-        estado: prev.estado === 'activa' ? 'pausada' : 'activa',
-      }))
-    }
+    const nuevo = c.estado === 'activa' ? 'pausada' : 'activa'
+    campanasApi
+      .actualizarEstado(c.id, nuevo)
+      .then(() => actualizarEstadoLocal(c.id, nuevo))
+      .catch((err) => setError(err.message))
   }
 
   const handleFinalizar = (c) => {
-    setCampañas((prev) =>
-      prev.map((x) => (x.id === c.id ? { ...x, estado: 'finalizada' } : x))
+    campanasApi
+      .actualizarEstado(c.id, 'finalizada')
+      .then(() => actualizarEstadoLocal(c.id, 'finalizada'))
+      .catch((err) => setError(err.message))
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12 text-muted-foreground">
+        Cargando campañas…
+      </div>
     )
-    if (campañaDetalle?.id === c.id) {
-      setCampañaDetalle((prev) => ({ ...prev, estado: 'finalizada' }))
-    }
   }
 
   return (
     <div className="space-y-6">
+      {error && (
+        <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm text-red-600 dark:text-red-400">
+          {error}
+        </div>
+      )}
       <CampañasList
         campañas={campañas}
         onCrear={handleCrear}
@@ -124,7 +151,7 @@ export default function VistaCampañas() {
         <CampañaForm
           campaña={formAbierto === 'crear' ? null : formAbierto}
           productos={productos}
-          piezas={PIEZAS_OPCIONES}
+          piezas={piezas}
           onGuardar={handleGuardarCampaña}
           onCancelar={cerrarForm}
         />
