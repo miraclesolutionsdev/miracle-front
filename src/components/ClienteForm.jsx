@@ -42,7 +42,7 @@ function ClienteForm({ cliente, onGuardar, onCancelar }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="max-h-[90vh] w-full max-w-md overflow-auto rounded-xl border border-border bg-card p-6 shadow-lg">
+      <div className="max-h-[90vh] w-full max-w-2xl overflow-auto rounded-xl border border-border bg-card p-6 shadow-lg">
         <h2 className="mb-4 text-lg font-semibold text-card-foreground">
           {esEdicion ? 'Editar cliente' : 'Crear cliente'}
         </h2>

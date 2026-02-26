@@ -1,5 +1,7 @@
 import { ExternalLink } from 'lucide-react'
 import { useTiendaEstilo, ESTILOS } from '../context/TiendaEstiloContext.jsx'
+import SectionCard from './SectionCard'
+import FormularioInformacionNegocio from './FormularioInformacionNegocio'
 
 function PreviewClasico() {
   return (
@@ -68,11 +70,13 @@ function VistaTienda() {
 
   return (
     <div className="flex flex-col gap-8">
-      <p className="text-sm text-muted-foreground">
-        Elige el estilo de tu tienda. Al hacer clic se abrira la tienda en una nueva pestana con el diseno seleccionado.
-      </p>
+      <FormularioInformacionNegocio />
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+      <SectionCard title="Elige el estilo de tu tienda">
+        <p className="mb-6 text-sm text-muted-foreground">
+          Elige el estilo de tu tienda. Al hacer clic se abrirá la tienda en una nueva pestaña con el diseño seleccionado.
+        </p>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         {ESTILOS_CONFIG.map(({ id, titulo, descripcion, Preview }) => (
           <div
             key={id}
@@ -97,7 +101,8 @@ function VistaTienda() {
             </div>
           </div>
         ))}
-      </div>
+        </div>
+      </SectionCard>
     </div>
   )
 }

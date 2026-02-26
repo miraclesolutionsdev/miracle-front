@@ -59,27 +59,14 @@ export function readExcelFile(file) {
 
 // --- Clientes: cabeceras y mapeo fila <-> objeto
 
-/** Quita tildes de forma compatible con todos los navegadores */
-function quitarTildes(s) {
-  const map = { á: 'a', é: 'e', í: 'i', ó: 'o', ú: 'u', ñ: 'n', Á: 'a', É: 'e', Í: 'i', Ó: 'o', Ú: 'u', Ñ: 'n' }
-  return s.replace(/[áéíóúñÁÉÍÓÚÑ]/g, (c) => map[c] ?? c)
-}
-
 /** Normaliza texto de cabecera para comparar (minúsculas, sin tildes, espacios unificados) */
 function normalizarCabecera(texto) {
-  const s = String(texto ?? '').toLowerCase().replace(/[\s_\-/]+/g, ' ').trim()
-  try {
-    if (typeof s.normalize === 'function') {
-      return s
-        .normalize('NFD')
-        .replace(/\p{Diacritic}/gu, '')
-        .replace(/[\s_\-/]+/g, ' ')
-        .trim()
-    }
-  } catch {
-    // ignore
-  }
-  return quitarTildes(s).replace(/[\s_\-/]+/g, ' ').trim()
+  return String(texto ?? '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .replace(/[\s_\-/]+/g, ' ')
+    .trim()
 }
 
 /** Mapeo: cabecera normalizada -> nombre del campo en nuestro modelo */
@@ -88,35 +75,28 @@ const CLIENTES_CABECERA_A_CAMPO = {
   nombre: 'nombreEmpresa',
   'nombre empresa': 'nombreEmpresa',
   'nombre o empresa': 'nombreEmpresa',
-  'nombre y empresa': 'nombreEmpresa',
   empresa: 'nombreEmpresa',
   cedula: 'cedulaNit',
   nit: 'cedulaNit',
   'cedula nit': 'cedulaNit',
   'cedula/nit': 'cedulaNit',
   'cedula o nit': 'cedulaNit',
-  'cedula y nit': 'cedulaNit',
   email: 'email',
-  correo: 'email',
-  'e mail': 'email',
   whatsapp: 'whatsapp',
-  whattsapp: 'whatsapp',
   telefono: 'whatsapp',
   celular: 'whatsapp',
   contacto: 'whatsapp',
-  tel: 'whatsapp',
-  'whatsapp telefono': 'whatsapp',
-  'whattsapp telefono': 'whatsapp',
-  'telefono whatsapp': 'whatsapp',
   direccion: 'direccion',
-  dir: 'direccion',
   ciudad: 'ciudadBarrio',
   barrio: 'ciudadBarrio',
   'ciudad barrio': 'ciudadBarrio',
   'ciudad/barrio': 'ciudadBarrio',
   'ciudad con barrio': 'ciudadBarrio',
   'ciudad y barrio': 'ciudadBarrio',
-  origen: 'origen',
+  estado: 'estado',
+  'miracle coins': 'miracleCoins',
+  plan: 'plan',
+  'fecha creacion': 'fechaCreacion',
 }
 
 /** Dado un array de cabeceras (primera fila), devuelve { nombreCampo: índiceColumna } */
@@ -168,55 +148,33 @@ export function validarCabecerasClientes(rows) {
   }
 }
 
-/**
- * Valida que cada fila de datos tenga todos los campos obligatorios llenos.
- * @param {any[][]} rows - Filas del Excel (primera = cabecera)
- * @returns {{ valido: boolean, filasConError: { numeroFila: number, camposFaltantes: string[] }[] }}
- */
-export function validarFilasClientes(rows) {
-  if (!rows?.length || rows.length < 2) {
-    return { valido: true, filasConError: [] }
-  }
-  const importados = rowsToClientes(rows)
-  const filasConError = []
-  for (let i = 0; i < importados.length; i++) {
-    const c = importados[i]
-    const faltantes = []
-    if (!(c.nombreEmpresa || '').trim()) faltantes.push(CLIENTES_NOMBRES_OBLIGATORIOS.nombreEmpresa)
-    if (!(c.cedulaNit ?? '').toString().trim()) faltantes.push(CLIENTES_NOMBRES_OBLIGATORIOS.cedulaNit)
-    if (!(c.email || '').trim()) faltantes.push(CLIENTES_NOMBRES_OBLIGATORIOS.email)
-    if (!(c.whatsapp ?? '').toString().trim()) faltantes.push(CLIENTES_NOMBRES_OBLIGATORIOS.whatsapp)
-    if (!(c.direccion ?? '').toString().trim()) faltantes.push(CLIENTES_NOMBRES_OBLIGATORIOS.direccion)
-    if (!(c.ciudadBarrio ?? '').toString().trim()) faltantes.push(CLIENTES_NOMBRES_OBLIGATORIOS.ciudadBarrio)
-    if (faltantes.length) {
-      filasConError.push({ numeroFila: i + 2, camposFaltantes: faltantes })
-    }
-  }
-  return {
-    valido: filasConError.length === 0,
-    filasConError,
-  }
-}
-
 export const CLIENTES_HEADERS = [
-  'Nombre / Empresa',
-  'Cédula / NIT',
+  'ID',
+  'Nombre Empresa',
+  'Cédula/NIT',
   'Email',
   'WhatsApp',
   'Dirección',
-  'Ciudad / Barrio',
-  'Origen',
+  'Ciudad/Barrio',
+  'Estado',
+  'Plan',
+  'Miracle Coins',
+  'Fecha creación',
 ]
 
 export function clientesToRows(clientes) {
   return clientes.map((c) => [
+    c.id ?? '',
     c.nombreEmpresa ?? '',
     c.cedulaNit ?? '',
     c.email ?? '',
     c.whatsapp ?? '',
     c.direccion ?? '',
     c.ciudadBarrio ?? '',
-    (c.origen || 'plataforma') === 'whatsapp' ? 'WhatsApp' : 'Plataforma',
+    c.estado ?? '',
+    c.plan ?? '',
+    c.miracleCoins ?? '',
+    c.fechaCreacion ?? '',
   ])
 }
 
@@ -242,124 +200,30 @@ export function rowsToClientes(rows) {
       const cedulaNit = get(row, 'cedulaNit')
       const direccion = get(row, 'direccion')
       const ciudadBarrio = get(row, 'ciudadBarrio')
+      const estadoRaw = get(row, 'estado')
+      const miracleCoinsRaw = get(row, 'miracleCoins')
+
       return {
+        id: '', // Al importar no usamos ID del Excel; el backend lo genera al crear
         nombreEmpresa: nombreEmpresa || '',
         cedulaNit: cedulaNit || '',
         email: email || '',
         whatsapp: whatsapp || '',
         direccion: direccion || '',
         ciudadBarrio: ciudadBarrio || '',
+        estado: estadoRaw === 'pausado' || estadoRaw === 'inactivo' ? estadoRaw : 'activo',
+        miracleCoins: miracleCoinsRaw.replace(/\D/g, '') || '0',
+        fechaCreacion: get(row, 'fechaCreacion') || '',
       }
     })
 }
 
-// --- Productos: mapeo por cabecera (como clientes)
-/** Mapeo: cabecera normalizada -> nombre del campo en nuestro modelo */
-const PRODUCTOS_CABECERA_A_CAMPO = {
-  id: 'id',
-  nombre: 'nombre',
-  'nombre del producto': 'nombre',
-  'nombre del servicio': 'nombre',
-  'nombre del producto servicio': 'nombre',
-  'nombre producto servicio': 'nombre',
-  'nombre producto': 'nombre',
-  'nombre servicio': 'nombre',
-  producto: 'nombre',
-  servicio: 'nombre',
-  descripcion: 'descripcion',
-  uso: 'usos',
-  usos: 'usos',
-  caracteristicas: 'caracteristicas',
-  precio: 'precio',
-  'precio cop': 'precio',
-  'precio (cop)': 'precio',
-  stock: 'stock',
-  tipo: 'tipo',
-  'tipo de servicio': 'tipo',
-  'tipo servicio': 'tipo',
-  'tipo de producto': 'tipo',
-  estado: 'estado',
-  imagen: 'imagenes',
-  imagenes: 'imagenes',
-  'url imagen': 'imagenes',
-  'url de imagen': 'imagenes',
-  'url para una imagen': 'imagenes',
-  'imagen-url': 'imagenes',
-}
-
-function indicesPorCabeceraProductos(headerRow) {
-  const indices = {}
-  for (let i = 0; i < (headerRow?.length ?? 0); i++) {
-    const norm = normalizarCabecera(headerRow[i])
-    const campo = PRODUCTOS_CABECERA_A_CAMPO[norm]
-    if (campo != null) indices[campo] = i
-  }
-  return indices
-}
-
-/** Campos obligatorios para importar productos */
-const PRODUCTOS_CAMPOS_OBLIGATORIOS = ['nombre', 'precio', 'tipo', 'stock', 'estado']
-const PRODUCTOS_NOMBRES_OBLIGATORIOS = {
-  nombre: 'Nombre',
-  precio: 'Precio (COP)',
-  tipo: 'Tipo',
-  stock: 'Stock',
-  estado: 'Estado',
-}
-
-export function validarCabecerasProductos(rows) {
-  if (!rows?.length) {
-    return { valido: false, faltantes: ['El archivo está vacío o no tiene cabecera.'] }
-  }
-  const headerRow = rows[0]
-  const header = Array.isArray(headerRow) ? headerRow : [headerRow]
-  const indices = indicesPorCabeceraProductos(header)
-  const faltantes = PRODUCTOS_CAMPOS_OBLIGATORIOS.filter((campo) => indices[campo] == null)
-  const nombresFaltantes = faltantes.map((c) => PRODUCTOS_NOMBRES_OBLIGATORIOS[c] || c)
-  return {
-    valido: faltantes.length === 0,
-    faltantes: nombresFaltantes,
-  }
-}
-
-function parseLista(val, separador = SEP) {
-  if (val == null || String(val).trim() === '') return []
-  return String(val)
-    .split(separador)
-    .map((s) => s.trim())
-    .filter(Boolean)
-}
-
-export function validarFilasProductos(rows) {
-  if (!rows?.length || rows.length < 2) {
-    return { valido: true, filasConError: [] }
-  }
-  const importados = rowsToProductos(rows)
-  const filasConError = []
-  for (let i = 0; i < importados.length; i++) {
-    const p = importados[i]
-    const faltantes = []
-    if (!(p.nombre || '').trim()) faltantes.push(PRODUCTOS_NOMBRES_OBLIGATORIOS.nombre)
-    if ((p.precio ?? '') === '' && p.precio !== 0) faltantes.push(PRODUCTOS_NOMBRES_OBLIGATORIOS.precio)
-    if (!(p.tipo ?? '').toString().trim()) faltantes.push(PRODUCTOS_NOMBRES_OBLIGATORIOS.tipo)
-    const stockVal = (p.stock ?? '').toString().trim()
-    if (stockVal === '') faltantes.push(PRODUCTOS_NOMBRES_OBLIGATORIOS.stock)
-    if (!(p.estado ?? '').toString().trim()) faltantes.push(PRODUCTOS_NOMBRES_OBLIGATORIOS.estado)
-    if (faltantes.length) {
-      filasConError.push({ numeroFila: i + 2, camposFaltantes: faltantes })
-    }
-  }
-  return {
-    valido: filasConError.length === 0,
-    filasConError,
-  }
-}
-
+// --- Productos: cabeceras y mapeo (arrays con SEP)
 export const PRODUCTOS_HEADERS = [
   'ID',
   'Nombre',
   'Descripción',
-  'Precio (COP)',
+  'Precio',
   'Tipo',
   'Estado',
   'Stock',
@@ -385,46 +249,24 @@ export function productosToRows(productos) {
 
 export function rowsToProductos(rows) {
   if (!rows.length) return []
-  const [headerRow, ...dataRows] = rows
-  const header = Array.isArray(headerRow) ? headerRow : [headerRow]
-  const indices = indicesPorCabeceraProductos(header)
-
-  const get = (row, campo) => {
-    const i = indices[campo]
-    if (i == null) return ''
-    const val = row[i]
-    return val != null ? String(val).trim() : ''
-  }
-
+  const [, ...dataRows] = rows
   return dataRows
-    .filter((row) => row && row.some((cell) => cell != null && String(cell).trim() !== ''))
+    .filter((row) => row && row[1] != null && String(row[1]).trim() !== '')
     .map((row) => {
-      const nombre = get(row, 'nombre')
-      const descripcion = get(row, 'descripcion')
-      const precioRaw = get(row, 'precio')
-      const tipoRaw = get(row, 'tipo')
-      const estadoRaw = get(row, 'estado')
-      const stockRaw = get(row, 'stock')
-      const usosRaw = get(row, 'usos')
-      const caracteristicasRaw = get(row, 'caracteristicas')
-      const imagenesRaw = get(row, 'imagenes')
-
-      const precioNum = parseFloat(String(precioRaw).replace(/[^0-9.]/g, '')) || 0
-      const stockNum = parseInt(String(stockRaw).replace(/\D/g, ''), 10) || 0
-      const tipo = (tipoRaw || 'servicio').toLowerCase().trim()
-      const tipoFinal = tipo === 'producto' ? 'producto' : 'servicio'
-      const estadoFinal = (estadoRaw || 'activo').toLowerCase().trim() === 'inactivo' ? 'inactivo' : 'activo'
-
+      const imagenes = String(row[7] ?? '').trim()
+      const usos = String(row[8] ?? '').trim()
+      const caracteristicas = String(row[9] ?? '').trim()
       return {
-        nombre: nombre || '',
-        descripcion: descripcion || '',
-        precio: precioNum,
-        tipo: tipoFinal,
-        estado: estadoFinal,
-        stock: stockNum,
-        usos: parseLista(usosRaw),
-        caracteristicas: parseLista(caracteristicasRaw),
-        imagenes: parseLista(imagenesRaw),
+        id: row[0] ? String(row[0]).trim() : undefined,
+        nombre: String(row[1] ?? '').trim(),
+        descripcion: String(row[2] ?? '').trim(),
+        precio: String(row[3] ?? '').trim(),
+        tipo: String(row[4] ?? 'servicio').trim() || 'servicio',
+        estado: String(row[5] ?? 'activo').trim() || 'activo',
+        stock: parseInt(String(row[6] ?? '0').replace(/\D/g, ''), 10) || 0,
+        imagenes: imagenes ? imagenes.split(SEP).map((s) => s.trim()).filter(Boolean) : [],
+        usos: usos ? usos.split(SEP).map((s) => s.trim()).filter(Boolean) : [],
+        caracteristicas: caracteristicas ? caracteristicas.split(SEP).map((s) => s.trim()).filter(Boolean) : [],
       }
     })
 }

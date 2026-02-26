@@ -8,7 +8,6 @@ const COLUMNAS = [
   'WhatsApp',
   'Dirección',
   'Ciudad / Barrio',
-  'Origen',
   'Fecha creación',
   'Acciones',
 ]
@@ -80,15 +79,6 @@ function ClientesList({ clientes, onCrear, onVer, onEditar, onExportExcel, onImp
                 <td className="py-3 pr-4 text-muted-foreground whitespace-nowrap">{c.whatsapp}</td>
                 <td className="py-3 pr-4 text-muted-foreground whitespace-nowrap">{c.direccion || '—'}</td>
                 <td className="py-3 pr-4 text-muted-foreground whitespace-nowrap">{c.ciudadBarrio || '—'}</td>
-                <td className="py-3 pr-4 whitespace-nowrap">
-                  <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-                    (c.origen || 'plataforma') === 'whatsapp'
-                      ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
-                      : 'bg-muted text-muted-foreground'
-                  }`}>
-                    {(c.origen || 'plataforma') === 'whatsapp' ? 'WhatsApp' : 'Plataforma'}
-                  </span>
-                </td>
                 <td className="py-3 pr-4 text-muted-foreground whitespace-nowrap">{c.fechaCreacion}</td>
                 <td className="py-3 pr-4 whitespace-nowrap">
                   <div className="flex gap-2">

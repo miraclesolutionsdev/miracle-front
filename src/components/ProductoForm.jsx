@@ -63,7 +63,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
       formData.append('precio', String(form.precio).replace(/\D/g, '') || '0')
       formData.append('tipo', form.tipo)
       formData.append('estado', form.estado)
-      formData.append('stock', String(Number(form.stock) || 0))
+      formData.append('stock', form.tipo === 'producto' ? String(Number(form.stock) || 0) : '0')
       formData.append('usos', JSON.stringify(usos))
       formData.append('caracteristicas', JSON.stringify(caracteristicas))
       form.archivosImagen.forEach((file) => formData.append('imagenes', file))
@@ -73,7 +73,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
     } else {
       const payload = {
         ...form,
-        stock: Number(form.stock) || 0,
+        stock: form.tipo === 'producto' ? (Number(form.stock) || 0) : 0,
         usos,
         caracteristicas,
         imagenes: imagenesExistentes,
@@ -92,7 +92,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="max-h-[90vh] w-full max-w-md overflow-auto rounded-xl border border-border bg-card p-6 shadow-lg">
+      <div className="max-h-[90vh] w-full max-w-2xl overflow-auto rounded-xl border border-border bg-card p-6 shadow-lg">
         <h2 className="mb-4 text-lg font-semibold text-card-foreground">
           {esEdicion ? 'Editar producto' : 'Crear producto'}
         </h2>
@@ -166,21 +166,23 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
               placeholder="Ej. $50.000 o 50000"
             />
           </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium text-muted-foreground">
-              Stock disponible
-            </label>
-            <input
-              type="number"
-              min={0}
-              value={form.stock}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, stock: e.target.value }))
-              }
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
-              placeholder="Ej. 10"
-            />
-          </div>
+          {form.tipo === 'producto' && (
+            <div>
+              <label className="mb-1 block text-sm font-medium text-muted-foreground">
+                Stock disponible
+              </label>
+              <input
+                type="number"
+                min={0}
+                value={form.stock}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, stock: e.target.value }))
+                }
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
+                placeholder="Ej. 10"
+              />
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="mb-1 block text-sm font-medium text-muted-foreground">

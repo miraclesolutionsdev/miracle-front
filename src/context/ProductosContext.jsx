@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { productosApi } from '../utils/api'
-import { useAuth } from './AuthContext'
 
 const ProductosContext = createContext(null)
 
@@ -13,28 +12,21 @@ function formatProductoFromApi(p) {
 }
 
 export function ProductosProvider({ children }) {
-  const { user, isAuthenticated, loading: authLoading } = useAuth()
   const [productos, setProductos] = useState([])
 
   const loadProductos = useCallback(async () => {
     try {
       const data = await productosApi.listar()
-      const list = Array.isArray(data) ? data : (data?.productos ?? [])
-      setProductos((list || []).map(formatProductoFromApi))
+      setProductos((data || []).map(formatProductoFromApi))
     } catch (err) {
       console.error('Error al cargar productos:', err)
       setProductos([])
     }
   }, [])
 
-  // Solo cargar productos cuando el usuario esté autenticado; refetch al cambiar de tenant
   useEffect(() => {
-    if (authLoading || !isAuthenticated) {
-      setProductos([])
-      return
-    }
     loadProductos()
-  }, [isAuthenticated, authLoading, loadProductos, user?.tenantId])
+  }, [loadProductos])
 
   const guardarProducto = async (payload) => {
     if (payload.formData instanceof FormData) {

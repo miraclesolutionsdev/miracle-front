@@ -267,7 +267,7 @@ export default function VistaAdministradores() {
 
       {formAbierto && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-lg">
+          <div className="w-full max-w-2xl rounded-xl border border-border bg-card p-6 shadow-lg">
             <h2 className="mb-4 text-lg font-semibold text-foreground">Crear administrador</h2>
             <form onSubmit={handleCrear} className="flex flex-col gap-4">
               <div>
@@ -336,7 +336,7 @@ export default function VistaAdministradores() {
 
       {formEditar && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-lg max-h-[90vh] overflow-auto">
+          <div className="w-full max-w-2xl rounded-xl border border-border bg-card p-6 shadow-lg max-h-[90vh] overflow-auto">
             <h2 className="mb-4 text-lg font-semibold text-foreground">Editar administrador</h2>
             <form onSubmit={handleGuardarEditar} className="flex flex-col gap-4">
               <div>

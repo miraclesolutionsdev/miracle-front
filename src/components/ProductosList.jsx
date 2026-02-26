@@ -3,7 +3,6 @@ import SectionCard from './SectionCard'
 import { getProductoImagenSrc } from '../utils/api'
 
 const COLUMNAS = [
-  'ID',
   'Stock',
   'Nombre',
   'Tipo',
@@ -83,9 +82,8 @@ function ProductosList({
           <tbody>
             {productos.map((p) => (
               <tr key={p.id} className="border-b border-border">
-                <td className="py-3 pr-4 text-card-foreground">{p.id}</td>
                 <td className="py-3 pr-4 text-card-foreground">
-                  {p.stock ?? '—'}
+                  {p.tipo === 'servicio' ? '—' : (p.stock ?? '—')}
                 </td>
                 <td className="py-3 pr-4 text-card-foreground">
                   <div className="flex items-center gap-2">

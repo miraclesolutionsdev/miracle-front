@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard,
@@ -51,12 +51,6 @@ function Sidebar({ seleccionado }) {
   const [configuraAbierto, setConfiguraAbierto] = useState(false)
   const isConfiguraActive = CONFIGURA_SUB.some((s) => s.label === seleccionado)
 
-  useEffect(() => {
-    if (CONFIGURA_SUB.some((s) => s.label === seleccionado)) {
-      setConfiguraAbierto(true)
-    }
-  }, [seleccionado])
-
   return (
     <aside className="fixed left-0 top-14 bottom-0 z-20 flex w-56 flex-col gap-1 border-r border-sidebar-border bg-sidebar-background px-3 py-4">
       <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/50">
@@ -65,7 +59,7 @@ function Sidebar({ seleccionado }) {
       <nav className="flex flex-col gap-0.5" role="navigation" aria-label="Menu principal">
         {NAV_ITEMS.map((item) => {
           if (item.sub) {
-            const abierto = configuraAbierto
+            const abierto = configuraAbierto || isConfiguraActive
             return (
               <div key={item.label} className="flex flex-col">
                 <button

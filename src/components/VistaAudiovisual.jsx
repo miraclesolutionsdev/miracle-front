@@ -1,40 +1,22 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import SectionCard from './SectionCard'
 import { audiovisualApi } from '../utils/api'
 
 const PLATAFORMAS = ['YouTube', 'TikTok', 'Meta', 'Shorts']
 const RESOLUCIONES_VIDEO = ['9:16', '16:9', '1:1']
-const FORMATOS_IMAGEN = [
-  { value: 'image/jpeg', label: 'JPG / JPEG' },
-  { value: 'image/png', label: 'PNG' },
-  { value: 'image/webp', label: 'WEBP' },
-  { value: 'image/gif', label: 'GIF' },
-]
+const DURACIONES = ['15s', '30s', '60s', '90s']
+const RESOLUCIONES_IMAGEN = ['1080x1080', '1200x628', '1080x1920', '1200x1200']
 
 const RATIOS_VIDEO = { '9:16': 9 / 16, '16:9': 16 / 9, '1:1': 1 }
+const DURACION_ESPERADA = { '15s': 15, '30s': 30, '60s': 60, '90s': 90 }
+const TOLERANCIA_DURACION = 2
 
-function getFormatoDesdeRatio(ratio) {
-  if (!ratio || !Number.isFinite(ratio)) return null
-
-  let mejorClave = null
-  let mejorDiff = Infinity
-
-  for (const [clave, valor] of Object.entries(RATIOS_VIDEO)) {
-    const diff = Math.abs(ratio - valor)
-    if (diff < mejorDiff) {
-      mejorDiff = diff
-      mejorClave = clave
-    }
-  }
-
-  // Si está razonablemente cerca de alguno de los formatos conocidos, usamos ese nombre
-  if (mejorDiff < 0.05) return mejorClave
-
-  return null
+function parseResolucionImagen(str) {
+  const [w, h] = (str || '').split('x').map(Number)
+  return { width: w, height: h }
 }
 
-/** Valida solo el ratio del video (9:16, 16:9, 1:1) y devuelve la duración del archivo. */
-function validarVideo(file, resolucion) {
+function validarVideo(file, resolucion, duracionLimite) {
   return new Promise((resolve, reject) => {
     const video = document.createElement('video')
     video.preload = 'metadata'
@@ -43,19 +25,18 @@ function validarVideo(file, resolucion) {
       const ratio = video.videoWidth / video.videoHeight
       const duracion = video.duration
       const ratioEsperado = RATIOS_VIDEO[resolucion]
+      const duracionEsperada = DURACION_ESPERADA[duracionLimite] ?? 0
       const toleranciaRatio = 0.03
       const okRatio = ratioEsperado != null && Math.abs(ratio - ratioEsperado) < toleranciaRatio
-      const formatoArchivo = getFormatoDesdeRatio(ratio)
+      const okDuracion = duracionEsperada > 0 && Math.abs(duracion - duracionEsperada) <= TOLERANCIA_DURACION
       resolve({
-        ok: okRatio,
+        ok: okRatio && okDuracion,
         width: video.videoWidth,
         height: video.videoHeight,
         duracion: Math.round(duracion),
         errores: [
-          !okRatio &&
-            `Formato debe ser ${resolucion}${
-              formatoArchivo ? ` (archivo: ${formatoArchivo})` : ''
-            }`,
+          !okRatio && `Resolucion debe ser ${resolucion} (archivo: ${video.videoWidth}x${video.videoHeight})`,
+          !okDuracion && `Duracion debe ser ~${duracionLimite} (archivo: ~${Math.round(duracion)}s)`,
         ].filter(Boolean),
       })
     }
@@ -64,68 +45,23 @@ function validarVideo(file, resolucion) {
   })
 }
 
-/** Lee la duración del video en segundos para mostrarla en el modal. */
-function leerDuracionVideo(file) {
-  return new Promise((resolve) => {
-    if (!file || !file.type.startsWith('video/')) {
-      resolve(null)
-      return
-    }
-    const video = document.createElement('video')
-    video.preload = 'metadata'
-    video.onloadedmetadata = () => {
-      URL.revokeObjectURL(video.src)
-      resolve(Math.round(video.duration))
-    }
-    video.onerror = () => {
-      if (video.src) URL.revokeObjectURL(video.src)
-      resolve(null)
-    }
-    video.src = URL.createObjectURL(file)
-  })
-}
-
-function validarImagen(file, formatoEsperado) {
+function validarImagen(file, resolucionEsperada) {
   return new Promise((resolve, reject) => {
-    if (!file) {
-      resolve({
-        ok: false,
-        width: 0,
-        height: 0,
-        errores: ['No se recibió archivo de imagen'],
-      })
-      return
-    }
-
-    const tipoArchivo = file.type || ''
-    const okFormato = formatoEsperado
-      ? tipoArchivo === formatoEsperado
-      : tipoArchivo.startsWith('image/')
-
-    if (!okFormato) {
-      const etiquetaEsperada =
-        FORMATOS_IMAGEN.find((f) => f.value === formatoEsperado)?.label || 'imagen válida'
-      resolve({
-        ok: false,
-        width: 0,
-        height: 0,
-        errores: [
-          `Formato debe ser ${etiquetaEsperada} (archivo: ${
-            tipoArchivo || 'desconocido'
-          })`,
-        ],
-      })
-      return
-    }
-
     const img = new Image()
     img.onload = () => {
       URL.revokeObjectURL(img.src)
+      const { width: wEsp, height: hEsp } = parseResolucionImagen(resolucionEsperada)
+      // Validación estricta: dimensiones exactas
+      const okW = img.width === wEsp
+      const okH = img.height === hEsp
+      const ok = okW && okH
       resolve({
-        ok: true,
+        ok,
         width: img.width,
         height: img.height,
-        errores: [],
+        errores: !ok
+          ? [`Resolucion debe ser ${resolucionEsperada} (archivo: ${img.width}x${img.height})`]
+          : [],
       })
     }
     img.onerror = () => reject(new Error('No se pudo leer la imagen'))
@@ -144,13 +80,12 @@ const formInitial = {
   tipo: 'Video',
   plataforma: '',
   resolucion: '',
-  duracion: null,
+  duracion: '',
   archivo: null,
 }
 
 export default function VistaAudiovisual() {
   const [piezas, setPiezas] = useState([])
-  const [busqueda, setBusqueda] = useState('')
   const [loading, setLoading] = useState(true)
   const [modalAbierto, setModalAbierto] = useState(false)
   const [form, setForm] = useState(formInitial)
@@ -187,27 +122,25 @@ export default function VistaAudiovisual() {
       setError('Debe adjuntar un archivo (video o imagen)')
       return
     }
-    if (form.tipo === 'Video' && !form.resolucion) {
-      setError('Seleccione una resolucion de video')
+    if (!form.resolucion) {
+      setError('Seleccione una resolucion')
       return
     }
-    if (form.tipo === 'Imagen' && !form.resolucion) {
-      setError('Seleccione un formato de imagen')
+    if (form.tipo === 'Video' && !form.duracion) {
+      setError('Seleccione una duracion')
       return
     }
 
     setSubiendo(true)
     setError(null)
     try {
-      let duracionEnviar = form.duracion
       if (form.tipo === 'Video') {
-        const resultado = await validarVideo(form.archivo, form.resolucion)
+        const resultado = await validarVideo(form.archivo, form.resolucion, form.duracion)
         if (!resultado.ok) {
           setError(resultado.errores.join('. '))
           setSubiendo(false)
           return
         }
-        duracionEnviar = resultado.duracion
       } else {
         const resultado = await validarImagen(form.archivo, form.resolucion)
         if (!resultado.ok) {
@@ -217,28 +150,13 @@ export default function VistaAudiovisual() {
         }
       }
 
-      const { uploadUrl, key, publicUrl } = await audiovisualApi.obtenerPresignedUrl({
-        filename: form.archivo.name,
-        contentType: form.archivo.type || 'application/octet-stream',
-      })
-      const putRes = await fetch(uploadUrl, {
-        method: 'PUT',
-        body: form.archivo,
-        headers: { 'Content-Type': form.archivo.type || 'application/octet-stream' },
-      })
-      if (!putRes.ok) {
-        throw new Error('Error al subir el archivo a S3')
-      }
-      await audiovisualApi.confirmarSubida({
-        tipo: form.tipo,
-        plataforma: form.plataforma,
-        resolucion: form.resolucion || '',
-        duracion: form.tipo === 'Video' ? duracionEnviar : undefined,
-        campanaAsociada: '',
-        key,
-        publicUrl,
-        contentType: form.archivo.type || 'application/octet-stream',
-      })
+      const formData = new FormData()
+      formData.append('archivo', form.archivo)
+      formData.append('tipo', form.tipo)
+      formData.append('plataforma', form.plataforma)
+      formData.append('resolucion', form.resolucion || '')
+      formData.append('duracion', form.duracion || '')
+      await audiovisualApi.crearConArchivo(formData)
       await loadPiezas()
       cerrarModal()
     } catch (err) {
@@ -248,18 +166,9 @@ export default function VistaAudiovisual() {
     }
   }
 
-  const handleFileChange = async (e) => {
+  const handleFileChange = (e) => {
     const file = e.target.files?.[0]
-    if (!file) {
-      setForm((f) => ({ ...f, archivo: null, duracion: null }))
-      return
-    }
-    if (form.tipo === 'Video' && file.type.startsWith('video/')) {
-      const segundos = await leerDuracionVideo(file)
-      setForm((f) => ({ ...f, archivo: file, duracion: segundos }))
-    } else {
-      setForm((f) => ({ ...f, archivo: file, duracion: null }))
-    }
+    setForm((f) => ({ ...f, archivo: file || null }))
   }
 
   const handleAsociar = (pieza) => {
@@ -279,19 +188,6 @@ export default function VistaAudiovisual() {
     alert(`Reutilizar la pieza ${pieza.id} en otras campañas.`)
   }
 
-  const piezasFiltradas = useMemo(() => {
-    const q = busqueda.trim().toLowerCase()
-    if (!q) return piezas
-    return piezas.filter(
-      (p) =>
-        (p.id ?? '').toLowerCase().includes(q) ||
-        (p.tipo ?? '').toLowerCase().includes(q) ||
-        (p.plataforma ?? '').toLowerCase().includes(q) ||
-        (p.formato ?? '').toLowerCase().includes(q) ||
-        (p.estado ?? '').toLowerCase().includes(q)
-    )
-  }, [piezas, busqueda])
-
   const esImagen = (contentType) =>
     contentType && contentType.startsWith('image/')
 
@@ -310,18 +206,6 @@ export default function VistaAudiovisual() {
             Subir pieza audiovisual
           </button>
         </div>
-
-        {!loading && piezas.length > 0 && (
-          <div className="mb-4">
-            <input
-              type="text"
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-              placeholder="Buscar por ID, tipo, plataforma, formato, estado..."
-              className="w-full max-w-md rounded-lg border border-border bg-background px-3 py-2 text-sm text-card-foreground"
-            />
-          </div>
-        )}
 
         {loading ? (
           <p className="py-8 text-center text-sm text-muted-foreground">Cargando...</p>
@@ -344,7 +228,7 @@ export default function VistaAudiovisual() {
                 </tr>
               </thead>
               <tbody>
-                {piezasFiltradas.map((pieza) => (
+                {piezas.map((pieza) => (
                   <tr key={pieza.id} className="border-b border-border">
                     <td className="whitespace-nowrap py-3 pr-4 text-card-foreground">
                       {pieza.id.slice(-6)}
@@ -408,7 +292,7 @@ export default function VistaAudiovisual() {
 
       {modalAbierto && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="max-h-[90vh] w-full max-w-md overflow-auto rounded-xl border border-border bg-card p-6 shadow-lg">
+          <div className="max-h-[90vh] w-full max-w-2xl overflow-auto rounded-xl border border-border bg-card p-6 shadow-lg">
             <h2 className="mb-4 text-lg font-semibold text-card-foreground">
               Subir pieza audiovisual
             </h2>
@@ -429,7 +313,7 @@ export default function VistaAudiovisual() {
                       ...f,
                       tipo: e.target.value,
                       resolucion: '',
-                      duracion: null,
+                      duracion: '',
                     }))
                   }
                   className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-card-foreground"
@@ -478,11 +362,29 @@ export default function VistaAudiovisual() {
                       ))}
                     </select>
                   </div>
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-muted-foreground">
+                      Duración
+                    </label>
+                    <select
+                      value={form.duracion}
+                      onChange={(e) => setForm((f) => ({ ...f, duracion: e.target.value }))}
+                      className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-card-foreground"
+                      required
+                    >
+                      <option value="">Seleccionar...</option>
+                      {DURACIONES.map((d) => (
+                        <option key={d} value={d}>
+                          {d}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </>
               ) : (
                 <div>
                   <label className="mb-1 block text-sm font-medium text-muted-foreground">
-                    Formato de imagen
+                    Resolución
                   </label>
                   <select
                     value={form.resolucion}
@@ -491,9 +393,9 @@ export default function VistaAudiovisual() {
                     required
                   >
                     <option value="">Seleccionar...</option>
-                    {FORMATOS_IMAGEN.map((f) => (
-                      <option key={f.value} value={f.value}>
-                        {f.label}
+                    {RESOLUCIONES_IMAGEN.map((r) => (
+                      <option key={r} value={r}>
+                        {r}
                       </option>
                     ))}
                   </select>
@@ -512,14 +414,7 @@ export default function VistaAudiovisual() {
                   required
                 />
                 {form.archivo && (
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {form.archivo.name}
-                    {form.tipo === 'Video' && form.duracion != null && (
-                      <span className="ml-2 text-primary">
-                        · Duración detectada: {form.duracion}s
-                      </span>
-                    )}
-                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">{form.archivo.name}</p>
                 )}
               </div>
 

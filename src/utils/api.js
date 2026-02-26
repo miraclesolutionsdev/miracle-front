@@ -1,48 +1,14 @@
-// URL del backend en producción (Vercel). Sobrescribir con VITE_API_URL en .env si el backend está en otra URL.
 const BACKEND_VERCEL = 'https://miracle-front-lcdn.vercel.app'
 export const BASE_URL =
   import.meta.env.VITE_API_URL ||
   (import.meta.env.PROD ? BACKEND_VERCEL : 'http://localhost:3000')
 
-export const authApi = {
-  login: (email, password) =>
-    request('auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
-  register: (body) =>
-    request('auth/register', { method: 'POST', body: JSON.stringify(body) }),
-  crearTienda: (body) =>
-    request('auth/crear-tienda', { method: 'POST', body: JSON.stringify(body) }),
-  obtenerPerfil: () => request('auth/me'),
-  actualizarPerfil: (body) =>
-    request('auth/me', { method: 'PATCH', body: JSON.stringify(body) }),
-  cambiarPassword: (contraseñaActual, nuevaContraseña) =>
-    request('auth/cambiar-password', {
-      method: 'POST',
-      body: JSON.stringify({ contraseñaActual, nuevaContraseña }),
-    }),
-  actualizarTenant: (nombre) =>
-    request('auth/tenant', { method: 'PATCH', body: JSON.stringify({ nombre }) }),
-}
-
-function getAuthToken() {
-  try {
-    const raw = localStorage.getItem('miracle_auth')
-    if (raw) {
-      const data = JSON.parse(raw)
-      return data?.token || null
-    }
-  } catch (_) {}
-  return null
-}
-
 async function request(path, options = {}) {
   const url = `${BASE_URL.replace(/\/$/, '')}/${path.replace(/^\//, '')}`
-  const token = getAuthToken()
-  const headers = {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...options.headers,
-  }
-  const res = await fetch(url, { headers, ...options })
+  const res = await fetch(url, {
+    headers: { 'Content-Type': 'application/json', ...options.headers },
+    ...options,
+  })
   const data = await res.json().catch(() => ({}))
   if (!res.ok) throw new Error(data.error || res.statusText || 'Error en la solicitud')
   return data
@@ -70,9 +36,7 @@ export const productosApi = {
     request('productos', { method: 'POST', body: JSON.stringify(body) }),
   crearConArchivos: async (formData) => {
     const url = `${BASE_URL.replace(/\/$/, '')}/productos`
-    const token = getAuthToken()
-    const headers = token ? { Authorization: `Bearer ${token}` } : {}
-    const res = await fetch(url, { method: 'POST', headers, body: formData })
+    const res = await fetch(url, { method: 'POST', body: formData })
     const data = await res.json().catch(() => ({}))
     if (!res.ok) throw new Error(data.error || res.statusText)
     return data
@@ -81,9 +45,7 @@ export const productosApi = {
     request(`productos/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
   actualizarConArchivos: async (id, formData) => {
     const url = `${BASE_URL.replace(/\/$/, '')}/productos/${id}`
-    const token = getAuthToken()
-    const headers = token ? { Authorization: `Bearer ${token}` } : {}
-    const res = await fetch(url, { method: 'PUT', headers, body: formData })
+    const res = await fetch(url, { method: 'PUT', body: formData })
     const data = await res.json().catch(() => ({}))
     if (!res.ok) throw new Error(data.error || res.statusText)
     return data
@@ -94,44 +56,14 @@ export const productosApi = {
     `${BASE_URL.replace(/\/$/, '')}/productos/${productoId}/imagenes/${index}`,
 }
 
-export const usersApi = {
-  listar: () => request('users'),
-  crear: (body) =>
-    request('users', { method: 'POST', body: JSON.stringify(body) }),
-  actualizar: (id, body) =>
-    request(`users/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
-  eliminar: (id) =>
-    request(`users/${id}`, { method: 'DELETE' }),
-}
-
-export const campanasApi = {
-  listar: (params) => {
-    const q = new URLSearchParams(params || {}).toString()
-    return request(`campanas${q ? `?${q}` : ''}`)
-  },
-  obtener: (id) => request(`campanas/${id}`),
-  crear: (body) =>
-    request('campanas', { method: 'POST', body: JSON.stringify(body) }),
-  actualizar: (id, body) =>
-    request(`campanas/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
-  actualizarEstado: (id, estado) =>
-    request(`campanas/${id}/estado`, { method: 'PATCH', body: JSON.stringify({ estado }) }),
-}
-
 export const audiovisualApi = {
   listar: (params) => {
     const q = new URLSearchParams(params || {}).toString()
     return request(`audiovisual${q ? `?${q}` : ''}`)
   },
-  obtenerPresignedUrl: (body) =>
-    request('audiovisual/presigned-url', { method: 'POST', body: JSON.stringify(body) }),
-  confirmarSubida: (body) =>
-    request('audiovisual/confirmar', { method: 'POST', body: JSON.stringify(body) }),
   crearConArchivo: async (formData) => {
     const url = `${BASE_URL.replace(/\/$/, '')}/audiovisual`
-    const token = getAuthToken()
-    const headers = token ? { Authorization: `Bearer ${token}` } : {}
-    const res = await fetch(url, { method: 'POST', headers, body: formData })
+    const res = await fetch(url, { method: 'POST', body: formData })
     const data = await res.json().catch(() => ({}))
     if (!res.ok) throw new Error(data.error || res.statusText)
     return data
