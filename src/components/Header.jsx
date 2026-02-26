@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { Bell, Search, Sun, Moon, LayoutDashboard, Users, Package, Megaphone, Film, BarChart3, ShoppingCart, ShoppingBag, Settings, Wifi, Info, LogOut, ShieldCheck } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext.jsx'
 import { useAuth } from '../context/AuthContext'
@@ -83,14 +83,18 @@ export function Header() {
   return (
     <>
       <header className="fixed top-0 left-0 right-0 z-30 flex h-14 items-center justify-between border-b border-border bg-card/80 backdrop-blur-md px-6">
-        <div className="flex items-center gap-3">
+        <Link
+          to="/landing"
+          className="flex items-center gap-3 rounded-lg transition-opacity hover:opacity-90"
+          aria-label="Ir a Miracle Platform"
+        >
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
             <span className="text-sm font-bold text-primary-foreground">M</span>
           </div>
           <span className="text-sm font-semibold tracking-tight text-foreground">
-            {user?.tenantNombre || 'Miracle Solutions'}
+            Miracle Platform
           </span>
-        </div>
+        </Link>
 
         <div className="flex items-center gap-1">
           <button

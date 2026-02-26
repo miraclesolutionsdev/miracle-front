@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import DashboardLayout from './components/DashboardLayout'
 import LandingProductoPage from './components/LandingProductoPage'
+import LandingPlataforma from './components/LandingPlataforma'
 import TiendaPage from './components/TiendaPage'
 import Login from './components/Login'
 import CrearTienda from './components/CrearTienda'
@@ -21,6 +22,7 @@ function App() {
       <Route path="/crear-tienda" element={<CrearTienda />} />
       <Route path="/tienda" element={<TiendaPage />} />
       <Route path="/landing-producto/:id" element={<LandingProductoPage />} />
+      <Route path="/landing" element={<LandingPlataforma />} />
       <Route path="/*" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>} />
     </Routes>
   )
