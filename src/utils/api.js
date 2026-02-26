@@ -72,6 +72,20 @@ export const audiovisualApi = {
     request(`audiovisual/${id}/estado`, { method: 'PATCH', body: JSON.stringify({ estado }) }),
 }
 
+export const campanasApi = {
+  listar: (params) => {
+    const q = new URLSearchParams(params || {}).toString()
+    return request(`campanas${q ? `?${q}` : ''}`)
+  },
+  obtener: (id) => request(`campanas/${id}`),
+  crear: (body) =>
+    request('campanas', { method: 'POST', body: JSON.stringify(body) }),
+  actualizar: (id, body) =>
+    request(`campanas/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+  actualizarEstado: (id, estado) =>
+    request(`campanas/${id}/estado`, { method: 'PATCH', body: JSON.stringify({ estado }) }),
+}
+
 export function getProductoImagenSrc(producto, index) {
   const img = producto?.imagenes?.[index]
   if (!img) return null
