@@ -2,6 +2,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { useProductos } from '../context/ProductosContext.jsx'
 import { getProductoImagenSrc, authApi } from '../utils/api'
 
+const formatPrecio = (valor) =>
+  `$${(Number(valor) || 0).toLocaleString('es-CO')}`
+
 export default function TiendaEstiloModerno() {
   const { productos } = useProductos()
   const [tenant, setTenant] = useState(null)
@@ -93,8 +96,10 @@ export default function TiendaEstiloModerno() {
                     <h2 className="mt-3 text-xl font-semibold text-white">
                       {p.nombre}
                     </h2>
-                    {p.precio && (
-                      <p className="mt-1 text-2xl font-bold text-amber-400">{p.precio}</p>
+                    {p.precio != null && (
+                      <p className="mt-1 text-2xl font-bold text-amber-400">
+                        {formatPrecio(p.precio)}
+                      </p>
                     )}
                     <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-white/50">
                       {p.descripcion || 'Sin descripcion.'}
