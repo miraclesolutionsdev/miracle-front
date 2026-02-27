@@ -115,7 +115,7 @@ function ProductosList({
                   </span>
                 </td>
                 <td className="py-3 pr-4">
-                  <div className="flex flex-wrap gap-4">
+                  <div className="flex flex-wrap gap-6">
                     <button
                       type="button"
                       onClick={() => onEditar(p)}
