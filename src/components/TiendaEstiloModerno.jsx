@@ -1,9 +1,26 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useProductos } from '../context/ProductosContext.jsx'
-import { getProductoImagenSrc } from '../utils/api'
+import { getProductoImagenSrc, authApi } from '../utils/api'
 
 export default function TiendaEstiloModerno() {
   const { productos } = useProductos()
+  const [tenant, setTenant] = useState(null)
+
+  useEffect(() => {
+    let cancelled = false
+    authApi
+      .obtenerPerfil()
+      .then((data) => {
+        if (cancelled) return
+        if (data?.tenant) setTenant(data.tenant)
+      })
+      .catch(() => {
+        // si no hay token o falla, dejamos tenant en null y usamos fallback
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const productosActivos = useMemo(
     () => productos.filter((p) => p.estado === 'activo'),
@@ -14,12 +31,30 @@ export default function TiendaEstiloModerno() {
     <main className="min-h-screen bg-[#0d0d10] text-white">
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16 lg:py-20">
         <header className="mb-12 border-b border-white/[0.04] pb-8">
-          <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
-            Tienda
-          </h1>
-          <p className="mt-2 text-sm text-white/40">
-            Explora nuestro catalogo
-          </p>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-4">
+              {tenant?.logoUrl && (
+                <img
+                  src={tenant.logoUrl}
+                  alt={tenant.nombre || 'Logo'}
+                  className="h-12 w-12 rounded-full object-cover ring-2 ring-amber-400/60"
+                />
+              )}
+              <div>
+                <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                  {tenant?.nombre || 'Tienda'}
+                </h1>
+                <p className="mt-2 text-sm text-white/40">
+                  {tenant?.eslogan || 'Explora nuestro catalogo'}
+                </p>
+              </div>
+            </div>
+            {tenant?.descripcion && (
+              <p className="max-w-md text-xs sm:text-sm leading-relaxed text-white/60">
+                {tenant.descripcion}
+              </p>
+            )}
+          </div>
         </header>
 
         {productos.length === 0 ? (

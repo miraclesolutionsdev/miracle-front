@@ -114,10 +114,14 @@ export const authApi = {
     request('auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
   crearTienda: (body) =>
     request('auth/crear-tienda', { method: 'POST', body: JSON.stringify(body) }),
+  obtenerPerfil: () =>
+    request('auth/me'),
   actualizarPerfil: (body) =>
     request('auth/me', { method: 'PATCH', body: JSON.stringify(body) }),
-  actualizarTenant: (nombre) =>
-    request('auth/tenant', { method: 'PATCH', body: JSON.stringify({ nombre }) }),
+  actualizarTenant: (payload) => {
+    const body = typeof payload === 'string' ? { nombre: payload } : payload
+    return request('auth/tenant', { method: 'PATCH', body: JSON.stringify(body) })
+  },
   cambiarPassword: (contraseñaActual, nuevaContraseña) =>
     request('auth/cambiar-password', {
       method: 'POST',

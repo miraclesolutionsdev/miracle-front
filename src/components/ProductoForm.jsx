@@ -120,8 +120,8 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
               onChange={(e) =>
                 setForm((f) => ({ ...f, descripcion: e.target.value }))
               }
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-card-foreground"
-              rows={3}
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-card-foreground min-h-40"
+              rows={6}
             />
           </div>
           <div>
@@ -133,8 +133,8 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
               onChange={(e) =>
                 setForm((f) => ({ ...f, usosTexto: e.target.value }))
               }
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-card-foreground"
-              rows={3}
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-card-foreground min-h-40"
+              rows={6}
               placeholder="Escribe un uso por línea..."
             />
           </div>
@@ -147,8 +147,8 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
               onChange={(e) =>
                 setForm((f) => ({ ...f, caracteristicasTexto: e.target.value }))
               }
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-card-foreground"
-              rows={3}
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-card-foreground min-h-40"
+              rows={6}
               placeholder="Escribe una característica por línea..."
             />
           </div>
