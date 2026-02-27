@@ -3,12 +3,23 @@ export const BASE_URL =
   import.meta.env.VITE_API_URL ||
   (import.meta.env.PROD ? BACKEND_VERCEL : 'http://localhost:3000')
 
+function getAuthToken() {
+  try {
+    const raw = typeof localStorage !== 'undefined' && localStorage.getItem('miracle_auth')
+    if (raw) {
+      const data = JSON.parse(raw)
+      return data?.token || null
+    }
+  } catch (_) {}
+  return null
+}
+
 async function request(path, options = {}) {
   const url = `${BASE_URL.replace(/\/$/, '')}/${path.replace(/^\//, '')}`
-  const res = await fetch(url, {
-    headers: { 'Content-Type': 'application/json', ...options.headers },
-    ...options,
-  })
+  const headers = { 'Content-Type': 'application/json', ...options.headers }
+  const token = getAuthToken()
+  if (token) headers.Authorization = `Bearer ${token}`
+  const res = await fetch(url, { ...options, headers })
   const data = await res.json().catch(() => ({}))
   if (!res.ok) throw new Error(data.error || res.statusText || 'Error en la solicitud')
   return data
@@ -84,6 +95,34 @@ export const campanasApi = {
     request(`campanas/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
   actualizarEstado: (id, estado) =>
     request(`campanas/${id}/estado`, { method: 'PATCH', body: JSON.stringify({ estado }) }),
+}
+
+export const usersApi = {
+  listar: (params) => {
+    const q = new URLSearchParams(params || {}).toString()
+    return request(`users${q ? `?${q}` : ''}`)
+  },
+  crear: (body) =>
+    request('users', { method: 'POST', body: JSON.stringify(body) }),
+  actualizar: (id, body) =>
+    request(`users/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+  eliminar: (id) => request(`users/${id}`, { method: 'DELETE' }),
+}
+
+export const authApi = {
+  login: (email, password) =>
+    request('auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
+  crearTienda: (body) =>
+    request('auth/crear-tienda', { method: 'POST', body: JSON.stringify(body) }),
+  actualizarPerfil: (body) =>
+    request('auth/me', { method: 'PATCH', body: JSON.stringify(body) }),
+  actualizarTenant: (nombre) =>
+    request('auth/tenant', { method: 'PATCH', body: JSON.stringify({ nombre }) }),
+  cambiarPassword: (contraseñaActual, nuevaContraseña) =>
+    request('auth/cambiar-password', {
+      method: 'POST',
+      body: JSON.stringify({ contraseñaActual, nuevaContraseña }),
+    }),
 }
 
 export function getProductoImagenSrc(producto, index) {
