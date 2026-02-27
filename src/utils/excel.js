@@ -271,6 +271,69 @@ export const PRODUCTOS_HEADERS = [
   'Características',
 ]
 
+/** Índices y nombres para validación de productos (mismo orden que PRODUCTOS_HEADERS) */
+const PRODUCTOS_INDICES_OBLIGATORIOS = [
+  { index: 1, nombre: 'Nombre' },
+  { index: 3, nombre: 'Precio' },
+  { index: 4, nombre: 'Tipo' },
+  { index: 5, nombre: 'Estado' },
+]
+
+/**
+ * Valida que el Excel de productos tenga las columnas obligatorias (por índice).
+ * @param {any[][]} rows - Filas del Excel (primera = cabecera)
+ * @returns {{ valido: boolean, faltantes: string[] }}
+ */
+export function validarCabecerasProductos(rows) {
+  if (!rows?.length) {
+    return { valido: false, faltantes: ['El archivo está vacío o no tiene cabecera.'] }
+  }
+  const headerRow = rows[0]
+  const numCols = Array.isArray(headerRow) ? headerRow.length : 0
+  const faltantes = PRODUCTOS_INDICES_OBLIGATORIOS.filter(
+    (c) => c.index >= numCols
+  ).map((c) => c.nombre)
+  return {
+    valido: faltantes.length === 0,
+    faltantes,
+  }
+}
+
+/**
+ * Valida que cada fila de datos de productos tenga los campos obligatorios.
+ * @param {any[][]} rows - Filas del Excel (primera = cabecera)
+ * @returns {{ valido: boolean, filasConError: { numeroFila: number, camposFaltantes: string[] }[] }}
+ */
+export function validarFilasProductos(rows) {
+  const filasConError = []
+  if (!rows?.length) return { valido: true, filasConError: [] }
+  const [, ...dataRows] = rows
+  const nombresPorIndice = Object.fromEntries(
+    PRODUCTOS_INDICES_OBLIGATORIOS.map((c) => [c.index, c.nombre])
+  )
+
+  dataRows.forEach((row, idx) => {
+    if (!row || row.length === 0) return
+    const nombre = row[1] != null ? String(row[1]).trim() : ''
+    if (nombre === '') return
+    const faltantes = PRODUCTOS_INDICES_OBLIGATORIOS.filter(({ index }) => {
+      const val = row[index]
+      return val == null || String(val).trim() === ''
+    }).map((c) => c.nombre)
+    if (faltantes.length > 0) {
+      filasConError.push({
+        numeroFila: idx + 2,
+        camposFaltantes: faltantes,
+      })
+    }
+  })
+
+  return {
+    valido: filasConError.length === 0,
+    filasConError,
+  }
+}
+
 export function productosToRows(productos) {
   return productos.map((p) => [
     p.id ?? '',
