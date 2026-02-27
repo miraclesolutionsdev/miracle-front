@@ -148,6 +148,45 @@ export function validarCabecerasClientes(rows) {
   }
 }
 
+/**
+ * Valida que cada fila de datos tenga todos los campos obligatorios.
+ * @param {any[][]} rows - Filas del Excel (primera = cabecera)
+ * @returns {{ valido: boolean, filasConError: { numeroFila: number, camposFaltantes: string[] }[] }}
+ */
+export function validarFilasClientes(rows) {
+  const filasConError = []
+  if (!rows?.length) return { valido: true, filasConError: [] }
+  const [headerRow, ...dataRows] = rows
+  const header = Array.isArray(headerRow) ? headerRow : [headerRow]
+  const indices = indicesPorCabecera(header)
+
+  const get = (row, campo) => {
+    const i = indices[campo]
+    if (i == null) return ''
+    const val = row[i]
+    return val != null ? String(val).trim() : ''
+  }
+
+  dataRows.forEach((row, idx) => {
+    if (!row || !row.some((cell) => cell != null && String(cell).trim() !== '')) return
+    const faltantes = CLIENTES_CAMPOS_OBLIGATORIOS.filter((campo) => {
+      const v = get(row, campo)
+      return v === ''
+    })
+    if (faltantes.length > 0) {
+      filasConError.push({
+        numeroFila: idx + 2,
+        camposFaltantes: faltantes.map((c) => CLIENTES_NOMBRES_OBLIGATORIOS[c] || c),
+      })
+    }
+  })
+
+  return {
+    valido: filasConError.length === 0,
+    filasConError,
+  }
+}
+
 export const CLIENTES_HEADERS = [
   'ID',
   'Nombre Empresa',
