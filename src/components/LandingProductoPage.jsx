@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useProductos } from '../context/ProductosContext.jsx'
+import { useTiendaEstilo, ESTILOS } from '../context/TiendaEstiloContext.jsx'
 import { getProductoImagenSrc } from '../utils/api'
 import { ArrowLeft, Check, Package, ChevronRight } from 'lucide-react'
 import LandingMetodoPago from './LandingMetodoPago'
@@ -19,13 +20,13 @@ const WhatsAppIcon = ({ className = 'h-6 w-6' }) => (
 
 const GALLERY_INTERVAL_MS = 5000
 
-function ImageGallery({ producto }) {
+function ImageGallery({ producto, variant = 'moderno' }) {
   const [selectedIndex, setSelectedIndex] = useState(0)
+  const isClasico = variant === 'clasico'
   const images = (producto.imagenes || [])
     .map((_, i) => getProductoImagenSrc(producto, i))
     .filter(Boolean)
 
-  // Auto-avance cada 5 segundos con animación fluida
   useEffect(() => {
     if (images.length <= 1) return
     const id = setInterval(() => {
@@ -36,17 +37,23 @@ function ImageGallery({ producto }) {
 
   const goTo = (i) => setSelectedIndex(i)
 
+  const galleryBg = isClasico ? 'bg-[#111210] ring-1 ring-[#1c1e18]' : 'bg-[#141418] ring-1 ring-white/[0.06]'
+  const dotActive = isClasico ? 'bg-[#8aad7a]' : 'bg-amber-400'
+  const thumbRing = isClasico ? 'ring-[#8aad7a] shadow-[0_0_12px_rgba(138,173,122,0.2)]' : 'ring-amber-400 shadow-[0_0_12px_rgba(245,179,66,0.2)]'
+  const thumbRingInactive = isClasico ? 'ring-[#1c1e18] hover:ring-[#3a4a35]' : 'ring-white/[0.06] hover:ring-white/20'
+  const placeholderIcon = isClasico ? 'text-[#8aad7a]/30' : 'text-white/10'
+
   if (images.length === 0) {
     return (
-      <div className="flex aspect-square items-center justify-center rounded-2xl bg-[#141418] ring-1 ring-white/[0.06]">
-        <Package className="h-16 w-16 text-white/10" strokeWidth={1} />
+      <div className={`flex aspect-square items-center justify-center rounded-2xl ${galleryBg}`}>
+        <Package className={`h-16 w-16 ${placeholderIcon}`} strokeWidth={1} />
       </div>
     )
   }
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="relative aspect-square overflow-hidden rounded-2xl bg-[#141418] ring-1 ring-white/[0.06]">
+      <div className={`relative aspect-square overflow-hidden rounded-2xl ${galleryBg}`}>
         <div
           className="flex h-full w-full transition-transform duration-500 ease-out"
           style={{
@@ -76,9 +83,7 @@ function ImageGallery({ producto }) {
                 type="button"
                 onClick={() => goTo(i)}
                 className={`h-1.5 rounded-full transition-all duration-300 ${
-                  i === selectedIndex
-                    ? 'w-5 bg-amber-400'
-                    : 'w-1.5 bg-white/40 hover:bg-white/60'
+                  i === selectedIndex ? `w-5 ${dotActive}` : 'w-1.5 bg-white/40 hover:bg-white/60'
                 }`}
                 aria-label={`Ver imagen ${i + 1}`}
               />
@@ -94,9 +99,7 @@ function ImageGallery({ producto }) {
               type="button"
               onClick={() => goTo(i)}
               className={`relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl ring-2 transition-all duration-200 ${
-                i === selectedIndex
-                  ? 'ring-amber-400 shadow-[0_0_12px_rgba(245,179,66,0.2)]'
-                  : 'ring-white/[0.06] hover:ring-white/20'
+                i === selectedIndex ? thumbRing : thumbRingInactive
               }`}
             >
               <img
@@ -115,7 +118,18 @@ function ImageGallery({ producto }) {
 function LandingProductoPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const { estilo: estiloContext } = useTiendaEstilo()
   const { findProductoById } = useProductos()
+
+  const paramEstilo = searchParams.get('estilo')
+  const estilo =
+    paramEstilo === ESTILOS.MODERNO
+      ? ESTILOS.MODERNO
+      : paramEstilo === ESTILOS.CLASICO
+        ? ESTILOS.CLASICO
+        : estiloContext
+  const isClasico = estilo === ESTILOS.CLASICO
 
   const producto = findProductoById(id)
 
@@ -126,6 +140,8 @@ function LandingProductoPage() {
   const [nombre, setNombre] = useState('')
   const [telefono, setTelefono] = useState('')
   const [showWhatsappForm, setShowWhatsappForm] = useState(false)
+
+  const backUrl = isClasico ? '/tienda?estilo=clasico' : '/tienda?estilo=moderno'
 
   if (!producto) {
     return (
@@ -162,116 +178,156 @@ function LandingProductoPage() {
     window.open(url, '_blank', 'noopener,noreferrer')
   }
 
+  const mainClass = isClasico
+    ? 'min-h-screen bg-[#0e0f0d] text-[#e8e4dc]'
+    : 'min-h-screen bg-[#0d0d10] text-white'
+  const navBorder = isClasico ? 'border-b border-[#1e2018]' : 'border-b border-white/[0.04]'
+  const btnBackClass = isClasico
+    ? 'flex items-center gap-2 rounded-xl bg-[#111210] border border-[#1c1e18] px-4 py-2 text-sm font-medium text-[#7a7a6a] transition-colors hover:bg-[#1c1e18] hover:text-[#e8e4dc]'
+    : 'flex items-center gap-2 rounded-xl bg-white/[0.04] px-4 py-2 text-sm font-medium text-white/60 transition-colors hover:bg-white/[0.08] hover:text-white'
+  const badgeClass = isClasico
+    ? 'inline-flex w-fit items-center rounded-full bg-[#8aad7a]/15 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.15em] text-[#8aad7a]'
+    : 'inline-flex w-fit items-center rounded-full bg-amber-400/10 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.15em] text-amber-400'
+  const titleClass = isClasico
+    ? 'text-balance text-3xl font-bold tracking-tight text-[#e8e4dc] sm:text-4xl lg:text-[2.75rem] lg:leading-tight'
+    : 'text-balance text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-[2.75rem] lg:leading-tight'
+  const priceClass = isClasico
+    ? 'text-3xl font-bold tracking-tight text-[#8aad7a] sm:text-4xl'
+    : 'text-3xl font-bold tracking-tight text-amber-400 sm:text-4xl'
+  const dividerClass = isClasico ? 'h-px bg-[#1e2018]' : 'h-px bg-white/[0.06]'
+  const sectionTitleClass = isClasico
+    ? 'text-xs font-semibold uppercase tracking-[0.15em] text-[#4a4a3a]'
+    : 'text-xs font-semibold uppercase tracking-[0.15em] text-white/40'
+  const bodyTextClass = isClasico
+    ? 'text-base leading-relaxed text-[#7a7a6a]'
+    : 'text-base leading-relaxed text-white/60'
+  const listBulletClass = isClasico
+    ? 'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-[#8aad7a]/15'
+    : 'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-amber-400/10'
+  const listBulletSecClass = isClasico
+    ? 'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-[#1c1e18]'
+    : 'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-white/[0.06]'
+  const checkClass = isClasico ? 'h-3 w-3 text-[#8aad7a]' : 'h-3 w-3 text-amber-400'
+  const checkSecClass = isClasico ? 'h-3 w-3 text-[#7a7a6a]' : 'h-3 w-3 text-white/50'
+  const listTextClass = isClasico ? 'text-sm leading-relaxed text-[#7a7a6a]' : 'text-sm leading-relaxed text-white/60'
+  const cardClass = isClasico
+    ? 'flex flex-col rounded-2xl bg-[#111210] p-6 ring-1 ring-[#1c1e18] sm:p-8'
+    : 'flex flex-col rounded-2xl bg-[#141418] p-6 ring-1 ring-white/[0.06] sm:p-8'
+  const footerBorder = isClasico ? 'border-t border-[#1e2018]' : 'border-t border-white/[0.04]'
+  const footerText = isClasico ? 'text-center text-xs text-[#3a3a2a]' : 'text-center text-xs text-white/25'
+
   return (
-    <main className="min-h-screen bg-[#0d0d10] text-white">
-      <nav className="border-b border-white/[0.04]">
-        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-4 sm:px-6 lg:px-8">
-          <button
-            type="button"
-            onClick={() =>
-              window.history.length > 1 ? navigate(-1) : navigate('/tienda')
-            }
-            className="flex items-center gap-2 rounded-xl bg-white/[0.04] px-4 py-2 text-sm font-medium text-white/60 transition-colors hover:bg-white/[0.08] hover:text-white"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Volver
-          </button>
-          <ChevronRight className="h-4 w-4 text-white/20" />
-          <span className="text-sm text-white/40">
-            {producto.tipo === 'servicio' ? 'Servicio' : 'Producto'}
-          </span>
-          <ChevronRight className="h-4 w-4 text-white/20" />
-          <span className="truncate text-sm text-white/70">{producto.nombre}</span>
-        </div>
-      </nav>
+    <>
+      {isClasico && (
+        <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lato:wght@300;400;600;700&display=swap');`}</style>
+      )}
+      <main className={mainClass}>
+        <nav className={navBorder}>
+          <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-4 sm:px-6 lg:px-8">
+            <button
+              type="button"
+              onClick={() => (window.history.length > 1 ? navigate(-1) : navigate(backUrl))}
+              className={btnBackClass}
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Volver
+            </button>
+            <ChevronRight className={isClasico ? 'h-4 w-4 text-[#4a4a3a]' : 'h-4 w-4 text-white/20'} />
+            <span className={isClasico ? 'text-sm text-[#4a4a3a]' : 'text-sm text-white/40'}>
+              {producto.tipo === 'servicio' ? 'Servicio' : 'Producto'}
+            </span>
+            <ChevronRight className={isClasico ? 'h-4 w-4 text-[#4a4a3a]' : 'h-4 w-4 text-white/20'} />
+            <span className={isClasico ? 'truncate text-sm text-[#7a7a6a]' : 'truncate text-sm text-white/70'}>{producto.nombre}</span>
+          </div>
+        </nav>
 
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-16">
-          <ImageGallery producto={producto} />
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
+          <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-16">
+            <ImageGallery producto={producto} variant={estilo} />
 
-          <div className="flex flex-col gap-8">
-            <div className="flex flex-col gap-4">
-              <span className="inline-flex w-fit items-center rounded-full bg-amber-400/10 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.15em] text-amber-400">
-                {producto.tipo === 'servicio' ? 'Servicio' : 'Producto'}
-              </span>
-              <h1 className="text-balance text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-[2.75rem] lg:leading-tight">
-                {producto.nombre}
-              </h1>
-              {producto.precio != null && (
-                <p className="text-3xl font-bold tracking-tight text-amber-400 sm:text-4xl">
-                  {formatPrecio(producto.precio)}
+            <div className="flex flex-col gap-8">
+              <div className="flex flex-col gap-4">
+                <span className={badgeClass}>
+                  {producto.tipo === 'servicio' ? 'Servicio' : 'Producto'}
+                </span>
+                <h1 className={titleClass} style={isClasico ? { fontFamily: "'Playfair Display', serif" } : undefined}>
+                  {producto.nombre}
+                </h1>
+                {producto.precio != null && (
+                  <p className={priceClass}>
+                    {formatPrecio(producto.precio)}
+                  </p>
+                )}
+                {producto.tipo === 'producto' && producto.stock != null && (
+                  <div className="flex items-center gap-2">
+                    <span className={`h-2 w-2 rounded-full ${producto.stock > 0 ? 'bg-emerald-400' : 'bg-red-400/80'}`} />
+                    <span className={isClasico ? 'text-sm text-[#7a7a6a]' : 'text-sm text-white/50'}>
+                      {producto.stock > 0 ? `${producto.stock} en stock` : 'Sin stock'}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <div className={dividerClass} />
+
+              <div className="flex flex-col gap-3">
+                <h2 className={sectionTitleClass}>
+                  Descripcion
+                </h2>
+                <p className={bodyTextClass}>
+                  {producto.descripcion || 'Sin descripcion disponible.'}
                 </p>
-              )}
-              {producto.stock != null && (
-                <div className="flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                  <span className="text-sm text-white/50">
-                    {producto.stock} en stock
-                  </span>
+              </div>
+
+              {producto.usos?.length > 0 && (
+                <div className="flex flex-col gap-4">
+                  <h2 className={sectionTitleClass}>
+                    Usos
+                  </h2>
+                  <ul className="flex flex-col gap-3">
+                    {producto.usos.map((uso, i) => (
+                      <li key={i} className="flex items-start gap-3">
+                        <span className={listBulletClass}>
+                          <Check className={checkClass} strokeWidth={2.5} />
+                        </span>
+                        <span className={listTextClass}>{uso}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               )}
-            </div>
 
-            <div className="h-px bg-white/[0.06]" />
+              {producto.caracteristicas?.length > 0 && (
+                <div className="flex flex-col gap-4">
+                  <h2 className={sectionTitleClass}>
+                    Caracteristicas
+                  </h2>
+                  <ul className="flex flex-col gap-3">
+                    {producto.caracteristicas.map((c, i) => (
+                      <li key={i} className="flex items-start gap-3">
+                        <span className={listBulletSecClass}>
+                          <Check className={checkSecClass} strokeWidth={2.5} />
+                        </span>
+                        <span className={listTextClass}>{c}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
-            <div className="flex flex-col gap-3">
-              <h2 className="text-xs font-semibold uppercase tracking-[0.15em] text-white/40">
-                Descripcion
-              </h2>
-              <p className="text-base leading-relaxed text-white/60">
-                {producto.descripcion || 'Sin descripcion disponible.'}
-              </p>
-            </div>
+              <div className={dividerClass} />
 
-            {producto.usos?.length > 0 && (
-              <div className="flex flex-col gap-4">
-                <h2 className="text-xs font-semibold uppercase tracking-[0.15em] text-white/40">
-                  Usos
-                </h2>
-                <ul className="flex flex-col gap-3">
-                  {producto.usos.map((uso, i) => (
-                    <li key={i} className="flex items-start gap-3">
-                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-amber-400/10">
-                        <Check className="h-3 w-3 text-amber-400" strokeWidth={2.5} />
-                      </span>
-                      <span className="text-sm leading-relaxed text-white/60">{uso}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {producto.caracteristicas?.length > 0 && (
-              <div className="flex flex-col gap-4">
-                <h2 className="text-xs font-semibold uppercase tracking-[0.15em] text-white/40">
-                  Caracteristicas
-                </h2>
-                <ul className="flex flex-col gap-3">
-                  {producto.caracteristicas.map((c, i) => (
-                    <li key={i} className="flex items-start gap-3">
-                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-white/[0.06]">
-                        <Check className="h-3 w-3 text-white/50" strokeWidth={2.5} />
-                      </span>
-                      <span className="text-sm leading-relaxed text-white/60">{c}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            <div className="h-px bg-white/[0.06]" />
-
-            <section className="flex flex-col gap-6">
-              <div>
-                <h2 className="text-xs font-semibold uppercase tracking-[0.15em] text-white/40">
-                  Completa tu compra
-                </h2>
-                <p className="mt-1 text-sm text-white/50">
-                  Consulta por WhatsApp o paga de forma segura.
-                </p>
-              </div>
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:items-stretch">
-                <div className="flex flex-col rounded-2xl bg-[#141418] p-6 ring-1 ring-white/[0.06] sm:p-8">
+              <section className="flex flex-col gap-6">
+                <div>
+                  <h2 className={sectionTitleClass}>
+                    Completa tu compra
+                  </h2>
+                  <p className={isClasico ? 'mt-1 text-sm text-[#7a7a6a]' : 'mt-1 text-sm text-white/50'}>
+                    Consulta por WhatsApp o paga de forma segura.
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:items-stretch">
+                  <div className={cardClass}>
                   {!showWhatsappForm ? (
                     <button
                       type="button"
@@ -361,14 +417,15 @@ function LandingProductoPage() {
         </div>
       </div>
 
-      <footer className="border-t border-white/[0.04]">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <p className="text-center text-xs text-white/25">
-            {new Date().getFullYear()} Miracle Solutions. Todos los derechos reservados.
-          </p>
-        </div>
-      </footer>
-    </main>
+        <footer className={footerBorder}>
+          <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+            <p className={footerText}>
+              {new Date().getFullYear()} Miracle Solutions. Todos los derechos reservados.
+            </p>
+          </div>
+        </footer>
+      </main>
+    </>
   )
 }
 

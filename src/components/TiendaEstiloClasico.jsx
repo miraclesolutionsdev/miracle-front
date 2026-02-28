@@ -382,7 +382,7 @@ function ProductCard({ p }) {
       tabIndex={0}
       onClick={() =>
         window.open(
-          `${window.location.origin}/landing-producto/${p.id}`,
+          `${window.location.origin}/landing-producto/${p.id}?estilo=clasico`,
           '_blank',
           'noopener,noreferrer',
         )
@@ -390,7 +390,7 @@ function ProductCard({ p }) {
       onKeyDown={(e) =>
         e.key === 'Enter' &&
         window.open(
-          `${window.location.origin}/landing-producto/${p.id}`,
+          `${window.location.origin}/landing-producto/${p.id}?estilo=clasico`,
           '_blank',
           'noopener,noreferrer',
         )
@@ -434,7 +434,7 @@ function ProductCard({ p }) {
             onClick={(e) => {
               e.stopPropagation()
               window.open(
-                `${window.location.origin}/landing-producto/${p.id}`,
+                `${window.location.origin}/landing-producto/${p.id}?estilo=clasico`,
                 '_blank',
                 'noopener,noreferrer',
               )

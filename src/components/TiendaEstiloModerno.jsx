@@ -32,8 +32,8 @@ function ProductCard({ producto, accent }) {
       tabIndex={0}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
-      onClick={() => window.open(`${window.location.origin}/landing-producto/${producto.id}`, '_blank', 'noopener,noreferrer')}
-      onKeyDown={(e) => e.key === 'Enter' && (window.open(`${window.location.origin}/landing-producto/${producto.id}`, '_blank', 'noopener,noreferrer'))}
+      onClick={() => window.open(`${window.location.origin}/landing-producto/${producto.id}?estilo=moderno`, '_blank', 'noopener,noreferrer')}
+      onKeyDown={(e) => e.key === 'Enter' && (window.open(`${window.location.origin}/landing-producto/${producto.id}?estilo=moderno`, '_blank', 'noopener,noreferrer'))}
       style={{
         background: hov ? '#161616' : '#111',
         border: `1px solid ${hov ? accent + '44' : '#ffffff0f'}`,
@@ -131,7 +131,7 @@ function ProductCard({ producto, accent }) {
           type="button"
           onClick={(e) => {
             e.stopPropagation()
-            window.open(`${window.location.origin}/landing-producto/${producto.id}`, '_blank', 'noopener,noreferrer')
+            window.open(`${window.location.origin}/landing-producto/${producto.id}?estilo=moderno`, '_blank', 'noopener,noreferrer')
           }}
           style={{
             marginTop: '12px',
