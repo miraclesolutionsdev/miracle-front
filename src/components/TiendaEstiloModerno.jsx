@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useProductos } from '../context/ProductosContext.jsx'
 import { getProductoImagenSrc, authApi } from '../utils/api'
+import TiendaHeader from './TiendaHeader'
 
 const formatPrecio = (valor) =>
   `$${(Number(valor) || 0).toLocaleString('es-CO')}`
@@ -33,32 +34,7 @@ export default function TiendaEstiloModerno() {
   return (
     <main className="min-h-screen bg-[#0d0d10] text-white">
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16 lg:py-20">
-        <header className="mb-12 border-b border-white/[0.04] pb-8">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-4">
-              {tenant?.logoUrl && (
-                <img
-                  src={tenant.logoUrl}
-                  alt={tenant.nombre || 'Logo'}
-                  className="h-12 w-12 rounded-full object-cover ring-2 ring-amber-400/60"
-                />
-              )}
-              <div>
-                <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                  {tenant?.nombre || 'Tienda'}
-                </h1>
-                <p className="mt-2 text-sm text-white/40">
-                  {tenant?.eslogan || 'Explora nuestro catalogo'}
-                </p>
-              </div>
-            </div>
-            {tenant?.descripcion && (
-              <p className="max-w-md text-xs sm:text-sm leading-relaxed text-white/60">
-                {tenant.descripcion}
-              </p>
-            )}
-          </div>
-        </header>
+        <TiendaHeader tenant={tenant} variant="moderno" />
 
         {productos.length === 0 ? (
           <div className="rounded-2xl bg-[#141418] p-12 text-center ring-1 ring-white/[0.06]">

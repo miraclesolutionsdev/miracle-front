@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useProductos } from '../context/ProductosContext.jsx'
 import { getProductoImagenSrc, authApi } from '../utils/api'
+import TiendaHeader from './TiendaHeader'
 
 const formatPrecio = (valor) =>
   `$${(Number(valor) || 0).toLocaleString('es-CO')}`
@@ -33,30 +34,7 @@ export default function TiendaEstiloClasico() {
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100">
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16 lg:py-20">
-        <header className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-4">
-            {tenant?.logoUrl && (
-              <img
-                src={tenant.logoUrl}
-                alt={tenant.nombre || 'Logo'}
-                className="h-12 w-12 rounded-full object-cover ring-2 ring-pink-500/40"
-              />
-            )}
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                {tenant?.nombre || 'Tienda'}
-              </h1>
-              {tenant?.eslogan && (
-                <p className="mt-1 text-sm text-neutral-400">{tenant.eslogan}</p>
-              )}
-            </div>
-          </div>
-          {tenant?.descripcion && (
-            <p className="max-w-md text-sm leading-relaxed text-neutral-400">
-              {tenant.descripcion}
-            </p>
-          )}
-        </header>
+        <TiendaHeader tenant={tenant} variant="clasico" />
 
         {productos.length === 0 ? (
           <div className="rounded-2xl bg-neutral-900/60 p-12 text-center ring-1 ring-neutral-800">

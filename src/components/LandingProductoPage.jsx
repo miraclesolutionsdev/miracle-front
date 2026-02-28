@@ -5,6 +5,9 @@ import { getProductoImagenSrc } from '../utils/api'
 import { ArrowLeft, Check, Package, ChevronRight } from 'lucide-react'
 import LandingMetodoPago from './LandingMetodoPago'
 
+const formatPrecio = (valor) =>
+  `$${(Number(valor) || 0).toLocaleString('es-CO')}`
+
 // Cambia este numero por el tuyo en formato internacional, sin "+"
 const WHATSAPP_NUMBER = '573001234567'
 
@@ -149,7 +152,7 @@ function LandingProductoPage() {
     const texto = [
       'Hola, estoy interesado en el siguiente producto:',
       `Producto: ${producto.nombre}`,
-      producto.precio ? `Precio mostrado: ${producto.precio}` : '',
+      producto.precio != null ? `Precio mostrado: ${formatPrecio(producto.precio)}` : '',
       nombre ? `Mi nombre: ${nombre}` : '',
       telefono ? `Mi numero de contacto: ${telefono}` : '',
     ]
@@ -194,9 +197,9 @@ function LandingProductoPage() {
               <h1 className="text-balance text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-[2.75rem] lg:leading-tight">
                 {producto.nombre}
               </h1>
-              {producto.precio && (
+              {producto.precio != null && (
                 <p className="text-3xl font-bold tracking-tight text-amber-400 sm:text-4xl">
-                  {producto.precio}
+                  {formatPrecio(producto.precio)}
                 </p>
               )}
               {producto.stock != null && (
