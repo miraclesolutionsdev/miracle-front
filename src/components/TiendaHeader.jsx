@@ -47,11 +47,11 @@ export default function TiendaHeader({ tenant, variant = 'clasico' }) {
             <img
               src={logoUrl}
               alt={name}
-              className="h-20 w-20 rounded-2xl object-cover ring-2 ring-white/20 shadow-lg sm:h-24 sm:w-24"
+              className="h-24 w-24 rounded-2xl object-cover ring-2 ring-white/20 shadow-lg sm:h-28 sm:w-28"
             />
           ) : (
             <div
-              className={`flex h-20 w-20 items-center justify-center rounded-2xl text-2xl font-bold shadow-lg ring-2 ring-white/20 sm:h-24 sm:w-24 sm:text-3xl ${
+              className={`flex h-24 w-24 items-center justify-center rounded-2xl text-2xl font-bold shadow-lg ring-2 ring-white/20 sm:h-28 sm:w-28 sm:text-3xl ${
                 isClasico
                   ? 'bg-pink-500/20 text-pink-300'
                   : 'bg-amber-500/20 text-amber-300'

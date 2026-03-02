@@ -42,16 +42,16 @@ const STYLES = `
   }
 
   .tc-logo-img {
-    width: 52px;
-    height: 52px;
+    width: 72px;
+    height: 72px;
     border-radius: 10px;
     object-fit: cover;
     border: 1px solid #3a4a35;
   }
 
   .tc-logo-initials {
-    width: 52px;
-    height: 52px;
+    width: 72px;
+    height: 72px;
     border-radius: 10px;
     background: #1e2a1a;
     border: 1px solid #3a4a35;

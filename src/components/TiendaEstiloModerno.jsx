@@ -193,8 +193,8 @@ export default function TiendaEstiloModerno() {
         .t-hero-mod { max-width: 1200px; margin: 0 auto; padding: 64px 48px 0; }
         .t-eyebrow-mod { display: inline-flex; align-items: center; gap: 10px; font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: ${accent}; margin-bottom: 24px; }
         .t-eyebrow-mod::before { content: ''; width: 28px; height: 2px; background: ${accent}; border-radius: 1px; }
-        .t-hero-top-mod { display: grid; grid-template-columns: 92px 1fr; align-items: flex-end; gap: 28px; margin-bottom: 0; }
-        .t-logo-mod { width: 92px; height: 92px; border-radius: 18px; background: ${accent}18; border: 1px solid ${accent}33; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 900; color: ${accent}; font-family: 'Syne', sans-serif; flex-shrink: 0; margin-bottom: 8px; overflow: hidden; }
+        .t-hero-top-mod { display: grid; grid-template-columns: 116px 1fr; align-items: flex-end; gap: 28px; margin-bottom: 0; }
+        .t-logo-mod { width: 116px; height: 116px; border-radius: 24px; background: ${accent}18; border: 1px solid ${accent}33; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 900; color: ${accent}; font-family: 'Syne', sans-serif; flex-shrink: 0; margin-bottom: 8px; overflow: hidden; }
         .t-title-mod { font-family: 'Syne', sans-serif; font-size: clamp(52px, 9vw, 104px); font-weight: 800; line-height: 0.9; letter-spacing: -0.04em; margin: 0; color: #fff; }
         .t-title-mod em { font-style: normal; color: ${accent}; }
         .t-hero-bottom-mod { display: grid; grid-template-columns: 1fr auto; align-items: flex-start; gap: 32px; padding: 20px 0 0 120px; margin-bottom: 0; border-top: 1px solid #1a1a1a; margin-top: 20px; padding-top: 20px; }

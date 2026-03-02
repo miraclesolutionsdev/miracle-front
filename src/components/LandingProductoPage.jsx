@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useProductos } from '../context/ProductosContext.jsx'
 import { useTiendaEstilo, ESTILOS } from '../context/TiendaEstiloContext.jsx'
-import { getProductoImagenSrc } from '../utils/api'
+import { getProductoImagenSrc, productosApi } from '../utils/api'
 import { ArrowLeft, Check, Package, ChevronRight } from 'lucide-react'
 import LandingMetodoPago from './LandingMetodoPago'
 
@@ -131,11 +131,9 @@ function LandingProductoPage() {
         : estiloContext
   const isClasico = estilo === ESTILOS.CLASICO
 
-  const producto = findProductoById(id)
-
-  useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [id])
+  const [producto, setProducto] = useState(null)
+  const [cargando, setCargando] = useState(true)
+  const [error, setError] = useState(null)
 
   const [nombre, setNombre] = useState('')
   const [telefono, setTelefono] = useState('')
@@ -143,24 +141,40 @@ function LandingProductoPage() {
 
   const backUrl = isClasico ? '/tienda?estilo=clasico' : '/tienda?estilo=moderno'
 
-  if (!producto) {
-    return (
-      <main className="flex min-h-screen items-center justify-center bg-[#0d0d10]">
-        <div className="flex flex-col items-center gap-4">
-          <Package className="h-12 w-12 text-white/20" strokeWidth={1} />
-          <p className="text-white/40">Producto no encontrado.</p>
-          <button
-            type="button"
-            onClick={() => navigate('/tienda')}
-            className="mt-2 flex items-center gap-2 rounded-xl bg-white/[0.06] px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Volver a la tienda
-          </button>
-        </div>
-      </main>
-    )
-  }
+  useEffect(() => {
+    let cancelado = false
+    async function cargar() {
+      setCargando(true)
+      setError(null)
+      window.scrollTo(0, 0)
+      try {
+        // intentar primero del contexto (rápido si vienes desde la tienda)
+        const fromContext = findProductoById(id)
+        if (fromContext) {
+          if (!cancelado) {
+            setProducto(fromContext)
+            setCargando(false)
+          }
+          return
+        }
+        // si no está en contexto, pedirlo directo al backend
+        const data = await productosApi.obtener(id)
+        if (!cancelado) {
+          setProducto(data)
+          setCargando(false)
+        }
+      } catch (err) {
+        if (!cancelado) {
+          setError(err)
+          setCargando(false)
+        }
+      }
+    }
+    cargar()
+    return () => {
+      cancelado = true
+    }
+  }, [id, findProductoById])
 
   const handleWhatsapp = (e) => {
     e.preventDefault()
@@ -215,6 +229,41 @@ function LandingProductoPage() {
     : 'flex flex-col rounded-2xl bg-[#141418] p-6 ring-1 ring-white/[0.06] sm:p-8'
   const footerBorder = isClasico ? 'border-t border-[#1e2018]' : 'border-t border-white/[0.04]'
   const footerText = isClasico ? 'text-center text-xs text-[#3a3a2a]' : 'text-center text-xs text-white/25'
+
+  if (cargando) {
+    return (
+      <main className={mainClass}>
+        <div className="flex min-h-screen items-center justify-center">
+          <p className={isClasico ? 'text-sm text-[#7a7a6a]' : 'text-sm text-white/50'}>
+            Cargando producto...
+          </p>
+        </div>
+      </main>
+    )
+  }
+
+  if (error || !producto) {
+    return (
+      <main className={mainClass}>
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <Package className={isClasico ? 'h-12 w-12 text-[#3a3a2a]' : 'h-12 w-12 text-white/20'} strokeWidth={1} />
+            <p className={isClasico ? 'text-sm text-[#7a7a6a]' : 'text-sm text-white/40'}>
+              {error ? 'No se pudo cargar el producto.' : 'Producto no disponible.'}
+            </p>
+            <button
+              type="button"
+              onClick={() => navigate(backUrl)}
+              className={btnBackClass}
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Volver a la tienda
+            </button>
+          </div>
+        </div>
+      </main>
+    )
+  }
 
   return (
     <>

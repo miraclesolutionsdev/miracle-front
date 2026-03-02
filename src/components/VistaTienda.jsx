@@ -6,16 +6,34 @@ import { useTiendaEstilo, ESTILOS } from '../context/TiendaEstiloContext.jsx'
 
 function PreviewClasico() {
   return (
-    <div className="aspect-[4/3] w-full overflow-hidden rounded-lg bg-neutral-950 ring-1 ring-white/10">
-      <div className="flex h-full flex-col p-2">
-        <div className="mb-2 h-6 w-24 rounded bg-neutral-800" />
-        <div className="grid flex-1 grid-cols-2 gap-1">
+    <div className="aspect-[4/3] w-full overflow-hidden rounded-lg bg-[#0e0f0d] ring-1 ring-[#1c1e18]">
+      <div className="flex h-full flex-col p-2.5">
+        {/* Header: logo + nombre + categoría */}
+        <div className="mb-3 flex items-center gap-2.5">
+          <div className="h-7 w-7 rounded-lg bg-[#1e2a1a] border border-[#3a4a35]" />
+          <div className="flex flex-col gap-1">
+            <div className="h-2 w-20 rounded bg-[#3a4a35]" />
+            <div className="h-1.5 w-16 rounded-full bg-[#151910]" />
+          </div>
+        </div>
+
+        {/* Título editorial */}
+        <div className="mb-3 space-y-1.5">
+          <div className="h-3 w-32 rounded bg-[#1e2018]" />
+          <div className="h-3 w-20 rounded bg-[#1e2018]" />
+        </div>
+
+        {/* Grid de tarjetas al estilo clásico */}
+        <div className="grid flex-1 grid-cols-3 gap-1.5">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="flex flex-col overflow-hidden rounded bg-neutral-900/80">
-              <div className="h-12 bg-neutral-800" />
-              <div className="flex-1 space-y-1 p-1.5">
-                <div className="h-1.5 w-3/4 rounded bg-neutral-700" />
-                <div className="h-1 w-1/2 rounded bg-pink-500/40" />
+            <div
+              key={i}
+              className="flex flex-col overflow-hidden rounded bg-[#111210] border border-[#1c1e18]"
+            >
+              <div className="h-10 bg-[#141612]" />
+              <div className="flex-1 space-y-1.5 p-1.5">
+                <div className="h-1.5 w-4/5 rounded bg-[#3a3a2a]" />
+                <div className="h-1.5 w-1/2 rounded bg-[#8aad7a]" />
               </div>
             </div>
           ))}
@@ -27,16 +45,41 @@ function PreviewClasico() {
 
 function PreviewModerno() {
   return (
-    <div className="aspect-[4/3] w-full overflow-hidden rounded-lg bg-[#0d0d10] ring-1 ring-white/10">
-      <div className="flex h-full flex-col p-2">
-        <div className="mb-2 h-6 w-20 rounded bg-white/5" />
+    <div className="aspect-[4/3] w-full overflow-hidden rounded-lg bg-[#0a0a0a] ring-1 ring-white/10">
+      <div className="flex h-full flex-col p-2.5">
+        {/* Eyebrow */}
+        <div className="mb-2 flex items-center gap-1 text-[9px] font-semibold tracking-[0.18em] uppercase text-amber-400/80">
+          <span className="h-px w-5 rounded-full bg-amber-400" />
+          <span>Tienda oficial</span>
+        </div>
+
+        {/* Hero top: logo + título */}
+        <div className="mb-3 flex items-end gap-3">
+          <div className="h-10 w-10 rounded-2xl bg-amber-500/15 border border-amber-500/40" />
+          <div className="flex-1 space-y-1.5">
+            <div className="h-3 w-32 rounded bg-white/20" />
+            <div className="h-2 w-20 rounded bg-amber-400/80" />
+          </div>
+        </div>
+
+        {/* Descripción + categoría */}
+        <div className="mb-3 space-y-1.5">
+          <div className="h-2 w-44 rounded bg-white/12" />
+          <div className="h-2 w-40 rounded bg-white/8" />
+          <div className="mt-1 h-2 w-28 rounded-full bg-white/10" />
+        </div>
+
+        {/* Lista de productos al estilo moderno */}
         <div className="flex flex-1 flex-col gap-1.5">
           {[1, 2].map((i) => (
-            <div key={i} className="flex gap-2 rounded-lg bg-[#141418] p-2 ring-1 ring-white/[0.06]">
-              <div className="h-14 w-14 shrink-0 rounded bg-white/5" />
+            <div
+              key={i}
+              className="flex gap-2 rounded-lg bg-[#141418] p-2 ring-1 ring-white/[0.06]"
+            >
+              <div className="h-10 w-10 shrink-0 rounded bg-white/8" />
               <div className="flex-1 space-y-1">
-                <div className="h-2 w-full rounded bg-white/10" />
-                <div className="h-1.5 w-1/3 rounded bg-amber-400/50" />
+                <div className="h-2 w-32 rounded bg-white/14" />
+                <div className="h-2 w-16 rounded bg-amber-400/80" />
               </div>
             </div>
           ))}
