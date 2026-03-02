@@ -8,6 +8,7 @@ export default function TiendaHeader({ tenant, variant = 'clasico' }) {
   const slogan = tenant?.eslogan || ''
   const description = tenant?.descripcion || ''
   const logoUrl = tenant?.logoUrl
+  const categoria = tenant?.categoria || ''
 
   const isClasico = variant === 'clasico'
   const accent = {
@@ -73,6 +74,11 @@ export default function TiendaHeader({ tenant, variant = 'clasico' }) {
               className={`mt-2 text-base font-medium leading-relaxed sm:text-lg ${accent.slogan}`}
             >
               {slogan}
+            </p>
+          )}
+          {categoria && (
+            <p className="mt-1 inline-flex items-center rounded-full bg-white/5 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-neutral-300/80">
+              {categoria}
             </p>
           )}
         </div>

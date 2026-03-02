@@ -68,7 +68,7 @@ function VistaTienda() {
     logoUrl: '',
     descripcion: '',
     eslogan: '',
-    productosPrincipalesTexto: '',
+    categoria: '',
   })
   const [guardando, setGuardando] = useState(false)
   const [mensaje, setMensaje] = useState(null)
@@ -81,15 +81,12 @@ function VistaTienda() {
       .then((data) => {
         if (cancelled) return
         const tenant = data?.tenant || {}
-        const productosPrincipales = Array.isArray(tenant.productosPrincipales)
-          ? tenant.productosPrincipales.join('\n')
-          : ''
         setForm({
           nombreEmpresa: tenant.nombre || '',
           logoUrl: tenant.logoUrl || '',
           descripcion: tenant.descripcion || '',
           eslogan: tenant.eslogan || '',
-          productosPrincipalesTexto: productosPrincipales,
+          categoria: tenant.categoria || '',
         })
       })
       .catch(() => {
@@ -106,15 +103,14 @@ function VistaTienda() {
     setMensaje(null)
     setError(null)
     try {
-      const productosPrincipales = form.productosPrincipalesTexto
-        .split('\n')
-        .map((s) => s.trim())
-        .filter(Boolean)
+      const categoria = (form.categoria || '').trim()
+      const productosPrincipales = categoria ? [categoria] : []
       await authApi.actualizarTenant({
         nombre: form.nombreEmpresa,
         logoUrl: form.logoUrl,
         descripcion: form.descripcion,
         eslogan: form.eslogan,
+        categoria,
         productosPrincipales,
       })
       setMensaje('Información de la tienda guardada correctamente.')
@@ -254,23 +250,35 @@ function VistaTienda() {
 
           <div>
             <label className="mb-1 block text-sm font-medium text-muted-foreground">
-              Oferta principal (categorías)
+              Categoría del negocio
             </label>
-            <textarea
-              rows={3}
+            <select
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-card-foreground"
-              placeholder={
-                'Escribe tus categorías clave, una por línea.\n' +
-                'Ej:\nMarketing digital\nDiseño de marca\nProducción audiovisual'
-              }
-              value={form.productosPrincipalesTexto}
+              value={form.categoria}
               onChange={(e) =>
                 setForm((f) => ({
                   ...f,
-                  productosPrincipalesTexto: e.target.value,
+                  categoria: e.target.value,
                 }))
               }
-            />
+            >
+              <option value="">Selecciona una categoría</option>
+              <option value="Marketing digital">Marketing digital</option>
+              <option value="Restaurantes y comida">Restaurantes y comida</option>
+              <option value="Moda y accesorios">Moda y accesorios</option>
+              <option value="Salud y bienestar">Salud y bienestar</option>
+              <option value="Belleza y estética">Belleza y estética</option>
+              <option value="Educación y cursos">Educación y cursos</option>
+              <option value="Tecnología y software">Tecnología y software</option>
+              <option value="Inmobiliarias">Inmobiliarias</option>
+              <option value="Servicios profesionales">Servicios profesionales</option>
+              <option value="Ecommerce general">Ecommerce general</option>
+              <option value="Fitness y deporte">Fitness y deporte</option>
+              <option value="Turismo y hoteles">Turismo y hoteles</option>
+              <option value="Automotriz">Automotriz</option>
+              <option value="Finanzas y seguros">Finanzas y seguros</option>
+              <option value="Eventos y entretenimiento">Eventos y entretenimiento</option>
+            </select>
           </div>
 
           <div className="flex justify-end gap-2 pt-2">

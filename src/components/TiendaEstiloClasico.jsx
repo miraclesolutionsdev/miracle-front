@@ -74,6 +74,21 @@ const STYLES = `
     color: #8aad7a;
   }
 
+  .tc-brand-category {
+    margin-top: 4px;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    border: 1px solid #3a4a35;
+    padding: 3px 10px;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #8aad7a;
+    background: #151910;
+  }
+
   .tc-nav-tag {
     font-size: 11px;
     font-weight: 600;
@@ -477,6 +492,7 @@ export default function TiendaEstiloClasico() {
   const logoUrl = tenant?.logoUrl
   const slogan = tenant?.eslogan || ''
   const descripcion = tenant?.descripcion || ''
+  const categoria = tenant?.categoria || ''
   const enStockCount = productosActivos.filter(
     (p) => p.tipo === 'producto' && p.stock != null && p.stock > 0,
   ).length
@@ -494,7 +510,10 @@ export default function TiendaEstiloClasico() {
               ) : (
                 <div className="tc-logo-initials">{initials}</div>
               )}
-              <span className="tc-brand-name">{nombre}</span>
+              <div className="flex flex-col">
+                <span className="tc-brand-name">{nombre}</span>
+                {categoria && <span className="tc-brand-category">{categoria}</span>}
+              </div>
             </div>
             <span className="tc-nav-tag">Tienda oficial</span>
           </div>

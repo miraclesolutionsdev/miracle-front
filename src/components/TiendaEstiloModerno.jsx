@@ -182,6 +182,7 @@ export default function TiendaEstiloModerno() {
   const words = tenantName.split(/\s+/).filter(Boolean)
   const lastWord = words[words.length - 1] || 'Tienda'
   const firstWords = words.slice(0, -1).join(' ')
+  const categoria = tenant?.categoria || ''
   const enStockCount = productosActivos.filter((p) => p.tipo === 'producto' && p.stock > 0).length
 
   return (
@@ -229,7 +230,14 @@ export default function TiendaEstiloModerno() {
             </h1>
           </div>
           <div className="t-hero-bottom-mod">
-            <p className="t-slogan-mod">{tenant?.descripcion || tenant?.eslogan || 'Tu tienda en línea.'}</p>
+            <div>
+              <p className="t-slogan-mod">{tenant?.descripcion || tenant?.eslogan || 'Tu tienda en línea.'}</p>
+              {categoria && (
+                <p className="mt-2 inline-flex items-center rounded-full bg-white/5 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-white/60">
+                  {categoria}
+                </p>
+              )}
+            </div>
             <div className="t-stats-mod">
               <div className="t-stat-mod">
                 <span className="t-stat-val-mod">{productosActivos.length}</span>
