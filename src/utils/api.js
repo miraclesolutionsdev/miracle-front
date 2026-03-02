@@ -122,6 +122,11 @@ export const authApi = {
     const body = typeof payload === 'string' ? { nombre: payload } : payload
     return request('auth/tenant', { method: 'PATCH', body: JSON.stringify(body) })
   },
+  obtenerPresignedLogo: ({ filename, contentType }) =>
+    request('auth/tenant/logo/presigned', {
+      method: 'POST',
+      body: JSON.stringify({ filename, contentType }),
+    }),
   cambiarPassword: (contraseñaActual, nuevaContraseña) =>
     request('auth/cambiar-password', {
       method: 'POST',

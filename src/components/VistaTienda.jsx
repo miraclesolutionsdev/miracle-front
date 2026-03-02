@@ -167,43 +167,69 @@ function VistaTienda() {
               type="file"
               accept="image/*"
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-card-foreground file:mr-2 file:rounded file:border-0 file:bg-primary file:px-3 file:py-1 file:text-sm file:text-primary-foreground"
+              onChange={async (e) => {
+                const file = e.target.files?.[0]
+                if (!file) return
+                try {
+                  const { uploadUrl, publicUrl } = await authApi.obtenerPresignedLogo({
+                    filename: file.name,
+                    contentType: file.type || 'image/png',
+                  })
+                  const res = await fetch(uploadUrl, {
+                    method: 'PUT',
+                    headers: {
+                      'Content-Type': file.type || 'image/png',
+                    },
+                    body: file,
+                  })
+                  if (!res.ok) {
+                    throw new Error('No se pudo subir el logo')
+                  }
+                  setForm((f) => ({ ...f, logoUrl: publicUrl }))
+                  setMensaje('Logo subido correctamente. No olvides guardar los cambios.')
+                  setError(null)
+                } catch (err) {
+                  console.error(err)
+                  setError(err.message || 'No se pudo subir el logo.')
+                } finally {
+                  e.target.value = ''
+                }
+              }}
             />
             {form.logoUrl && (
-              <p className="mt-2 text-xs text-muted-foreground">
-                Logo actual:&nbsp;
-                <a
-                  href={form.logoUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-primary underline"
-                >
-                  ver imagen
-                </a>
-              </p>
+              <div className="mt-2 flex items-center gap-3">
+                <div className="h-10 w-10 overflow-hidden rounded-lg border border-border bg-muted">
+                  <img
+                    src={form.logoUrl}
+                    alt="Logo actual"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs font-medium text-muted-foreground">
+                    Logo actual
+                  </span>
+                  <a
+                    href={form.logoUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-xs text-primary underline"
+                  >
+                    Ver en nueva pestaña
+                  </a>
+                </div>
+              </div>
             )}
-            <p className="mt-2 text-xs text-muted-foreground">
-              (Por ahora, pega la URL de tu logo en el campo siguiente. La subida directa de archivos se
-              configurará más adelante.)
-            </p>
-            <input
-              type="url"
-              className="mt-2 w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-card-foreground"
-              placeholder="URL del logo (https://...)"
-              value={form.logoUrl}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, logoUrl: e.target.value }))
-              }
-            />
           </div>
 
           <div>
             <label className="mb-1 block text-sm font-medium text-muted-foreground">
-              Descripción de la empresa
+              Descripción corta
             </label>
             <textarea
-              rows={4}
+              rows={3}
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-card-foreground"
-              placeholder="Cuenta brevemente a qué se dedica tu empresa..."
+              placeholder="Describe tu tienda en 2–3 frases que llamen la atención..."
               value={form.descripcion}
               onChange={(e) =>
                 setForm((f) => ({ ...f, descripcion: e.target.value }))
@@ -213,12 +239,12 @@ function VistaTienda() {
 
           <div>
             <label className="mb-1 block text-sm font-medium text-muted-foreground">
-              Eslogan
+              Eslogan principal
             </label>
             <input
               type="text"
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-card-foreground"
-              placeholder="Ej. Hacemos que tu marca brille"
+              placeholder="Ej. Tu negocio, tu tienda y tus campañas en una sola plataforma."
               value={form.eslogan}
               onChange={(e) =>
                 setForm((f) => ({ ...f, eslogan: e.target.value }))
@@ -228,12 +254,15 @@ function VistaTienda() {
 
           <div>
             <label className="mb-1 block text-sm font-medium text-muted-foreground">
-              Productos o servicios principales
+              Oferta principal (categorías)
             </label>
             <textarea
-              rows={4}
+              rows={3}
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-card-foreground"
-              placeholder="Lista tus productos o servicios clave, uno por línea..."
+              placeholder={
+                'Escribe tus categorías clave, una por línea.\n' +
+                'Ej:\nMarketing digital\nDiseño de marca\nProducción audiovisual'
+              }
               value={form.productosPrincipalesTexto}
               onChange={(e) =>
                 setForm((f) => ({
