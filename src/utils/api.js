@@ -1,7 +1,22 @@
-const BACKEND_VERCEL = 'https://miracle-front-lcdn.vercel.app'
-export const BASE_URL =
-  import.meta.env.VITE_API_URL ||
-  (import.meta.env.PROD ? BACKEND_VERCEL : 'http://localhost:3000')
+// URL base del backend:
+// - En producción DEBE venir de VITE_API_URL (configurada en Vercel con el dominio real del backend).
+// - BACKEND_FALLBACK solo se usa como respaldo en desarrollo local.
+const BACKEND_FALLBACK = 'http://localhost:3000'
+
+export const BASE_URL = (() => {
+  const fromEnv = import.meta.env.VITE_API_URL?.trim()
+  if (fromEnv) return fromEnv
+
+  if (import.meta.env.PROD) {
+    // En prod, si no hay VITE_API_URL, avisamos en consola para que no apunte
+    // accidentalmente al dominio incorrecto.
+    // Esto evitará llamadas al propio dominio del front y problemas de CORS.
+    console.warn(
+      '[api] VITE_API_URL no está configurada. Configura la URL del backend en las variables de entorno.',
+    )
+  }
+  return BACKEND_FALLBACK
+})()
 
 function getAuthToken() {
   try {
