@@ -97,6 +97,11 @@ export const campanasApi = {
     request(`campanas/${id}/estado`, { method: 'PATCH', body: JSON.stringify({ estado }) }),
 }
 
+export const iaApi = {
+  generarCopys: (payload) =>
+    request('ia/copys', { method: 'POST', body: JSON.stringify(payload) }),
+}
+
 export const usersApi = {
   listar: (params) => {
     const q = new URLSearchParams(params || {}).toString()

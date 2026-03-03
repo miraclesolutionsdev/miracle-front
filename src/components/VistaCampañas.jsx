@@ -3,6 +3,7 @@ import CampañasList from './CampañasList'
 import CampañaForm from './CampañaForm'
 import CampañaDetalle from './CampañaDetalle'
 import CampaignChart from './CampaignChart'
+import CampaignAIChat from './CampaignAIChat'
 import { useProductos } from '../context/ProductosContext.jsx'
 import { useAuth } from '../context/AuthContext'
 import { campanasApi, audiovisualApi } from '../utils/api'
@@ -170,6 +171,8 @@ export default function VistaCampañas() {
       />
 
       <CampaignChart />
+
+      <CampaignAIChat />
 
       {formAbierto && (
         <CampañaForm
