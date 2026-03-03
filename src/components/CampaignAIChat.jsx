@@ -12,6 +12,7 @@ export default function CampaignAIChat() {
   const [error, setError] = useState(null)
   const [respuestas, setRespuestas] = useState([])
   const [historial, setHistorial] = useState([]) // [{rol, contenido}]
+  const [copySeleccionado, setCopySeleccionado] = useState(null)
 
   const productoSeleccionado =
     productos.find((p) => String(p.id) === String(productoId)) || null
@@ -26,7 +27,7 @@ export default function CampaignAIChat() {
     setLoading(true)
 
     try {
-      // contexto más rico según el producto/plan
+      // contexto más rico según el producto (sin forzar tipos de plan)
       let publico_objetivo =
         'Clientes ideales del negocio que comprarían este producto/servicio.'
       let beneficios_clave = [
@@ -36,32 +37,6 @@ export default function CampaignAIChat() {
 
       const nombreProd = (productoSeleccionado.nombre || '').trim()
 
-      if (/plan spark/i.test(nombreProd)) {
-        publico_objetivo =
-          'Emprendedores que están empezando a vender servicios online y necesitan su primera tienda y presencia profesional.'
-        beneficios_clave = [
-          'Tener una tienda online profesional sin complicarse con la tecnología.',
-          'Mostrar tus servicios y precios de forma clara.',
-          'Dar el primer paso para validar tu negocio digital.',
-        ]
-      } else if (/plan luch/i.test(nombreProd)) {
-        publico_objetivo =
-          'Negocios que ya venden y quieren crecer ordenando su tienda, clientes y campañas.'
-        beneficios_clave = [
-          'Organizar tu catálogo, clientes y campañas en un mismo lugar.',
-          'Mejorar el rendimiento de tus campañas con mejor estructura.',
-          'Pasar de vender “a lo loco” a tener un sistema más estable.',
-        ]
-      } else if (/plan miracle/i.test(nombreProd)) {
-        publico_objetivo =
-          'Negocios y agencias que quieren escalar fuerte y profesionalizar sus campañas y métricas.'
-        beneficios_clave = [
-          'Escalar tus servicios/campañas con una plataforma más completa.',
-          'Tomar decisiones con datos y métricas claras.',
-          'Tener un ecosistema digital serio para crecer a largo plazo.',
-        ]
-      }
-
       const productoPayload = {
         nombre: nombreProd,
         categoria: productoSeleccionado.tipo === 'servicio' ? 'Servicio' : 'Producto',
@@ -69,7 +44,7 @@ export default function CampaignAIChat() {
         beneficios_clave,
         objetivo:
           mensaje.trim() ||
-          'Generar 2 copys TOF, 2 copys MOF y 1 copy BOF para vender este producto.',
+          'Generar 5 ángulos de venta y, para cada ángulo, 5 copys distintos para vender este producto.',
       }
 
       // registramos mensaje del usuario en historial
@@ -79,7 +54,7 @@ export default function CampaignAIChat() {
           rol: 'user',
           contenido:
             mensaje.trim() ||
-            `Genera copys TOF/MOF/BOF para ${productoPayload.nombre}.`,
+            `Genera ángulos y copys de venta para ${productoPayload.nombre}.`,
         },
       ]
 
@@ -92,7 +67,7 @@ export default function CampaignAIChat() {
         ...nuevoHistorial,
         {
           rol: 'assistant',
-          contenido: `He generado copys para ${productoPayload.nombre}.`,
+          contenido: `He generado ángulos y copys para ${productoPayload.nombre}.`,
         },
       ])
 
@@ -128,7 +103,7 @@ export default function CampaignAIChat() {
         </div>
 
         {/* Área de conversación + resultados */}
-        <div className="h-64 w-full rounded-lg border border-border bg-background/40 p-3 text-sm overflow-y-auto space-y-3">
+        <div className="h-[520px] w-full rounded-lg border border-border bg-background/40 p-3 text-sm overflow-y-auto space-y-3">
           {/* Historial tipo chat */}
           {historial.length > 0 && (
             <div className="space-y-2">
@@ -150,9 +125,9 @@ export default function CampaignAIChat() {
           {/* Última respuesta estructurada */}
           {respuestas.length === 0 ? (
             <p className="text-muted-foreground">
-              Usa este asistente para generar ángulos y copys (2 TOF, 2 MOF y 1 BOF) por
-              producto. Selecciona un producto, escribe si quieres instrucciones
-              adicionales y haz clic en "Generar copys".
+              Usa este asistente para generar 5 ángulos de venta y, para cada uno,
+              5 copys distintos por producto. Selecciona un producto, escribe si
+              quieres instrucciones adicionales y haz clic en "Generar copys".
             </p>
           ) : (
             <div className="space-y-4">
@@ -162,29 +137,73 @@ export default function CampaignAIChat() {
                   className="rounded-lg bg-background/60 p-3 border border-border/60"
                 >
                   <p className="mb-2 text-xs font-semibold text-muted-foreground">
-                    Copys generados para: {r.producto}
+                    Ángulos y copys generados para: {r.producto}
                   </p>
-                  {Array.isArray(r.data?.copys) ? (
-                    <ul className="space-y-2">
-                      {r.data.copys.map((c, i) => (
-                        <li key={i} className="rounded-md bg-background/80 p-2">
+                  {Array.isArray(r.data?.angulos) ? (
+                    <div className="space-y-3">
+                      {r.data.angulos.map((angulo, idxAngulo) => (
+                        <div
+                          key={idxAngulo}
+                          className="rounded-md bg-background/80 p-2 border border-border/50"
+                        >
                           <p className="text-[11px] font-semibold uppercase text-muted-foreground">
-                            {c.etapa} · {c.angulo}
+                            Ángulo {idxAngulo + 1}: {angulo.nombre}
                           </p>
-                          <p className="mt-1 text-sm font-semibold">
-                            {c.copy?.titulo}
-                          </p>
-                          <p className="mt-1 text-sm text-muted-foreground">
-                            {c.copy?.cuerpo}
-                          </p>
-                          {c.copy?.cta && (
-                            <p className="mt-1 text-xs font-medium text-primary">
-                              CTA: {c.copy.cta}
+                          {angulo.descripcion && (
+                            <p className="mt-1 text-xs text-muted-foreground">
+                              {angulo.descripcion}
                             </p>
                           )}
-                        </li>
+                          <ul className="mt-2 space-y-2">
+                            {Array.isArray(angulo.copys) &&
+                              angulo.copys.map((c, idxCopy) => (
+                                <li
+                                  key={idxCopy}
+                                  className={`rounded bg-background p-2 cursor-pointer ${
+                                    copySeleccionado &&
+                                    copySeleccionado.indiceRespuesta === idx &&
+                                    copySeleccionado.indiceAngulo === idxAngulo &&
+                                    copySeleccionado.indiceCopy === idxCopy
+                                      ? 'ring-2 ring-primary'
+                                      : ''
+                                  }`}
+                                  onClick={() =>
+                                    setCopySeleccionado({
+                                      producto: r.producto,
+                                      indiceRespuesta: idx,
+                                      indiceAngulo: idxAngulo,
+                                      indiceCopy: idxCopy,
+                                      data: c,
+                                    })
+                                  }
+                                >
+                                  {c.idea_central && (
+                                    <p className="text-[11px] text-muted-foreground">
+                                      Idea central: {c.idea_central}
+                                    </p>
+                                  )}
+                                  <p className="mt-1 text-sm font-semibold">
+                                    {c.copy?.titulo}
+                                  </p>
+                                  <p className="mt-1 text-sm text-muted-foreground">
+                                    {c.copy?.cuerpo}
+                                  </p>
+                                  {c.copy?.cta && (
+                                    <p className="mt-1 text-xs font-medium text-primary">
+                                      CTA: {c.copy.cta}
+                                    </p>
+                                  )}
+                                  {c.sugerencia_formato && (
+                                    <p className="mt-1 text-[11px] text-muted-foreground">
+                                      Formato sugerido: {c.sugerencia_formato}
+                                    </p>
+                                  )}
+                                </li>
+                              ))}
+                          </ul>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   ) : (
                     <p className="text-xs text-muted-foreground">
                       No se pudo interpretar la respuesta de la IA.
@@ -221,6 +240,31 @@ export default function CampaignAIChat() {
             </button>
           </div>
         </form>
+
+        {/* Resumen del copy seleccionado */}
+        {copySeleccionado && (
+          <div className="mt-2 rounded-lg border border-border bg-background px-3 py-2 text-xs text-muted-foreground">
+            <p className="text-sm font-semibold text-foreground">
+              Copy seleccionado ({copySeleccionado.producto})
+            </p>
+            {copySeleccionado.data?.idea_central && (
+              <p className="mt-1 text-[11px]">
+                Idea central: {copySeleccionado.data.idea_central}
+              </p>
+            )}
+            <p className="mt-1 text-sm font-semibold">
+              {copySeleccionado.data?.copy?.titulo}
+            </p>
+            <p className="mt-1 text-sm">
+              {copySeleccionado.data?.copy?.cuerpo}
+            </p>
+            {copySeleccionado.data?.copy?.cta && (
+              <p className="mt-1 text-xs font-medium text-primary">
+                CTA: {copySeleccionado.data.copy.cta}
+              </p>
+            )}
+          </div>
+        )}
       </div>
     </SectionCard>
   )
