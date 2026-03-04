@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import SectionCard from './SectionCard'
+import CampaignAIChat from './CampaignAIChat'
 import { audiovisualApi } from '../utils/api'
 
 const PLATAFORMAS = ['YouTube', 'TikTok', 'Meta', 'Shorts']
@@ -289,6 +290,8 @@ export default function VistaAudiovisual() {
           </div>
         )}
       </SectionCard>
+
+      <CampaignAIChat />
 
       {modalAbierto && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">

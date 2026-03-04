@@ -113,6 +113,8 @@ export const campanasApi = {
 }
 
 export const iaApi = {
+  generarAngulos: (payload) =>
+    request('ia/angulos', { method: 'POST', body: JSON.stringify(payload) }),
   generarCopys: (payload) =>
     request('ia/copys', { method: 'POST', body: JSON.stringify(payload) }),
 }
