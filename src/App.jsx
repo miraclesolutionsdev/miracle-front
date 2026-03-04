@@ -4,6 +4,7 @@ import LandingProductoPage from './components/LandingProductoPage'
 import TiendaPage from './components/TiendaPage'
 import Login from './components/Login'
 import CrearTienda from './components/CrearTienda'
+import IACopyResumenPage from './components/IACopyResumenPage'
 import { useAuth } from './context/AuthContext'
 import './App.css'
 
@@ -21,6 +22,14 @@ function App() {
       <Route path="/crear-tienda" element={<CrearTienda />} />
       <Route path="/tienda" element={<TiendaPage />} />
       <Route path="/landing-producto/:id" element={<LandingProductoPage />} />
+      <Route
+        path="/ia-resumen"
+        element={
+          <ProtectedRoute>
+            <IACopyResumenPage />
+          </ProtectedRoute>
+        }
+      />
       <Route path="/*" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>} />
     </Routes>
   )

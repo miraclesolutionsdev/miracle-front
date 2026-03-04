@@ -117,6 +117,11 @@ export const iaApi = {
     request('ia/angulos', { method: 'POST', body: JSON.stringify(payload) }),
   generarCopys: (payload) =>
     request('ia/copys', { method: 'POST', body: JSON.stringify(payload) }),
+  generarGuionDesdeImagen: (payload) =>
+    request('ia/guion-imagen', {
+      method: 'POST',
+      body: JSON.stringify({ payload }),
+    }),
 }
 
 export const usersApi = {

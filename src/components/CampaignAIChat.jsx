@@ -15,6 +15,12 @@ export default function CampaignAIChat() {
   const [anguloSeleccionado, setAnguloSeleccionado] = useState(null)
   const [copys, setCopys] = useState([])
   const [copySeleccionado, setCopySeleccionado] = useState(null)
+  const [imagenLoading, setImagenLoading] = useState(false)
+  const [imagenError, setImagenError] = useState(null)
+  const [imagenPreview, setImagenPreview] = useState(null)
+  const [guionLoading, setGuionLoading] = useState(false)
+  const [guionError, setGuionError] = useState(null)
+  const [guionResultado, setGuionResultado] = useState(null)
 
   const productoSeleccionado =
     productos.find((p) => String(p.id) === String(productoId)) || null
@@ -38,6 +44,74 @@ export default function CampaignAIChat() {
       objetivo:
         mensaje.trim() ||
         'Generar ángulos de venta y copys efectivos para este producto.',
+    }
+  }
+
+  const handleGenerarGuionDesdeImagen = async () => {
+    setGuionError(null)
+
+    if (!productoSeleccionado) {
+      setGuionError('Selecciona primero un producto.')
+      return
+    }
+
+    if (anguloSeleccionado == null || !angulos[anguloSeleccionado]) {
+      setGuionError('Selecciona primero un ángulo.')
+      return
+    }
+
+    if (copySeleccionado == null || !copys[copySeleccionado]) {
+      setGuionError('Selecciona primero un copy.')
+      return
+    }
+
+    if (!imagenPreview) {
+      setGuionError('Genera primero una imagen para este copy.')
+      return
+    }
+
+    const productoPayload = construirProductoPayload()
+    if (!productoPayload) return
+
+    const angulo = angulos[anguloSeleccionado]
+    const copy = copys[copySeleccionado]
+
+    const payload = {
+      producto: {
+        nombre: productoPayload.nombre,
+        categoria: productoPayload.categoria,
+        descripcion: productoSeleccionado.descripcion || '',
+      },
+      angulo: {
+        nombre: angulo.nombre,
+        descripcion: angulo.descripcion,
+      },
+      copy_base: {
+        etapa: copy.etapa,
+        titulo: copy.copy?.titulo,
+        cuerpo: copy.copy?.cuerpo,
+        cta: copy.copy?.cta,
+        idea_central: copy.idea_central,
+      },
+      imagen: {
+        url: imagenPreview,
+        descripcion_manual: '',
+      },
+      contexto_pieza: {
+        tipo: 'video',
+        plataforma: 'TikTok',
+        duracion_objetivo_seg: 30,
+      },
+    }
+
+    try {
+      setGuionLoading(true)
+      const data = await iaApi.generarGuionDesdeImagen(payload)
+      setGuionResultado(data)
+    } catch (err) {
+      setGuionError(err.message || 'No se pudo generar el guion desde la imagen.')
+    } finally {
+      setGuionLoading(false)
     }
   }
 
@@ -146,6 +220,92 @@ export default function CampaignAIChat() {
       setError(err.message || 'No se pudieron generar los copys.')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleAbrirResumen = () => {
+    if (!productoSeleccionado || anguloSeleccionado == null || !angulos[anguloSeleccionado] || copys.length === 0) {
+      setError('Primero selecciona un ángulo y genera los copys.')
+      return
+    }
+
+    const payload = {
+      producto: {
+        nombre: productoSeleccionado.nombre,
+        descripcion: productoSeleccionado.descripcion || '',
+        tipo: productoSeleccionado.tipo,
+      },
+      angulo: angulos[anguloSeleccionado],
+      copys,
+    }
+
+    try {
+      localStorage.setItem('miracle_ia_resumen', JSON.stringify(payload))
+      window.open('/ia-resumen', '_blank', 'noopener,noreferrer')
+    } catch (err) {
+      setError('No se pudo abrir el resumen. Intenta de nuevo.')
+      console.error('[CampaignAIChat] Error al guardar resumen IA:', err)
+    }
+  }
+
+  const handleGenerarImagenCopy = async () => {
+    setImagenError(null)
+
+    if (!productoSeleccionado) {
+      setImagenError('Selecciona primero un producto.')
+      return
+    }
+
+    if (anguloSeleccionado == null || !angulos[anguloSeleccionado]) {
+      setImagenError('Selecciona primero un ángulo.')
+      return
+    }
+
+    if (copySeleccionado == null || !copys[copySeleccionado]) {
+      setImagenError('Selecciona primero un copy.')
+      return
+    }
+
+    const productoPayload = construirProductoPayload()
+    if (!productoPayload) return
+
+    const angulo = angulos[anguloSeleccionado]
+    const copy = copys[copySeleccionado]
+
+    const payloadImagen = {
+      producto: {
+        nombre: productoPayload.nombre,
+        categoria: productoPayload.categoria,
+        publico_objetivo: productoPayload.publico_objetivo,
+      },
+      angulo: {
+        nombre: angulo.nombre,
+        descripcion: angulo.descripcion,
+      },
+      copy: {
+        etapa: copy.etapa,
+        titulo: copy.copy?.titulo,
+        cuerpo: copy.copy?.cuerpo,
+        cta: copy.copy?.cta,
+        idea_central: copy.idea_central,
+      },
+    }
+
+    try {
+      setImagenLoading(true)
+      console.log('[CampaignAIChat] Payload para generar imagen:', payloadImagen)
+
+      // Simulación de generación de imagen; luego aquí iría la llamada real a la API.
+      setTimeout(() => {
+        setImagenPreview(
+          'https://via.placeholder.com/1080x1080.png?text=Preview+imagen+copy',
+        )
+        setImagenLoading(false)
+      }, 800)
+    } catch (err) {
+      setImagenError('No se pudo generar la imagen (simulación).')
+      setImagenLoading(false)
+      console.error('[CampaignAIChat] Error al simular imagen:', err)
     }
   }
 
@@ -300,6 +460,16 @@ export default function CampaignAIChat() {
               </p>
             )}
             <div className="ml-auto flex items-center gap-2">
+              {anguloSeleccionado != null && copys.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleAbrirResumen}
+                  disabled={loading}
+                  className="inline-flex items-center justify-center rounded-lg border border-primary/40 px-3 py-2 text-sm font-medium text-primary hover:bg-primary/10 disabled:opacity-60"
+                >
+                  Seleccionar ángulo y copys
+                </button>
+              )}
               {anguloSeleccionado != null && (
                 <button
                   type="button"
@@ -324,7 +494,7 @@ export default function CampaignAIChat() {
 
         {/* Resumen del copy seleccionado */}
         {copySeleccionado != null && copys[copySeleccionado] && (
-          <div className="mt-2 rounded-lg border border-border bg-background px-3 py-2 text-xs text-muted-foreground">
+          <div className="mt-2 rounded-lg border border-border bg-background px-3 py-2 text-xs text-muted-foreground space-y-2">
             <p className="text-sm font-semibold text-foreground">
               Copy seleccionado
             </p>
@@ -348,6 +518,95 @@ export default function CampaignAIChat() {
               <p className="mt-1 text-xs font-medium text-primary">
                 CTA: {copys[copySeleccionado].copy.cta}
               </p>
+            )}
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              {imagenError && (
+                <p className="text-[11px] text-red-500">
+                  {imagenError}
+                </p>
+              )}
+              <button
+                type="button"
+                onClick={handleGenerarImagenCopy}
+                disabled={imagenLoading}
+                className="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-60"
+              >
+                {imagenLoading ? 'Generando imagen…' : 'Generar imagen para este copy'}
+              </button>
+            </div>
+
+            {imagenPreview && (
+              <div className="mt-2">
+                <p className="mb-1 text-[11px] text-muted-foreground">
+                  Preview simulada de la imagen (luego vendrá de la API de imágenes):
+                </p>
+                <img
+                  src={imagenPreview}
+                  alt="Preview imagen generada"
+                  className="max-h-64 w-auto rounded-md border border-border object-contain"
+                />
+              </div>
+            )}
+            {guionError && (
+              <p className="mt-2 text-[11px] text-red-500">
+                {guionError}
+              </p>
+            )}
+            {imagenPreview && (
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleGenerarGuionDesdeImagen}
+                  disabled={guionLoading}
+                  className="inline-flex items-center justify-center rounded-lg bg-sky-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-sky-500 disabled:opacity-60"
+                >
+                  {guionLoading ? 'Generando guion…' : 'Generar copy audiovisual desde imagen'}
+                </button>
+              </div>
+            )}
+            {guionResultado && (
+              <div className="mt-3 rounded-lg border border-border bg-background px-3 py-2">
+                <p className="mb-1 text-[11px] font-semibold uppercase text-muted-foreground">
+                  Guion / pieza audiovisual sugerida
+                </p>
+                <p className="text-sm font-semibold">
+                  {guionResultado.copy_plataforma?.titulo}
+                </p>
+                {guionResultado.copy_plataforma?.descripcion && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {guionResultado.copy_plataforma.descripcion}
+                  </p>
+                )}
+                {Array.isArray(guionResultado.copy_plataforma?.hashtags) &&
+                  guionResultado.copy_plataforma.hashtags.length > 0 && (
+                    <p className="mt-1 text-[11px] text-muted-foreground">
+                      Hashtags:{' '}
+                      {guionResultado.copy_plataforma.hashtags.join(' ')}
+                    </p>
+                  )}
+                {guionResultado.idea_creativa && (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    <span className="font-semibold">Idea creativa: </span>
+                    {guionResultado.idea_creativa}
+                  </p>
+                )}
+                {Array.isArray(guionResultado.guion?.estructura) &&
+                  guionResultado.guion.estructura.length > 0 && (
+                    <div className="mt-2 space-y-1">
+                      <p className="text-[11px] font-semibold uppercase text-muted-foreground">
+                        Estructura sugerida
+                      </p>
+                      {guionResultado.guion.estructura.map((b, idx) => (
+                        <p key={idx} className="text-[11px] text-muted-foreground">
+                          <span className="font-semibold">
+                            {b.segundos}:
+                          </span>{' '}
+                          {b.descripcion}
+                        </p>
+                      ))}
+                    </div>
+                  )}
+              </div>
             )}
           </div>
         )}
