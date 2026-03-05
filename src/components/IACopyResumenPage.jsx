@@ -218,7 +218,6 @@ export default function IACopyResumenPage() {
                           try {
                             const respuesta = await iaApi.generarCopyDesdeImagen({
                               imagenDataUrl: actualImagen,
-                              producto,
                             })
                             const hook = respuesta?.hook
                             const guionVoz = Array.isArray(respuesta?.guion_voz)
