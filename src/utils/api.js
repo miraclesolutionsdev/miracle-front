@@ -127,6 +127,11 @@ export const iaApi = {
       method: 'POST',
       body: JSON.stringify(payload),
     }),
+  generarImagen: (payload) =>
+    request('ia/generar-imagen', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
 }
 
 export const usersApi = {

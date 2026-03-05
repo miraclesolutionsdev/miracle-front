@@ -5,6 +5,8 @@ export default function IACopyResumenPage() {
   const [data, setData] = useState(null)
   const [copySeleccionadoParaImagen, setCopySeleccionadoParaImagen] = useState(null)
   const [imagenPorCopy, setImagenPorCopy] = useState({})
+  const [generandoImagenIdx, setGenerandoImagenIdx] = useState(null)
+  const [errorImagen, setErrorImagen] = useState(null)
   const [mensajes, setMensajes] = useState([])
   const [imagenParaCopy, setImagenParaCopy] = useState(null)
   const [fileImagen, setFileImagen] = useState(null)
@@ -107,12 +109,45 @@ export default function IACopyResumenPage() {
                   <div className="mt-3 pt-2 border-t border-border">
                     <button
                       type="button"
-                      onClick={() => setCopySeleccionadoParaImagen(idx)}
-                      className="text-xs font-medium text-primary hover:underline"
+                      disabled={generandoImagenIdx !== null}
+                      onClick={async () => {
+                        setCopySeleccionadoParaImagen(idx)
+                        setErrorImagen(null)
+                        setGenerandoImagenIdx(idx)
+                        const nombreProducto = producto?.nombre || 'producto'
+                        const nombreAngulo = angulo?.nombre || 'ángulo'
+                        const titulo = c.copy?.titulo || ''
+                        const cuerpo = c.copy?.cuerpo || ''
+                        const ideaCentral = c.idea_central || ''
+                        const prompt = `Anuncio publicitario para ${nombreProducto}. Ángulo: ${nombreAngulo}. Título: ${titulo}. ${cuerpo}. Idea: ${ideaCentral}. Estilo: profesional, llamativo, para redes sociales, imagen de alta calidad.`
+                        try {
+                          const res = await iaApi.generarImagen({
+                            prompt,
+                            aspectRatio: '1:1',
+                          })
+                          const b64 = res?.imageBase64
+                          if (b64) {
+                            setImagenPorCopy((prev) => ({
+                              ...prev,
+                              [idx]: `data:image/png;base64,${b64}`,
+                            }))
+                          }
+                        } catch (err) {
+                          setErrorImagen(err.message || 'No se pudo generar la imagen.')
+                        } finally {
+                          setGenerandoImagenIdx(null)
+                        }
+                      }}
+                      className="text-xs font-medium text-primary hover:underline disabled:opacity-50"
                     >
-                      Generar imagen para este copy
+                      {generandoImagenIdx === idx
+                        ? 'Generando imagen...'
+                        : 'Generar imagen para este copy'}
                     </button>
-                    {copySeleccionadoParaImagen === idx && imagenPorCopy[idx] && (
+                    {errorImagen && generandoImagenIdx === null && copySeleccionadoParaImagen === idx && (
+                      <p className="mt-1 text-xs text-destructive">{errorImagen}</p>
+                    )}
+                    {imagenPorCopy[idx] && (
                       <img
                         src={imagenPorCopy[idx]}
                         alt="Imagen generada"
