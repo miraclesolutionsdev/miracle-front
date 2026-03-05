@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
+import { iaApi } from '../utils/api'
 
 export default function IACopyResumenPage() {
   const [data, setData] = useState(null)
   const [copySeleccionadoParaImagen, setCopySeleccionadoParaImagen] = useState(null)
   const [imagenPorCopy, setImagenPorCopy] = useState({})
   const [mensajes, setMensajes] = useState([])
-  const [inputValue, setInputValue] = useState('')
   const [imagenParaCopy, setImagenParaCopy] = useState(null)
+  const [fileImagen, setFileImagen] = useState(null)
   const fileInputRef = useRef(null)
 
   useEffect(() => {
@@ -133,7 +134,7 @@ export default function IACopyResumenPage() {
               Generar copy desde imagen
             </h2>
             <p className="text-xs text-muted-foreground">
-              Sube una imagen y el asistente generará el copy para esa imagen. Por ahora se muestra un copy de ejemplo; al conectar la API se generará el copy real.
+              Sube una imagen y el asistente generará un paquete creativo completo: hook, guion de 15–20 segundos, ideas visuales, instrucciones para IA de video y copy del post/anuncio.
             </p>
             <div className="space-y-3 max-h-64 overflow-y-auto min-h-[8rem]">
               {mensajes.length === 0 && (
@@ -174,6 +175,7 @@ export default function IACopyResumenPage() {
                 onChange={(e) => {
                   const file = e.target.files?.[0]
                   if (!file) return
+                  setFileImagen(file)
                   const reader = new FileReader()
                   reader.onload = () => setImagenParaCopy(reader.result)
                   reader.readAsDataURL(file)
@@ -193,6 +195,7 @@ export default function IACopyResumenPage() {
                         type="button"
                         onClick={() => {
                           setImagenParaCopy(null)
+                          setFileImagen(null)
                           if (fileInputRef.current) fileInputRef.current.value = ''
                         }}
                         className="text-xs text-muted-foreground hover:text-foreground"
@@ -201,17 +204,100 @@ export default function IACopyResumenPage() {
                       </button>
                       <button
                         type="button"
-                        onClick={() => {
+                        onClick={async () => {
+                          if (!imagenParaCopy || !fileImagen) return
+                          const actualImagen = imagenParaCopy
                           setMensajes((prev) => [
                             ...prev,
-                            { rol: 'user', contenido: 'Generar copy para esta imagen', imagenUrl: imagenParaCopy },
                             {
-                              rol: 'assistant',
-                              contenido: `Título: ${producto?.nombre || 'Tu producto'} — Destaca en tu feed\n\nCuerpo: Este es un copy de ejemplo generado a partir de tu imagen. Cuando conectes la API de generación, aquí aparecerá el copy real basado en el contenido visual.\n\nCTA: Descubre más`,
+                              rol: 'user',
+                              contenido: 'Generar copy para esta imagen',
+                              imagenUrl: actualImagen,
                             },
                           ])
-                          setImagenParaCopy(null)
-                          if (fileInputRef.current) fileInputRef.current.value = ''
+                          try {
+                            const respuesta = await iaApi.generarCopyDesdeImagen({
+                              imagenDataUrl: actualImagen,
+                              producto,
+                            })
+                            const hook = respuesta?.hook
+                            const guionVoz = Array.isArray(respuesta?.guion_voz)
+                              ? respuesta.guion_voz
+                              : []
+                            const ideasVisuales = Array.isArray(respuesta?.ideas_visuales)
+                              ? respuesta.ideas_visuales
+                              : []
+                            const instruccionesVideo = Array.isArray(
+                              respuesta?.instrucciones_ia_video,
+                            )
+                              ? respuesta.instrucciones_ia_video
+                              : []
+                            const copyPost = respuesta?.copy_post || {}
+
+                            const partes = []
+                            if (hook) {
+                              partes.push(`HOOK:\n${hook}`)
+                            }
+                            if (guionVoz.length > 0) {
+                              partes.push(
+                                'GUION (voz / texto por tramo de segundos):',
+                                ...guionVoz.map(
+                                  (b) =>
+                                    `- ${b.segundos || ''}: ${b.texto || ''}`.trim(),
+                                ),
+                              )
+                            }
+                            if (ideasVisuales.length > 0) {
+                              partes.push(
+                                'IDEAS VISUALES PARA EL VIDEO:',
+                                ...ideasVisuales.map((i) => `- ${i}`),
+                              )
+                            }
+                            if (instruccionesVideo.length > 0) {
+                              partes.push(
+                                'INSTRUCCIONES PARA IA DE VIDEO:',
+                                ...instruccionesVideo.map((i) => `- ${i}`),
+                              )
+                            }
+                            if (copyPost.titulo || copyPost.cuerpo || copyPost.cta) {
+                              partes.push('COPY DEL POST/ANUNCIO:')
+                              if (copyPost.titulo) {
+                                partes.push(`Título: ${copyPost.titulo}`)
+                              }
+                              if (copyPost.cuerpo) {
+                                partes.push(`Cuerpo: ${copyPost.cuerpo}`)
+                              }
+                              if (copyPost.cta) {
+                                partes.push(`CTA: ${copyPost.cta}`)
+                              }
+                            }
+
+                            const contenidoFinal =
+                              partes.length > 0
+                                ? partes.join('\n')
+                                : 'Copy generado, pero la estructura esperada no se recibió correctamente.'
+
+                            setMensajes((prev) => [
+                              ...prev,
+                              {
+                                rol: 'assistant',
+                                contenido: contenidoFinal,
+                              },
+                            ])
+                          } catch (error) {
+                            setMensajes((prev) => [
+                              ...prev,
+                              {
+                                rol: 'assistant',
+                                contenido:
+                                  'No se pudo generar el copy desde la imagen. Verifica tu conexión o la configuración de la IA.',
+                              },
+                            ])
+                          } finally {
+                            setImagenParaCopy(null)
+                            setFileImagen(null)
+                            if (fileInputRef.current) fileInputRef.current.value = ''
+                          }
                         }}
                         className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90"
                       >

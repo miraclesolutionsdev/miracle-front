@@ -122,6 +122,11 @@ export const iaApi = {
       method: 'POST',
       body: JSON.stringify({ payload }),
     }),
+  generarCopyDesdeImagen: (payload) =>
+    request('ia/copy-desde-imagen', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
 }
 
 export const usersApi = {
