@@ -119,7 +119,31 @@ export default function IACopyResumenPage() {
                         const titulo = c.copy?.titulo || ''
                         const cuerpo = c.copy?.cuerpo || ''
                         const ideaCentral = c.idea_central || ''
-                        const prompt = `Anuncio publicitario para ${nombreProducto}. Ángulo: ${nombreAngulo}. Título: ${titulo}. ${cuerpo}. Idea: ${ideaCentral}. Estilo: profesional, llamativo, para redes sociales, imagen de alta calidad.`
+                        const etapaLabel =
+                          c.etapa === 'TOF'
+                            ? 'top of funnel, enfocado en generar curiosidad y awareness'
+                            : c.etapa === 'MOF'
+                            ? 'middle of funnel, enfocado en demostrar beneficios y uso real'
+                            : c.etapa === 'BOF'
+                            ? 'bottom of funnel, enfocado en urgencia y decisión de compra'
+                            : 'anuncio para redes sociales'
+
+                        const prompt = `
+Crea una imagen publicitaria para ${nombreProducto}.
+Ángulo de comunicación: ${nombreAngulo}.
+Etapa del funnel: ${etapaLabel}.
+
+Inspírate en este copy:
+Título: "${titulo}"
+Cuerpo: "${cuerpo}"
+Idea central: "${ideaCentral}"
+
+La imagen debe mostrar el producto como protagonista en un entorno que refuerce el mensaje del copy.
+Estilo: fotográfico realista, iluminación cuidada, composición profesional, pensada para anuncios en redes sociales (formato cuadrado 1:1).
+Colores y fondo que hagan destacar el producto, sensación de calidad y deseo de compra.
+Sin texto sobreimpreso en la imagen.
+`.trim()
+
                         try {
                           const res = await iaApi.generarImagen({
                             prompt,
@@ -151,7 +175,10 @@ export default function IACopyResumenPage() {
                       <img
                         src={imagenPorCopy[idx]}
                         alt="Imagen generada"
-                        className="mt-2 rounded border border-border max-h-32 object-cover w-full"
+                        onClick={() =>
+                          window.open(imagenPorCopy[idx], '_blank', 'noopener,noreferrer')
+                        }
+                        className="mt-2 rounded border border-border max-h-80 object-contain w-full bg-black cursor-pointer"
                       />
                     )}
                   </div>
