@@ -8,6 +8,10 @@ export default function IACopyResumenPage() {
   const [generandoImagenIdx, setGenerandoImagenIdx] = useState(null)
   const [errorImagen, setErrorImagen] = useState(null)
   const [mensajes, setMensajes] = useState([])
+  const [ultimoCopyVideo, setUltimoCopyVideo] = useState(null)
+  const [ultimaImagenVideo, setUltimaImagenVideo] = useState(null)
+  const [generandoVideo, setGenerandoVideo] = useState(false)
+  const [errorVideo, setErrorVideo] = useState(null)
   const [imagenParaCopy, setImagenParaCopy] = useState(null)
   const [fileImagen, setFileImagen] = useState(null)
   const fileInputRef = useRef(null)
@@ -338,6 +342,9 @@ Sin texto sobreimpreso en la imagen.
                                 ? partes.join('\n')
                                 : 'Copy generado, pero la estructura esperada no se recibió correctamente.'
 
+                            setUltimoCopyVideo(contenidoFinal)
+                            setUltimaImagenVideo(actualImagen)
+
                             setMensajes((prev) => [
                               ...prev,
                               {
@@ -375,6 +382,52 @@ Sin texto sobreimpreso en la imagen.
                 >
                   Subir imagen
                 </button>
+              )}
+            </div>
+
+            <div className="mt-4 flex flex-col gap-2 border-t border-border pt-3">
+              <p className="text-xs text-muted-foreground">
+                Con el último copy generado puedes iniciar un video en Grok.
+              </p>
+              <button
+                type="button"
+                disabled={!ultimoCopyVideo || !ultimaImagenVideo || generandoVideo}
+                onClick={async () => {
+                  if (!ultimoCopyVideo || !ultimaImagenVideo) return
+                  setErrorVideo(null)
+                  setGenerandoVideo(true)
+                  try {
+                    const res = await iaApi.generarVideo({
+                      prompt: ultimoCopyVideo,
+                      imageUrl: ultimaImagenVideo,
+                      duration: 5,
+                    })
+                    setMensajes((prev) => [
+                      ...prev,
+                      {
+                        rol: 'assistant',
+                        contenido:
+                          'Se ha iniciado la generación del video con Grok. Respuesta de la API:\n' +
+                          JSON.stringify(res, null, 2),
+                      },
+                    ])
+                  } catch (err) {
+                    setErrorVideo(
+                      err.message ||
+                        'No se pudo iniciar la generación del video. Verifica la configuración de Grok.',
+                    )
+                  } finally {
+                    setGenerandoVideo(false)
+                  }
+                }}
+                className="self-start rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
+              >
+                {generandoVideo ? 'Generando video...' : 'Crear video con este copy'}
+              </button>
+              {errorVideo && (
+                <p className="text-xs text-destructive">
+                  {errorVideo}
+                </p>
               )}
             </div>
           </section>

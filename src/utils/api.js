@@ -132,6 +132,11 @@ export const iaApi = {
       method: 'POST',
       body: JSON.stringify(payload),
     }),
+  generarVideo: (payload) =>
+    request('ia/generar-video', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
 }
 
 export const usersApi = {
