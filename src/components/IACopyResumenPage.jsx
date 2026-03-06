@@ -10,7 +10,11 @@ export default function IACopyResumenPage() {
   const [mensajes, setMensajes] = useState([])
   const [ultimoCopyVideo, setUltimoCopyVideo] = useState(null)
   const [ultimaImagenVideo, setUltimaImagenVideo] = useState(null)
+  const [ultimoRequestIdVideo, setUltimoRequestIdVideo] = useState(null)
   const [generandoVideo, setGenerandoVideo] = useState(false)
+  const [consultandoVideo, setConsultandoVideo] = useState(false)
+  const [estadoVideo, setEstadoVideo] = useState(null)
+  const [urlVideo, setUrlVideo] = useState(null)
   const [errorVideo, setErrorVideo] = useState(null)
   const [imagenParaCopy, setImagenParaCopy] = useState(null)
   const [fileImagen, setFileImagen] = useState(null)
@@ -387,7 +391,7 @@ Sin texto sobreimpreso en la imagen.
 
             <div className="mt-4 flex flex-col gap-2 border-t border-border pt-3">
               <p className="text-xs text-muted-foreground">
-                Con el último copy generado puedes iniciar un video en Grok.
+                Con el último copy generado puedes iniciar un video en Grok y consultar su estado.
               </p>
               <button
                 type="button"
@@ -396,12 +400,20 @@ Sin texto sobreimpreso en la imagen.
                   if (!ultimoCopyVideo || !ultimaImagenVideo) return
                   setErrorVideo(null)
                   setGenerandoVideo(true)
+                  setUltimoRequestIdVideo(null)
+                  setEstadoVideo(null)
+                  setUrlVideo(null)
                   try {
                     const res = await iaApi.generarVideo({
                       prompt: ultimoCopyVideo,
                       imageUrl: ultimaImagenVideo,
                       duration: 5,
                     })
+                    const requestId =
+                      res?.request_id || res?.requestId || res?.id || null
+                    if (requestId) {
+                      setUltimoRequestIdVideo(requestId)
+                    }
                     setMensajes((prev) => [
                       ...prev,
                       {
@@ -424,6 +436,75 @@ Sin texto sobreimpreso en la imagen.
               >
                 {generandoVideo ? 'Generando video...' : 'Crear video con este copy'}
               </button>
+              {ultimoRequestIdVideo && (
+                <p className="text-xs text-muted-foreground">
+                  ID de solicitud de video: <span className="font-mono">{ultimoRequestIdVideo}</span>
+                </p>
+              )}
+              <button
+                type="button"
+                disabled={!ultimoRequestIdVideo || consultandoVideo}
+                onClick={async () => {
+                  if (!ultimoRequestIdVideo) return
+                  setErrorVideo(null)
+                  setConsultandoVideo(true)
+                  try {
+                    const res = await iaApi.obtenerEstadoVideo(ultimoRequestIdVideo)
+                    const status = res?.status || res?.state || null
+                    setEstadoVideo(status)
+                    const maybeUrl =
+                      res?.url ||
+                      res?.video_url ||
+                      res?.video?.url ||
+                      null
+                    if (maybeUrl) {
+                      setUrlVideo(maybeUrl)
+                    }
+                    setMensajes((prev) => [
+                      ...prev,
+                      {
+                        rol: 'assistant',
+                        contenido:
+                          'Estado actual del video en Grok:\n' +
+                          JSON.stringify(res, null, 2),
+                      },
+                    ])
+                  } catch (err) {
+                    setErrorVideo(
+                      err.message ||
+                        'No se pudo consultar el estado del video. Verifica la configuración de Grok.',
+                    )
+                  } finally {
+                    setConsultandoVideo(false)
+                  }
+                }}
+                className="self-start rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium hover:bg-muted disabled:opacity-50"
+              >
+                {consultandoVideo ? 'Consultando estado...' : 'Consultar estado del video'}
+              </button>
+              {estadoVideo && (
+                <p className="text-xs text-muted-foreground">
+                  Estado del video: <span className="font-semibold">{estadoVideo}</span>
+                </p>
+              )}
+              {urlVideo && (
+                <div className="mt-2 space-y-1">
+                  <p className="text-xs text-muted-foreground">Video generado:</p>
+                  <video
+                    src={urlVideo}
+                    controls
+                    className="w-full max-w-md rounded border border-border"
+                  />
+                  <a
+                    href={urlVideo}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block text-xs text-primary hover:underline"
+                  >
+                    Abrir video en nueva pestaña
+                  </a>
+                </div>
+              )}
               {errorVideo && (
                 <p className="text-xs text-destructive">
                   {errorVideo}

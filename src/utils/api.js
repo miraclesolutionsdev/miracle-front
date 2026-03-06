@@ -137,6 +137,10 @@ export const iaApi = {
       method: 'POST',
       body: JSON.stringify(payload),
     }),
+  obtenerEstadoVideo: (id) =>
+    request(`ia/video-estado/${id}`, {
+      method: 'GET',
+    }),
 }
 
 export const usersApi = {
