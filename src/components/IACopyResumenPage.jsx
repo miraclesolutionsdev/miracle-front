@@ -20,7 +20,9 @@ export default function IACopyResumenPage() {
   const [fileImagen, setFileImagen] = useState(null)
   const [cargandoResumen, setCargandoResumen] = useState(true)
   const [limpiando, setLimpiando] = useState(false)
+  const [generandoCopyDesdeImagen, setGenerandoCopyDesdeImagen] = useState(false)
   const fileInputRef = useRef(null)
+  const generandoCopyRef = useRef(false)
 
   useEffect(() => {
     let cancelled = false
@@ -39,6 +41,7 @@ export default function IACopyResumenPage() {
               ? resumen.imagenPorCopy
               : {}
           )
+          setMensajes(Array.isArray(resumen.mensajes) ? resumen.mensajes : [])
           if (!cancelled) setCargandoResumen(false)
           return
         }
@@ -71,6 +74,7 @@ export default function IACopyResumenPage() {
       } catch (_) {}
       setData(null)
       setImagenPorCopy({})
+      setMensajes([])
     } catch (_) {
       // si falla la API, limpiar solo local
       try {
@@ -78,6 +82,7 @@ export default function IACopyResumenPage() {
       } catch (_) {}
       setData(null)
       setImagenPorCopy({})
+      setMensajes([])
     } finally {
       setLimpiando(false)
     }
@@ -393,17 +398,22 @@ Sin texto sobreimpreso en la imagen.
                       </button>
                       <button
                         type="button"
+                        disabled={generandoCopyDesdeImagen}
                         onClick={async () => {
                           if (!imagenParaCopy || !fileImagen) return
+                          if (generandoCopyRef.current) return
+                          generandoCopyRef.current = true
+                          setGenerandoCopyDesdeImagen(true)
                           const actualImagen = imagenParaCopy
-                          setMensajes((prev) => [
-                            ...prev,
+                          const mensajesConUser = [
+                            ...mensajes,
                             {
                               rol: 'user',
                               contenido: 'Generar copy para esta imagen',
                               imagenUrl: actualImagen,
                             },
-                          ])
+                          ]
+                          setMensajes(mensajesConUser)
                           try {
                             const respuesta = await iaApi.generarCopyDesdeImagen({
                               imagenDataUrl: actualImagen,
@@ -468,31 +478,57 @@ Sin texto sobreimpreso en la imagen.
                             setUltimoCopyVideo(contenidoFinal)
                             setUltimaImagenVideo(actualImagen)
 
-                            setMensajes((prev) => [
-                              ...prev,
+                            const nuevosMensajes = [
+                              ...mensajesConUser,
                               {
                                 rol: 'assistant',
                                 contenido: contenidoFinal,
                               },
-                            ])
+                            ]
+                            setMensajes(nuevosMensajes)
+                            if (data) {
+                              iaApi
+                                .guardarResumen({
+                                  producto: data.producto,
+                                  angulo: data.angulo,
+                                  copys: data.copys,
+                                  imagenPorCopy,
+                                  mensajes: nuevosMensajes,
+                                })
+                                .catch(() => {})
+                            }
                           } catch (error) {
-                            setMensajes((prev) => [
-                              ...prev,
+                            const mensajesError = [
+                              ...mensajesConUser,
                               {
                                 rol: 'assistant',
                                 contenido:
                                   'No se pudo generar el copy desde la imagen. Verifica tu conexión o la configuración de la IA.',
                               },
-                            ])
+                            ]
+                            setMensajes(mensajesError)
+                            if (data) {
+                              iaApi
+                                .guardarResumen({
+                                  producto: data.producto,
+                                  angulo: data.angulo,
+                                  copys: data.copys,
+                                  imagenPorCopy,
+                                  mensajes: mensajesError,
+                                })
+                                .catch(() => {})
+                            }
                           } finally {
                             setImagenParaCopy(null)
                             setFileImagen(null)
                             if (fileInputRef.current) fileInputRef.current.value = ''
+                            generandoCopyRef.current = false
+                            setGenerandoCopyDesdeImagen(false)
                           }
                         }}
-                        className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90"
+                        className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
                       >
-                        Generar copy
+                        {generandoCopyDesdeImagen ? 'Generando...' : 'Generar copy'}
                       </button>
                     </div>
                   </div>
