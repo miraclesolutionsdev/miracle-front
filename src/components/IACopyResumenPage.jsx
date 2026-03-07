@@ -18,17 +18,78 @@ export default function IACopyResumenPage() {
   const [errorVideo, setErrorVideo] = useState(null)
   const [imagenParaCopy, setImagenParaCopy] = useState(null)
   const [fileImagen, setFileImagen] = useState(null)
+  const [cargandoResumen, setCargandoResumen] = useState(true)
+  const [limpiando, setLimpiando] = useState(false)
   const fileInputRef = useRef(null)
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem('miracle_ia_resumen')
-      if (!raw) return
-      setData(JSON.parse(raw))
-    } catch {
-      // ignorar errores de parseo
+    let cancelled = false
+    async function cargar() {
+      try {
+        const resumen = await iaApi.obtenerResumen()
+        if (cancelled) return
+        if (resumen && (resumen.producto || resumen.angulo || (resumen.copys && resumen.copys.length))) {
+          setData({
+            producto: resumen.producto ?? null,
+            angulo: resumen.angulo ?? null,
+            copys: Array.isArray(resumen.copys) ? resumen.copys : [],
+          })
+          setImagenPorCopy(
+            resumen.imagenPorCopy && typeof resumen.imagenPorCopy === 'object'
+              ? resumen.imagenPorCopy
+              : {}
+          )
+          if (!cancelled) setCargandoResumen(false)
+          return
+        }
+      } catch (_) {
+        // 404 o error de red: usar localStorage como respaldo
+      }
+      if (cancelled) return
+      try {
+        const raw = localStorage.getItem('miracle_ia_resumen')
+        if (raw) {
+          const parsed = JSON.parse(raw)
+          setData(parsed)
+          setImagenPorCopy({})
+          iaApi.guardarResumen({ ...parsed, imagenPorCopy: {} }).catch(() => {})
+        }
+      } catch (_) {}
+      if (!cancelled) setCargandoResumen(false)
     }
+    cargar()
+    return () => { cancelled = true }
   }, [])
+
+  const handleLimpiar = async () => {
+    if (limpiando) return
+    setLimpiando(true)
+    try {
+      await iaApi.limpiarResumen()
+      try {
+        localStorage.removeItem('miracle_ia_resumen')
+      } catch (_) {}
+      setData(null)
+      setImagenPorCopy({})
+    } catch (_) {
+      // si falla la API, limpiar solo local
+      try {
+        localStorage.removeItem('miracle_ia_resumen')
+      } catch (_) {}
+      setData(null)
+      setImagenPorCopy({})
+    } finally {
+      setLimpiando(false)
+    }
+  }
+
+  if (cargandoResumen && !data) {
+    return (
+      <div className="min-h-screen bg-background text-card-foreground flex items-center justify-center px-4">
+        <p className="text-sm text-muted-foreground">Cargando resumen...</p>
+      </div>
+    )
+  }
 
   if (!data) {
     return (
@@ -47,17 +108,103 @@ export default function IACopyResumenPage() {
 
   const { producto, angulo, copys } = data
 
+  const construirPromptParaCopy = (c) => {
+    const nombreProducto = producto?.nombre || 'producto'
+    const nombreAngulo = angulo?.nombre || 'ángulo'
+    const titulo = c.copy?.titulo || ''
+    const cuerpo = c.copy?.cuerpo || ''
+    const ideaCentral = c.idea_central || ''
+    const etapaLabel =
+      c.etapa === 'TOF'
+        ? 'top of funnel, enfocado en generar curiosidad y awareness'
+        : c.etapa === 'MOF'
+        ? 'middle of funnel, enfocado en demostrar beneficios y uso real'
+        : c.etapa === 'BOF'
+        ? 'bottom of funnel, enfocado en urgencia y decisión de compra'
+        : 'anuncio para redes sociales'
+    return `
+Crea una imagen publicitaria para ${nombreProducto}.
+Ángulo de comunicación: ${nombreAngulo}.
+Etapa del funnel: ${etapaLabel}.
+
+Inspírate en este copy:
+Título: "${titulo}"
+Cuerpo: "${cuerpo}"
+Idea central: "${ideaCentral}"
+
+La imagen debe mostrar el producto como protagonista en un entorno que refuerce el mensaje del copy.
+Estilo: fotográfico realista, iluminación cuidada, composición profesional, pensada para anuncios en redes sociales (formato cuadrado 1:1).
+Colores y fondo que hagan destacar el producto, sensación de calidad y deseo de compra.
+Sin texto sobreimpreso en la imagen.
+`.trim()
+  }
+
+  const handleGenerarImagen = async (idx) => {
+    const c = copys[idx]
+    if (!c) return
+    setCopySeleccionadoParaImagen(idx)
+    setErrorImagen(null)
+    setGenerandoImagenIdx(idx)
+    const prompt = construirPromptParaCopy(c)
+    try {
+      const res = await iaApi.generarImagen({
+        prompt,
+        aspectRatio: '1:1',
+      })
+      const b64 = res?.imageBase64
+      if (b64) {
+        const nuevaImagen = `data:image/png;base64,${b64}`
+        setImagenPorCopy((prev) => ({
+          ...prev,
+          [idx]: nuevaImagen,
+        }))
+        const nuevoImagenPorCopy = { ...imagenPorCopy, [idx]: nuevaImagen }
+        iaApi
+          .guardarResumen({
+            producto,
+            angulo,
+            copys,
+            imagenPorCopy: nuevoImagenPorCopy,
+          })
+          .catch(() => {})
+      }
+    } catch (err) {
+      setErrorImagen(err.message || 'No se pudo generar la imagen.')
+    } finally {
+      setGenerandoImagenIdx(null)
+    }
+  }
+
+  const handleDescargarImagen = (idx) => {
+    const dataUrl = imagenPorCopy[idx]
+    if (!dataUrl) return
+    const link = document.createElement('a')
+    link.href = dataUrl
+    link.download = `copy-${idx + 1}-imagen.png`
+    link.click()
+  }
+
   return (
     <div className="min-h-screen bg-background text-card-foreground px-6 py-8">
       <div className="mx-auto max-w-5xl space-y-6">
         <header className="space-y-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              Resumen de campaña IA
-            </p>
-            <h1 className="mt-1 text-2xl font-bold">
-              {producto?.nombre || 'Producto'}
-            </h1>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                Resumen de campaña IA
+              </p>
+              <h1 className="mt-1 text-2xl font-bold">
+                {producto?.nombre || 'Producto'}
+              </h1>
+            </div>
+            <button
+              type="button"
+              onClick={handleLimpiar}
+              disabled={limpiando}
+              className="shrink-0 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-50"
+            >
+              {limpiando ? 'Limpiando...' : 'Limpiar todo'}
+            </button>
           </div>
           {producto?.descripcion && (
             <p className="text-sm text-muted-foreground">
@@ -115,79 +262,51 @@ export default function IACopyResumenPage() {
                     </p>
                   )}
                   <div className="mt-3 pt-2 border-t border-border">
-                    <button
-                      type="button"
-                      disabled={generandoImagenIdx !== null}
-                      onClick={async () => {
-                        setCopySeleccionadoParaImagen(idx)
-                        setErrorImagen(null)
-                        setGenerandoImagenIdx(idx)
-                        const nombreProducto = producto?.nombre || 'producto'
-                        const nombreAngulo = angulo?.nombre || 'ángulo'
-                        const titulo = c.copy?.titulo || ''
-                        const cuerpo = c.copy?.cuerpo || ''
-                        const ideaCentral = c.idea_central || ''
-                        const etapaLabel =
-                          c.etapa === 'TOF'
-                            ? 'top of funnel, enfocado en generar curiosidad y awareness'
-                            : c.etapa === 'MOF'
-                            ? 'middle of funnel, enfocado en demostrar beneficios y uso real'
-                            : c.etapa === 'BOF'
-                            ? 'bottom of funnel, enfocado en urgencia y decisión de compra'
-                            : 'anuncio para redes sociales'
-
-                        const prompt = `
-Crea una imagen publicitaria para ${nombreProducto}.
-Ángulo de comunicación: ${nombreAngulo}.
-Etapa del funnel: ${etapaLabel}.
-
-Inspírate en este copy:
-Título: "${titulo}"
-Cuerpo: "${cuerpo}"
-Idea central: "${ideaCentral}"
-
-La imagen debe mostrar el producto como protagonista en un entorno que refuerce el mensaje del copy.
-Estilo: fotográfico realista, iluminación cuidada, composición profesional, pensada para anuncios en redes sociales (formato cuadrado 1:1).
-Colores y fondo que hagan destacar el producto, sensación de calidad y deseo de compra.
-Sin texto sobreimpreso en la imagen.
-`.trim()
-
-                        try {
-                          const res = await iaApi.generarImagen({
-                            prompt,
-                            aspectRatio: '1:1',
-                          })
-                          const b64 = res?.imageBase64
-                          if (b64) {
-                            setImagenPorCopy((prev) => ({
-                              ...prev,
-                              [idx]: `data:image/png;base64,${b64}`,
-                            }))
-                          }
-                        } catch (err) {
-                          setErrorImagen(err.message || 'No se pudo generar la imagen.')
-                        } finally {
-                          setGenerandoImagenIdx(null)
-                        }
-                      }}
-                      className="text-xs font-medium text-primary hover:underline disabled:opacity-50"
-                    >
-                      {generandoImagenIdx === idx
-                        ? 'Generando imagen...'
-                        : 'Generar imagen para este copy'}
-                    </button>
+                    {!imagenPorCopy[idx] ? (
+                      <button
+                        type="button"
+                        disabled={generandoImagenIdx !== null}
+                        onClick={() => handleGenerarImagen(idx)}
+                        className="text-xs font-medium text-primary hover:underline disabled:opacity-50"
+                      >
+                        {generandoImagenIdx === idx
+                          ? 'Generando imagen...'
+                          : 'Generar imagen para este copy'}
+                      </button>
+                    ) : null}
                     {errorImagen && generandoImagenIdx === null && copySeleccionadoParaImagen === idx && (
                       <p className="mt-1 text-xs text-destructive">{errorImagen}</p>
                     )}
                     {imagenPorCopy[idx] && (
-                      <img
-                        src={imagenPorCopy[idx]}
-                        alt="Imagen generada"
-                        onClick={() =>
-                          window.open(imagenPorCopy[idx], '_blank', 'noopener,noreferrer')
-                        }
-                        className="mt-2 rounded border border-border max-h-80 object-contain w-full bg-black cursor-pointer"
-                      />
+                      <>
+                        <img
+                          src={imagenPorCopy[idx]}
+                          alt="Imagen generada"
+                          onClick={() =>
+                            window.open(imagenPorCopy[idx], '_blank', 'noopener,noreferrer')
+                          }
+                          className="mt-2 rounded border border-border max-h-80 object-contain w-full bg-black cursor-pointer"
+                        />
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleDescargarImagen(idx)}
+                            className="rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+                          >
+                            Descargar
+                          </button>
+                          <button
+                            type="button"
+                            disabled={generandoImagenIdx !== null}
+                            onClick={() => handleGenerarImagen(idx)}
+                            className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
+                          >
+                            {generandoImagenIdx === idx
+                              ? 'Generando...'
+                              : 'Generar nueva imagen'}
+                          </button>
+                        </div>
+                      </>
                     )}
                   </div>
                 </article>

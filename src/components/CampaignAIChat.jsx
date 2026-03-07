@@ -223,7 +223,7 @@ export default function CampaignAIChat() {
     }
   }
 
-  const handleAbrirResumen = () => {
+  const handleAbrirResumen = async () => {
     if (!productoSeleccionado || anguloSeleccionado == null || !angulos[anguloSeleccionado] || copys.length === 0) {
       setError('Primero selecciona un ángulo y genera los copys.')
       return
@@ -241,6 +241,7 @@ export default function CampaignAIChat() {
 
     try {
       localStorage.setItem('miracle_ia_resumen', JSON.stringify(payload))
+      await iaApi.guardarResumen({ ...payload, imagenPorCopy: {} }).catch(() => {})
       window.open('/ia-resumen', '_blank', 'noopener,noreferrer')
     } catch (err) {
       setError('No se pudo abrir el resumen. Intenta de nuevo.')

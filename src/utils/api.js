@@ -141,6 +141,15 @@ export const iaApi = {
     request(`ia/video-estado/${id}`, {
       method: 'GET',
     }),
+  obtenerResumen: () =>
+    request('ia/resumen', { method: 'GET' }),
+  guardarResumen: (payload) =>
+    request('ia/resumen', {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    }),
+  limpiarResumen: () =>
+    request('ia/resumen', { method: 'DELETE' }),
 }
 
 export const usersApi = {
