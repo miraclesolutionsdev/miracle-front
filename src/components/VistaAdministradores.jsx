@@ -228,14 +228,17 @@ export default function VistaAdministradores() {
                     )}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <button
-                      type="button"
-                      onClick={() => handleEditar(u)}
-                      className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-foreground hover:bg-muted"
-                      title="Editar"
-                    >
-                      <Pencil className="h-3.5 w-3.5" /> Editar
-                    </button>
+                    {/* Solo se puede editar al admin original si el usuario actual también lo es */}
+                    {(!u.isOriginalAdmin || user?.isOriginalAdmin) && (
+                      <button
+                        type="button"
+                        onClick={() => handleEditar(u)}
+                        className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-foreground hover:bg-muted"
+                        title="Editar"
+                      >
+                        <Pencil className="h-3.5 w-3.5" /> Editar
+                      </button>
+                    )}
                     {!u.isOriginalAdmin && (
                       <>
                         <button
