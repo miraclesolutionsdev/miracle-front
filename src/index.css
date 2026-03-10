@@ -6,44 +6,48 @@
   .text-balance {
     text-wrap: balance;
   }
+  .glow-primary {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.15);
+  }
 }
 
 @layer base {
   :root {
-    /* Tema claro (por defecto) */
-    --background: 0 0% 100%;
-    --foreground: 222 47% 11%;
+    /* Tema claro */
+    --background: 220 30% 97%;
+    --foreground: 224 47% 10%;
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 224 47% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 217 72% 56%;
+    --popover-foreground: 224 47% 10%;
+    --primary: 258 84% 60%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222 47% 11%;
-    --destructive: 0 84% 60%;
+    --secondary: 220 20% 93%;
+    --secondary-foreground: 224 30% 20%;
+    --muted: 220 20% 93%;
+    --muted-foreground: 220 12% 48%;
+    --accent: 220 25% 91%;
+    --accent-foreground: 224 47% 10%;
+    --destructive: 0 78% 58%;
     --destructive-foreground: 0 0% 98%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 217 72% 56%;
-    --chart-1: 217 72% 56%;
+    --border: 220 18% 86%;
+    --input: 220 18% 86%;
+    --ring: 258 84% 60%;
+    --chart-1: 258 84% 60%;
     --chart-2: 173 58% 44%;
     --chart-3: 43 74% 58%;
     --chart-4: 340 65% 55%;
     --chart-5: 27 87% 60%;
-    --radius: 0.625rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 215 16% 35%;
-    --sidebar-primary: 217 72% 56%;
+    --radius: 0.75rem;
+    --sidebar-background: 224 35% 95%;
+    --sidebar-foreground: 220 18% 38%;
+    --sidebar-primary: 258 84% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 40% 96%;
-    --sidebar-accent-foreground: 222 47% 11%;
-    --sidebar-border: 214 32% 91%;
-    --sidebar-ring: 217 72% 56%;
+    --sidebar-accent: 220 25% 91%;
+    --sidebar-accent-foreground: 224 47% 10%;
+    --sidebar-border: 220 18% 88%;
+    --sidebar-ring: 258 84% 60%;
+
     font-family: "Inter", system-ui, Avenir, Helvetica, Arial, sans-serif;
     line-height: 1.5;
     font-synthesis: none;
@@ -53,26 +57,37 @@
   }
 
   html.dark {
-    --background: 228 12% 8%;
-    --foreground: 210 20% 96%;
-    --card: 228 10% 11%;
-    --card-foreground: 210 20% 96%;
-    --popover: 228 10% 11%;
-    --popover-foreground: 210 20% 96%;
-    --secondary: 228 8% 16%;
-    --secondary-foreground: 210 16% 80%;
-    --muted: 228 8% 14%;
-    --muted-foreground: 215 12% 52%;
-    --accent: 228 8% 18%;
-    --accent-foreground: 210 20% 96%;
-    --destructive: 0 72% 55%;
-    --border: 228 8% 18%;
-    --input: 228 8% 18%;
-    --sidebar-background: 228 14% 7%;
-    --sidebar-foreground: 215 12% 55%;
-    --sidebar-accent: 228 10% 13%;
-    --sidebar-accent-foreground: 210 20% 96%;
-    --sidebar-border: 228 8% 14%;
+    /* Tema oscuro premium */
+    --background: 228 42% 5%;
+    --foreground: 210 22% 95%;
+    --card: 226 32% 8%;
+    --card-foreground: 210 22% 95%;
+    --popover: 226 32% 8%;
+    --popover-foreground: 210 22% 95%;
+    --primary: 258 84% 66%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 226 22% 12%;
+    --secondary-foreground: 210 18% 78%;
+    --muted: 226 22% 11%;
+    --muted-foreground: 218 14% 50%;
+    --accent: 226 22% 13%;
+    --accent-foreground: 210 22% 95%;
+    --destructive: 0 68% 56%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 226 18% 14%;
+    --input: 226 18% 14%;
+    --ring: 258 84% 66%;
+    --chart-1: 258 84% 66%;
+    --chart-2: 173 58% 48%;
+    --chart-3: 43 80% 62%;
+    --chart-4: 340 65% 60%;
+    --chart-5: 27 90% 62%;
+    --sidebar-background: 228 46% 4%;
+    --sidebar-foreground: 218 14% 52%;
+    --sidebar-accent: 226 28% 10%;
+    --sidebar-accent-foreground: 210 22% 95%;
+    --sidebar-border: 226 18% 11%;
+    --sidebar-ring: 258 84% 66%;
   }
 
   * {
@@ -88,19 +103,18 @@
     transition: background-color 0.3s ease-out, color 0.3s ease-out;
   }
 
-  /* Custom scrollbar for dark theme */
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
   }
   ::-webkit-scrollbar-track {
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: hsl(228 8% 22%);
-    border-radius: 3px;
+    background: hsl(var(--border));
+    border-radius: 10px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: hsl(228 8% 28%);
+    background: hsl(var(--muted-foreground) / 0.5);
   }
 }

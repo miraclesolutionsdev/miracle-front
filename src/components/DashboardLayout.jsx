@@ -31,6 +31,21 @@ const PATH_TO_LABEL = {
   '/configuracion': 'Configuración',
 }
 
+const PAGE_DESCRIPTIONS = {
+  'Dashboard': 'Resumen general de tu negocio y campañas',
+  'Clientes': 'Gestiona tu base de clientes',
+  'Productos': 'Administra tu catálogo de productos',
+  'Tienda': 'Personaliza tu tienda online',
+  'Configura tus redes': 'Conecta tus canales publicitarios',
+  'Información del negocio': 'Datos de tu negocio',
+  'Campañas': 'Crea y gestiona campañas publicitarias',
+  'Audiovisual': 'Biblioteca de piezas audiovisuales',
+  'Métricas Ads': 'Análisis de rendimiento de anuncios',
+  'Ventas': 'Seguimiento de ventas y conversiones',
+  'Administradores': 'Gestión de accesos y usuarios',
+  'Configuración': 'Preferencias de tu cuenta',
+}
+
 function DashboardLayout() {
   const { pathname } = useLocation()
   const seleccionado = useMemo(() => {
@@ -53,7 +68,7 @@ function DashboardLayout() {
     if (seleccionado === 'Configuración') return <VistaConfiguracion />
     return (
       <p className="text-sm text-muted-foreground">
-        Selecciona una opcion del panel para continuar.
+        Selecciona una opción del panel para continuar.
       </p>
     )
   }
@@ -64,8 +79,16 @@ function DashboardLayout() {
       <Sidebar seleccionado={seleccionado} />
       <main className="ml-56 pt-14 min-h-screen">
         <div className="flex flex-col gap-6 p-6">
-          <div className="flex items-center justify-between">
-            <h1 className="text-lg font-semibold tracking-tight text-foreground">{seleccionado}</h1>
+          {/* Page header */}
+          <div className="flex items-start justify-between">
+            <div>
+              <h1 className="text-xl font-bold tracking-tight text-foreground">{seleccionado}</h1>
+              {PAGE_DESCRIPTIONS[seleccionado] && (
+                <p className="mt-0.5 text-[13px] text-muted-foreground">
+                  {PAGE_DESCRIPTIONS[seleccionado]}
+                </p>
+              )}
+            </div>
           </div>
           {renderContenido()}
         </div>
@@ -75,4 +98,3 @@ function DashboardLayout() {
 }
 
 export default DashboardLayout
-

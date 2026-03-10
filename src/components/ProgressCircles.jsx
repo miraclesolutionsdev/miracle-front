@@ -1,9 +1,9 @@
 import SectionCard from './SectionCard'
 
 const METRICS = [
-  { label: 'Conversion', value: 75, stroke: 'hsl(217,72%,56%)' },
-  { label: 'Retencion', value: 60, stroke: 'hsl(173,58%,44%)' },
-  { label: 'Satisfaccion', value: 90, stroke: 'hsl(43,74%,58%)' },
+  { label: 'Conversión', value: 75, stroke: 'hsl(258,84%,66%)' },
+  { label: 'Retención', value: 60, stroke: 'hsl(173,58%,44%)' },
+  { label: 'Satisfacción', value: 90, stroke: 'hsl(43,80%,62%)' },
 ]
 
 function CircleProgress({ value, label, stroke }) {
@@ -26,7 +26,7 @@ function CircleProgress({ value, label, stroke }) {
           cy="48"
           r={radius}
           fill="none"
-          stroke="hsl(228,8%,18%)"
+          stroke="hsl(var(--border))"
           strokeWidth="6"
         />
         <circle
