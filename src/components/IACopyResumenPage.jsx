@@ -155,6 +155,7 @@ Sin texto sobreimpreso en la imagen.
       const res = await iaApi.generarImagen({
         prompt,
         aspectRatio: '1:1',
+        imagenesProducto: producto?.imagenes || [],
       })
       const b64 = res?.imageBase64
       if (b64) {

@@ -28,19 +28,13 @@ export default function CampaignAIChat() {
   const construirProductoPayload = () => {
     if (!productoSeleccionado) return null
 
-    const nombreProd = (productoSeleccionado.nombre || '').trim()
-    const publico_objetivo =
-      'Clientes ideales del negocio que comprarían este producto/servicio.'
-    const beneficios_clave = [
-      productoSeleccionado.descripcion ||
-        'Beneficios principales del producto según la información disponible.',
-    ]
-
     return {
-      nombre: nombreProd,
+      nombre: (productoSeleccionado.nombre || '').trim(),
       categoria: productoSeleccionado.tipo === 'servicio' ? 'Servicio' : 'Producto',
-      publico_objetivo,
-      beneficios_clave,
+      descripcion: productoSeleccionado.descripcion || '',
+      usos: productoSeleccionado.usos || [],
+      caracteristicas: productoSeleccionado.caracteristicas || [],
+      imagenes: productoSeleccionado.imagenes || [],
       objetivo:
         mensaje.trim() ||
         'Generar ángulos de venta y copys efectivos para este producto.',
