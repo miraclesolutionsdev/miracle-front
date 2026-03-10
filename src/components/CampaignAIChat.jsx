@@ -228,6 +228,7 @@ export default function CampaignAIChat() {
         nombre: productoSeleccionado.nombre,
         descripcion: productoSeleccionado.descripcion || '',
         tipo: productoSeleccionado.tipo,
+        imagenes: productoSeleccionado.imagenes || [],
       },
       angulo: angulos[anguloSeleccionado],
       copys,
