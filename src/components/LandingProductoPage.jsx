@@ -247,7 +247,7 @@ function LandingProductoPage() {
     setLoadingPago(true)
     try {
       const { init_point } = await pagosApi.crearPreferencia({
-        productoId: producto._id,
+        productoId: producto.id,
         nombre,
         telefono,
       })
@@ -417,8 +417,9 @@ function LandingProductoPage() {
                 <div
                   style={{
                     display: 'flex',
-                    alignItems: 'baseline',
-                    gap: '12px',
+                    alignItems: 'center',
+                    flexWrap: 'wrap',
+                    gap: '8px',
                     borderRadius: isClasico ? '2px' : '16px',
                     padding: '16px 20px',
                     backgroundColor: `rgba(${accentRgb},0.07)`,
@@ -428,11 +429,13 @@ function LandingProductoPage() {
                   <span
                     style={{
                       fontFamily: isClasico ? "'Playfair Display', serif" : "'Syne', sans-serif",
-                      fontSize: 'clamp(32px, 5vw, 48px)',
+                      fontSize: 'clamp(24px, 4vw, 40px)',
                       fontWeight: isClasico ? '700' : '900',
                       letterSpacing: isClasico ? '-0.01em' : '-0.04em',
                       color: accent,
                       lineHeight: 1,
+                      flexShrink: 1,
+                      minWidth: 0,
                     }}
                   >
                     {formatPrecio(producto.precio)}
