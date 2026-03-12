@@ -17,6 +17,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
     caracteristicasTexto: '',
     stock: '',
   })
+  const [eliminandoImagen, setEliminandoImagen] = useState(null)
 
   useEffect(() => {
     if (producto) {
@@ -88,6 +89,19 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
       ...f,
       archivosImagen: f.archivosImagen.filter((_, j) => j !== i),
     }))
+  }
+
+  const quitarImagenExistente = async (i) => {
+    if (!producto?.id) return
+    try {
+      setEliminandoImagen(i)
+      const productoActualizado = await productosApi.eliminarImagen(producto.id, i)
+      onGuardar({ id: producto.id, data: productoActualizado })
+    } catch (err) {
+      alert('Error al eliminar la imagen: ' + err.message)
+    } finally {
+      setEliminandoImagen(null)
+    }
   }
 
   return (
@@ -244,15 +258,27 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
             )}
             <div className="mt-2 flex flex-wrap gap-2">
               {imagenesExistentes.map((img, i) => (
-                <img
-                  key={i}
-                  src={typeof img === 'string' ? img : productosApi.urlImagen(producto.id, i)}
-                  alt={`Imagen ${i + 1}`}
-                  className="h-20 w-20 rounded object-cover"
-                />
+                <div key={`e-${i}`} className="relative group">
+                  <img
+                    src={typeof img === 'string' ? img : productosApi.urlImagen(producto.id, i)}
+                    alt={`Imagen ${i + 1}`}
+                    className={`h-20 w-20 rounded object-cover transition-opacity ${
+                      eliminandoImagen === i ? 'opacity-50' : ''
+                    }`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => quitarImagenExistente(i)}
+                    disabled={eliminandoImagen !== null}
+                    className="absolute -right-1 -top-1 rounded-full bg-destructive px-1.5 py-0.5 text-xs text-destructive-foreground opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
+                    title="Eliminar imagen"
+                  >
+                    {eliminandoImagen === i ? '⟳' : '×'}
+                  </button>
+                </div>
               ))}
               {form.archivosImagen?.map((file, i) => (
-                <div key={`f-${i}`} className="relative">
+                <div key={`f-${i}`} className="relative group">
                   <img
                     src={URL.createObjectURL(file)}
                     alt={`Nueva ${i + 1}`}
@@ -261,7 +287,8 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
                   <button
                     type="button"
                     onClick={() => quitarArchivo(i)}
-                    className="absolute -right-1 -top-1 rounded-full bg-destructive px-1.5 py-0.5 text-xs text-destructive-foreground"
+                    className="absolute -right-1 -top-1 rounded-full bg-destructive px-1.5 py-0.5 text-xs text-destructive-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                    title="Eliminar imagen"
                   >
                     ×
                   </button>

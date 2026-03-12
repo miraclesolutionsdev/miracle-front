@@ -78,6 +78,8 @@ export const productosApi = {
   },
   inactivar: (id) =>
     request(`productos/${id}/inactivar`, { method: 'PATCH' }),
+  eliminarImagen: (id, index) =>
+    request(`productos/${id}/imagenes/${index}`, { method: 'DELETE' }),
   urlImagen: (productoId, index) =>
     `${BASE_URL.replace(/\/$/, '')}/productos/${productoId}/imagenes/${index}`,
 }

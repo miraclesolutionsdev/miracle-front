@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useProductos } from '../context/ProductosContext.jsx'
 import { getProductoImagenSrc, authApi } from '../utils/api'
+import ImageLightbox from './ImageLightbox'
 
 const ACCENT = '#F59E0B'
 
