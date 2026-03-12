@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { toast } from 'sonner'
+import { swalInfo } from '../utils/swal'
 import SectionCard from './SectionCard'
 
 const VENTAS_INICIALES = [
@@ -38,12 +38,12 @@ export default function VistaVentas() {
   const handleRegistrarVenta = () => {
     // Aquí luego se implementará el formulario real de registro de venta
     // eslint-disable-next-line no-alert
-    toast.info('Aquí irá el formulario para registrar una nueva venta.')
+    swalInfo('Aquí irá el formulario para registrar una nueva venta.')
   }
 
   const handleVerDetalle = (venta) => {
     // eslint-disable-next-line no-alert
-    toast.info(`Venta ${venta.id} — ${venta.productoPlan} · ${venta.cliente}`)
+    swalInfo(`Venta ${venta.id} — ${venta.productoPlan} · ${venta.cliente}`)
   }
 
   return (

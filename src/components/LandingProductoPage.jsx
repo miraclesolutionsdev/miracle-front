@@ -5,7 +5,7 @@ import { useTiendaEstilo, ESTILOS } from '../context/TiendaEstiloContext.jsx'
 import { getProductoImagenSrc, productosApi, pagosApi } from '../utils/api'
 import { ArrowLeft, Check, Package, ChevronRight, ShieldCheck, Zap, Star, ChevronLeft, CreditCard } from 'lucide-react'
 import ImageLightbox from './ImageLightbox.jsx'
-import { toast } from 'sonner'
+import { swalError } from '../utils/swal'
 
 const formatPrecio = (valor) =>
   `$${(Number(valor) || 0).toLocaleString('es-CO')}`
@@ -253,7 +253,7 @@ function LandingProductoPage() {
       })
       window.location.href = init_point
     } catch (err) {
-      toast.error('No se pudo iniciar el pago. Intenta de nuevo o contáctanos por WhatsApp.')
+      swalError('No se pudo iniciar el pago. Intenta de nuevo o contáctanos por WhatsApp.')
     } finally {
       setLoadingPago(false)
     }

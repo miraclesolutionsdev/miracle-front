@@ -1,5 +1,4 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { Toaster } from 'sonner'
 import DashboardLayout from './components/DashboardLayout'
 import LandingProductoPage from './components/LandingProductoPage'
 import TiendaPage from './components/TiendaPage'
@@ -19,8 +18,6 @@ function ProtectedRoute({ children }) {
 
 function App() {
   return (
-    <>
-    <Toaster richColors position="top-right" />
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/crear-tienda" element={<CrearTienda />} />
@@ -39,7 +36,6 @@ function App() {
       />
       <Route path="/*" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>} />
     </Routes>
-    </>
   )
 }
 

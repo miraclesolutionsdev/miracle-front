@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { toast } from 'sonner'
+import { swalInfo } from '../utils/swal'
 import SectionCard from './SectionCard'
 
 function calcularKpis(campanas) {
@@ -83,12 +83,12 @@ export default function MetricsAds() {
 
   const handleVerCliente = (c) => {
     // eslint-disable-next-line no-alert
-    toast.info(`Ver métricas agregadas del cliente ${c.cliente}.`)
+    swalInfo(`Ver métricas agregadas del cliente ${c.cliente}.`)
   }
 
   const handleComparar = (c) => {
     // eslint-disable-next-line no-alert
-    toast.info(`Comparar la campaña ${c.id} con otras campañas.`)
+    swalInfo(`Comparar la campaña ${c.id} con otras campañas.`)
   }
 
   return (

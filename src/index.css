@@ -139,3 +139,126 @@
     border-radius: 6px;
   }
 }
+
+/* ─── SweetAlert2 – integración con el tema del sistema ─── */
+
+/* Backdrop */
+.swal2-backdrop-show {
+  background: rgba(0, 0, 0, 0.55) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+/* Popup base (modal y toast) */
+.swal2-popup {
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--card-foreground)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: 14px !important;
+  font-family: "Inter", system-ui, sans-serif !important;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Toast */
+.swal2-popup.swal2-toast {
+  border-radius: 10px !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15) !important;
+  padding: 10px 14px !important;
+  gap: 10px !important;
+}
+
+/* Título */
+.swal2-title {
+  color: hsl(var(--foreground)) !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  padding: 0 !important;
+}
+
+.swal2-toast .swal2-title {
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+}
+
+/* Texto del cuerpo */
+.swal2-html-container {
+  color: hsl(var(--muted-foreground)) !important;
+  font-size: 0.875rem !important;
+}
+
+/* Barra de progreso del timer */
+.swal2-timer-progress-bar {
+  background: hsl(var(--primary)) !important;
+  opacity: 0.7 !important;
+}
+
+.swal2-toast .swal2-timer-progress-bar-container {
+  border-radius: 0 0 10px 10px !important;
+}
+
+/* Botón confirmar */
+.swal2-confirm {
+  background-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+  border-radius: 8px !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  padding: 9px 20px !important;
+  box-shadow: none !important;
+  transition: opacity 150ms ease !important;
+}
+
+.swal2-confirm:hover {
+  opacity: 0.88 !important;
+}
+
+/* Botón cancelar */
+.swal2-cancel {
+  background-color: hsl(var(--muted)) !important;
+  color: hsl(var(--muted-foreground)) !important;
+  border-radius: 8px !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  padding: 9px 20px !important;
+  box-shadow: none !important;
+  transition: background-color 150ms ease !important;
+}
+
+.swal2-cancel:hover {
+  background-color: hsl(var(--accent)) !important;
+  color: hsl(var(--accent-foreground)) !important;
+}
+
+/* Botón cerrar (×) */
+.swal2-close {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+.swal2-close:hover {
+  color: hsl(var(--foreground)) !important;
+  background: transparent !important;
+}
+
+/* Iconos – ajuste de colores para que no queden raros en dark */
+.swal2-icon.swal2-success {
+  border-color: hsl(173 58% 44% / 0.4) !important;
+  color: hsl(173 58% 44%) !important;
+}
+
+.swal2-icon.swal2-success .swal2-success-ring {
+  border-color: hsl(173 58% 44% / 0.25) !important;
+}
+
+.swal2-icon.swal2-error {
+  border-color: hsl(var(--destructive) / 0.4) !important;
+  color: hsl(var(--destructive)) !important;
+}
+
+.swal2-icon.swal2-warning {
+  border-color: hsl(43 74% 58% / 0.4) !important;
+  color: hsl(43 74% 58%) !important;
+}
+
+.swal2-icon.swal2-info {
+  border-color: hsl(var(--primary) / 0.4) !important;
+  color: hsl(var(--primary)) !important;
+}

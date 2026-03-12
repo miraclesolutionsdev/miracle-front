@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { ExternalLink } from 'lucide-react'
-import { toast } from 'sonner'
+import { swalError, swalSuccess } from '../utils/swal'
 import SectionCard from './SectionCard'
 import { authApi } from '../utils/api'
 import { useTiendaEstilo, ESTILOS } from '../context/TiendaEstiloContext.jsx'
@@ -152,9 +152,9 @@ function VistaTienda() {
         productosPrincipales,
       })
       setSavedForm(form)
-      toast.success('Información de la tienda guardada correctamente.')
+      swalSuccess('Información de la tienda guardada correctamente.')
     } catch (err) {
-      toast.error(err.message || 'No se pudo guardar la información de la tienda.')
+      swalError(err.message || 'No se pudo guardar la información de la tienda.')
     } finally {
       setGuardando(false)
     }
@@ -213,11 +213,10 @@ function VistaTienda() {
                     throw new Error('No se pudo subir el logo')
                   }
                   setForm((f) => ({ ...f, logoUrl: publicUrl }))
-                  setMensaje('Logo subido correctamente. No olvides guardar los cambios.')
-                  setError(null)
+                  swalSuccess('Logo subido. No olvides guardar los cambios.')
                 } catch (err) {
                   console.error(err)
-                  setError(err.message || 'No se pudo subir el logo.')
+                  swalError(err.message || 'No se pudo subir el logo.')
                 } finally {
                   e.target.value = ''
                 }
