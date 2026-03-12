@@ -103,18 +103,39 @@
     transition: background-color 0.3s ease-out, color 0.3s ease-out;
   }
 
-  ::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground) / 0.5); }
+
+  /* Text selection */
+  ::selection {
+    background-color: hsl(var(--primary) / 0.2);
+    color: hsl(var(--foreground));
   }
-  ::-webkit-scrollbar-track {
-    background: transparent;
+
+  /* Form elements – smooth transitions */
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']),
+  textarea,
+  select {
+    transition: border-color 150ms ease-out, box-shadow 150ms ease-out;
   }
-  ::-webkit-scrollbar-thumb {
-    background: hsl(var(--border));
-    border-radius: 10px;
+
+  /* Form elements – focus ring */
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):focus,
+  textarea:focus,
+  select:focus {
+    outline: none;
+    border-color: hsl(var(--ring) / 0.7);
+    box-shadow: 0 0 0 3px hsl(var(--ring) / 0.15);
   }
-  ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--muted-foreground) / 0.5);
+
+  /* Keyboard focus visible on interactive elements */
+  button:focus-visible,
+  a:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--ring) / 0.6);
+    border-radius: 6px;
   }
 }

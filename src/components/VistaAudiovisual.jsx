@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { toast } from 'sonner'
 import SectionCard from './SectionCard'
 import CampaignAIChat from './CampaignAIChat'
 import { audiovisualApi } from '../utils/api'
@@ -173,7 +174,7 @@ export default function VistaAudiovisual() {
   }
 
   const handleAsociar = (pieza) => {
-    alert(`Asociar la pieza ${pieza.id} a una campaña.`)
+    toast.info(`Asociar la pieza ${pieza.id} a una campaña.`)
   }
 
   const handleAprobar = async (pieza) => {
@@ -181,12 +182,12 @@ export default function VistaAudiovisual() {
       await audiovisualApi.actualizarEstado(pieza.id, 'aprobada')
       await loadPiezas()
     } catch (err) {
-      alert(err.message || 'Error al aprobar')
+      toast.error(err.message || 'Error al aprobar')
     }
   }
 
   const handleReutilizar = (pieza) => {
-    alert(`Reutilizar la pieza ${pieza.id} en otras campañas.`)
+    toast.info(`Reutilizar la pieza ${pieza.id} en otras campañas.`)
   }
 
   const esImagen = (contentType) =>

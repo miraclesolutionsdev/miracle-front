@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { toast } from 'sonner'
 import ClientesList from './ClientesList'
 import ClienteForm from './ClienteForm'
 import ClienteDetalle from './ClienteDetalle'
@@ -76,7 +77,7 @@ export default function VistaClientes() {
       if (clienteDetalle?.id === payload.id) setClienteDetalle(null)
       cerrarForm()
     } catch (err) {
-      alert(err.message || 'No se pudo guardar el cliente')
+      toast.error(err.message || 'No se pudo guardar el cliente')
     }
   }
 
@@ -90,11 +91,7 @@ export default function VistaClientes() {
       const rows = await readExcelFile(file)
       const validacion = validarCabecerasClientes(rows)
       if (!validacion.valido) {
-        alert(
-          'No se puede importar: el archivo no cumple con todas las columnas obligatorias. Faltan: ' +
-            validacion.faltantes.join(', ') +
-            '. Revisa que la primera fila tenga esas cabeceras.'
-        )
+        toast.error('Faltan columnas: ' + validacion.faltantes.join(', ') + '. Revisa la primera fila del Excel.')
         return
       }
       const validacionFilas = validarFilasClientes(rows)
@@ -102,12 +99,12 @@ export default function VistaClientes() {
         const msg = validacionFilas.filasConError
           .map((e) => `Fila ${e.numeroFila}: faltan ${e.camposFaltantes.join(', ')}`)
           .join('\n')
-        alert('No se puede importar: hay filas con datos incompletos. Todos los campos son obligatorios.\n\n' + msg)
+        toast.error('Filas incompletas: ' + msg)
         return
       }
       const importados = rowsToClientes(rows)
       if (importados.length === 0) {
-        alert('No hay filas de datos para importar. Revisa que haya datos debajo de la cabecera en el Excel.')
+        toast.warning('No hay filas de datos para importar. Revisa el archivo Excel.')
         return
       }
       let importadosOk = 0
@@ -135,10 +132,10 @@ export default function VistaClientes() {
         duplicados > 0
           ? `Se importaron ${importadosOk} de ${importados.length} clientes. ${duplicados} ya existían (cédula/NIT duplicada).`
           : `Se importaron ${importadosOk} de ${importados.length} clientes.`
-      alert(msg)
+      toast.success(msg)
     } catch (err) {
       console.error('Error al importar Excel:', err)
-      alert('No se pudo leer el archivo. Comprueba que sea un Excel (.xlsx) válido.')
+      toast.error('No se pudo leer el archivo. Comprueba que sea un Excel (.xlsx) válido.')
     }
   }
 

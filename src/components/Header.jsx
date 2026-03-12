@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Bell, Search, Sun, Moon, LayoutDashboard, Users, Package, Megaphone, Film, BarChart3, ShoppingCart, ShoppingBag, Settings, Wifi, Info, LogOut, ShieldCheck, Sparkles } from 'lucide-react'
+import { Bell, Search, Sun, Moon, LayoutDashboard, Users, Package, Megaphone, Film, BarChart3, ShoppingCart, ShoppingBag, Settings, LogOut, ShieldCheck, Sparkles } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext.jsx'
 import { useAuth } from '../context/AuthContext'
 
@@ -9,14 +9,12 @@ const SEARCH_ITEMS = [
   { label: 'Clientes', path: '/clientes', icon: Users },
   { label: 'Productos', path: '/productos', icon: Package },
   { label: 'Tienda', path: '/configurar-tienda', icon: ShoppingBag },
-  { label: 'Configura tus redes', path: '/configura-redes', icon: Wifi },
-  { label: 'Información del negocio', path: '/informacion-negocio', icon: Info },
   { label: 'Campañas', path: '/campanas', icon: Megaphone },
   { label: 'Audiovisual', path: '/audiovisual', icon: Film },
-  { label: 'Configuración', path: '/configuracion', icon: Settings },
-  { label: 'Administradores', path: '/administradores', icon: ShieldCheck },
   { label: 'Métricas Ads', path: '/metricas-ads', icon: BarChart3 },
   { label: 'Ventas', path: '/ventas', icon: ShoppingCart },
+  { label: 'Administradores', path: '/administradores', icon: ShieldCheck },
+  { label: 'Configuración', path: '/configuracion', icon: Settings },
 ]
 
 function ThemeToggle() {
@@ -72,6 +70,23 @@ export function Header() {
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [searchOpen])
+
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if (e.key === 'Escape' && searchOpen) {
+        setSearchOpen(false)
+        setSearchQuery('')
+        return
+      }
+      const tag = e.target.tagName
+      if (e.key === '/' && !searchOpen && tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT') {
+        e.preventDefault()
+        setSearchOpen(true)
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
   }, [searchOpen])
 
   const handleSearchSelect = (path) => {

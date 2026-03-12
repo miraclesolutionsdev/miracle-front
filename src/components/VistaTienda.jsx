@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { ExternalLink } from 'lucide-react'
+import { toast } from 'sonner'
 import SectionCard from './SectionCard'
 import { authApi } from '../utils/api'
 import { useTiendaEstilo, ESTILOS } from '../context/TiendaEstiloContext.jsx'
@@ -104,47 +105,41 @@ const ESTILOS_CONFIG = [
   },
 ]
 
+const FORM_EMPTY = { nombreEmpresa: '', logoUrl: '', descripcion: '', eslogan: '', categoria: '' }
+
 function VistaTienda() {
   const { setEstilo } = useTiendaEstilo()
-  const [form, setForm] = useState({
-    nombreEmpresa: '',
-    logoUrl: '',
-    descripcion: '',
-    eslogan: '',
-    categoria: '',
-  })
+  const [form, setForm] = useState(FORM_EMPTY)
+  const [savedForm, setSavedForm] = useState(FORM_EMPTY)
   const [guardando, setGuardando] = useState(false)
-  const [mensaje, setMensaje] = useState(null)
-  const [error, setError] = useState(null)
+
+  const cargarPerfil = useCallback(async () => {
+    try {
+      const data = await authApi.obtenerPerfil()
+      const tenant = data?.tenant || {}
+      const loaded = {
+        nombreEmpresa: tenant.nombre || '',
+        logoUrl: tenant.logoUrl || '',
+        descripcion: tenant.descripcion || '',
+        eslogan: tenant.eslogan || '',
+        categoria: tenant.categoria || '',
+      }
+      setForm(loaded)
+      setSavedForm(loaded)
+    } catch {
+      // si falla, dejamos el formulario vacío sin romper la vista
+    }
+  }, [])
 
   useEffect(() => {
     let cancelled = false
-    authApi
-      .obtenerPerfil()
-      .then((data) => {
-        if (cancelled) return
-        const tenant = data?.tenant || {}
-        setForm({
-          nombreEmpresa: tenant.nombre || '',
-          logoUrl: tenant.logoUrl || '',
-          descripcion: tenant.descripcion || '',
-          eslogan: tenant.eslogan || '',
-          categoria: tenant.categoria || '',
-        })
-      })
-      .catch(() => {
-        // si falla, dejamos el formulario vacío sin romper la vista
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [])
+    cargarPerfil().catch(() => { if (!cancelled) {} })
+    return () => { cancelled = true }
+  }, [cargarPerfil])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setGuardando(true)
-    setMensaje(null)
-    setError(null)
     try {
       const categoria = (form.categoria || '').trim()
       const productosPrincipales = categoria ? [categoria] : []
@@ -156,13 +151,16 @@ function VistaTienda() {
         categoria,
         productosPrincipales,
       })
-      setMensaje('Información de la tienda guardada correctamente.')
+      setSavedForm(form)
+      toast.success('Información de la tienda guardada correctamente.')
     } catch (err) {
-      setError(err.message || 'No se pudo guardar la información de la tienda.')
+      toast.error(err.message || 'No se pudo guardar la información de la tienda.')
     } finally {
       setGuardando(false)
     }
   }
+
+  const handleCancelar = () => setForm(savedForm)
 
   const handleSeleccionar = (id) => {
     setEstilo(id)
@@ -171,17 +169,7 @@ function VistaTienda() {
 
   return (
     <div className="flex flex-col gap-8">
-      <SectionCard title="Configuración de tu tienda">
-        {error && (
-          <p className="mb-3 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive">
-            {error}
-          </p>
-        )}
-        {mensaje && (
-          <p className="mb-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-600">
-            {mensaje}
-          </p>
-        )}
+      <SectionCard title="Configuración de tu tienda" description="Nombre, logo, descripción y categoría de tu negocio.">
         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
           <div>
             <label className="mb-1 block text-sm font-medium text-muted-foreground">
@@ -327,7 +315,8 @@ function VistaTienda() {
           <div className="flex justify-end gap-2 pt-2">
             <button
               type="button"
-              className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-card-foreground"
+              onClick={handleCancelar}
+              className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
             >
               Cancelar
             </button>
@@ -342,11 +331,10 @@ function VistaTienda() {
         </form>
       </SectionCard>
 
-      <SectionCard title="Elige el estilo de tu tienda">
-        <p className="mb-6 text-sm text-muted-foreground">
-          Elige el estilo de tu tienda. Al hacer clic se abrirá la tienda en una nueva pestaña con el
-          diseño seleccionado.
-        </p>
+      <SectionCard
+        title="Elige el estilo de tu tienda"
+        description="Al hacer clic se abrirá la tienda en una nueva pestaña con el diseño seleccionado."
+      >
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           {ESTILOS_CONFIG.map(({ id, titulo, descripcion, Preview }) => (
             <div

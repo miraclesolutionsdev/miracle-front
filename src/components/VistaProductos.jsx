@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { toast } from 'sonner'
 import ProductosList from './ProductosList'
 import ProductoForm from './ProductoForm'
 import { useProductos } from '../context/ProductosContext.jsx'
@@ -26,7 +27,7 @@ export default function VistaProductos() {
       await guardarProducto(payload)
       cerrarForm()
     } catch (err) {
-      alert(err.message || 'No se pudo guardar el producto')
+      toast.error(err.message || 'No se pudo guardar el producto')
     }
   }
 
@@ -44,11 +45,7 @@ export default function VistaProductos() {
       const rows = await readExcelFile(file)
       const validacionCabeceras = validarCabecerasProductos(rows)
       if (!validacionCabeceras.valido) {
-        alert(
-          'No se puede importar: faltan columnas obligatorias. Faltan: ' +
-            validacionCabeceras.faltantes.join(', ') +
-            '. Revisa que la primera fila tenga esas cabeceras (Nombre, Precio en COP, Tipo, Stock, Estado).'
-        )
+        toast.error('Faltan columnas: ' + validacionCabeceras.faltantes.join(', ') + '. Revisa la primera fila del Excel.')
         return
       }
       const validacionFilas = validarFilasProductos(rows)
@@ -56,12 +53,12 @@ export default function VistaProductos() {
         const msg = validacionFilas.filasConError
           .map((e) => `Fila ${e.numeroFila}: faltan ${e.camposFaltantes.join(', ')}`)
           .join('\n')
-        alert('No se puede importar: hay filas con datos incompletos. Todos los campos obligatorios deben estar llenos.\n\n' + msg)
+        toast.error('Filas incompletas: ' + msg)
         return
       }
       const importados = rowsToProductos(rows)
       if (importados.length === 0) {
-        alert('No hay filas de datos para importar. Revisa que haya datos debajo de la cabecera en el Excel.')
+        toast.warning('No hay filas de datos para importar. Revisa el archivo Excel.')
         return
       }
       const { importadosOk, duplicados, total } = await importarProductos(importados)
@@ -69,10 +66,10 @@ export default function VistaProductos() {
         duplicados > 0
           ? `Se importaron ${importadosOk} de ${total} productos. ${duplicados} ya existían (nombre duplicado).`
           : `Se importaron ${importadosOk} de ${total} productos.`
-      alert(msg)
+      toast.success(msg)
     } catch (err) {
       console.error('Error al importar Excel:', err)
-      alert('No se pudo leer el archivo. Comprueba que sea un Excel (.xlsx) válido.')
+      toast.error('No se pudo leer el archivo. Comprueba que sea un Excel (.xlsx) válido.')
     }
   }
 

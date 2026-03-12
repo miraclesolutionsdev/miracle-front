@@ -136,9 +136,13 @@ export default function ResumenGeneral() {
           </div>
 
           <div className="relative">
-            <p className="text-2xl font-bold tracking-tight text-foreground tabular-nums">
-              {getValue(key)}
-            </p>
+            {getValue(key) === '—' ? (
+              <div className="h-8 w-10 animate-pulse rounded-md bg-muted" />
+            ) : (
+              <p className="text-2xl font-bold tracking-tight text-foreground tabular-nums">
+                {getValue(key)}
+              </p>
+            )}
             <p className="mt-0.5 text-[12px] font-medium text-foreground/80">{label}</p>
             <p className="text-[11px] text-muted-foreground/60">{desc}</p>
           </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { toast } from 'sonner'
 import { productosApi } from '../utils/api'
 
 const TIPOS = ['servicio', 'producto']
@@ -98,7 +99,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
       const productoActualizado = await productosApi.eliminarImagen(producto.id, i)
       onGuardar({ id: producto.id, data: productoActualizado })
     } catch (err) {
-      alert('Error al eliminar la imagen: ' + err.message)
+      toast.error('Error al eliminar la imagen: ' + err.message)
     } finally {
       setEliminandoImagen(null)
     }

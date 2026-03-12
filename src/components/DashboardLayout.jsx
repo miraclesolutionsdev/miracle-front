@@ -72,15 +72,17 @@ function DashboardLayout() {
       <main className="ml-56 pt-14 min-h-screen">
         <div className="flex flex-col gap-6 p-6">
           {/* Page header */}
-          <div className="flex items-start justify-between">
-            <div>
+          <div>
+            <div className="flex items-center gap-2.5">
+              <span className="h-5 w-0.5 rounded-full bg-gradient-to-b from-primary to-primary/30" />
               <h1 className="text-xl font-bold tracking-tight text-foreground">{seleccionado}</h1>
-              {PAGE_DESCRIPTIONS[seleccionado] && (
-                <p className="mt-0.5 text-[13px] text-muted-foreground">
-                  {PAGE_DESCRIPTIONS[seleccionado]}
-                </p>
-              )}
             </div>
+            {PAGE_DESCRIPTIONS[seleccionado] && (
+              <p className="mt-1 pl-3.5 text-[13px] text-muted-foreground">
+                {PAGE_DESCRIPTIONS[seleccionado]}
+              </p>
+            )}
+            <div className="mt-4 h-px bg-gradient-to-r from-border/80 via-border/30 to-transparent" />
           </div>
           {renderContenido()}
         </div>

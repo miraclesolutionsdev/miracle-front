@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { toast } from 'sonner'
 import SectionCard from './SectionCard'
 
 const VENTAS_INICIALES = [
@@ -37,12 +38,12 @@ export default function VistaVentas() {
   const handleRegistrarVenta = () => {
     // Aquí luego se implementará el formulario real de registro de venta
     // eslint-disable-next-line no-alert
-    alert('Aquí irá el formulario para registrar una nueva venta y asociarla a un cliente.')
+    toast.info('Aquí irá el formulario para registrar una nueva venta.')
   }
 
   const handleVerDetalle = (venta) => {
     // eslint-disable-next-line no-alert
-    alert(`Ver detalle de la venta ${venta.id} (${venta.productoPlan}) del cliente ${venta.cliente}.`)
+    toast.info(`Venta ${venta.id} — ${venta.productoPlan} · ${venta.cliente}`)
   }
 
   return (
