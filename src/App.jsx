@@ -5,6 +5,7 @@ import TiendaPage from './components/TiendaPage'
 import Login from './components/Login'
 import CrearTienda from './components/CrearTienda'
 import IACopyResumenPage from './components/IACopyResumenPage'
+import PagoResultado from './components/PagoResultado'
 import { useAuth } from './context/AuthContext'
 import './App.css'
 
@@ -22,6 +23,9 @@ function App() {
       <Route path="/crear-tienda" element={<CrearTienda />} />
       <Route path="/tienda" element={<TiendaPage />} />
       <Route path="/landing-producto/:id" element={<LandingProductoPage />} />
+      <Route path="/pago/exitoso" element={<PagoResultado tipo="exitoso" />} />
+      <Route path="/pago/fallido" element={<PagoResultado tipo="fallido" />} />
+      <Route path="/pago/pendiente" element={<PagoResultado tipo="pendiente" />} />
       <Route
         path="/ia-resumen"
         element={

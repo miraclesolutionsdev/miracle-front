@@ -164,6 +164,11 @@ export const usersApi = {
   eliminar: (id) => request(`users/${id}`, { method: 'DELETE' }),
 }
 
+export const pagosApi = {
+  crearPreferencia: (body) =>
+    request('pagos/crear-preferencia', { method: 'POST', body: JSON.stringify(body) }),
+}
+
 export const authApi = {
   login: (email, password) =>
     request('auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
