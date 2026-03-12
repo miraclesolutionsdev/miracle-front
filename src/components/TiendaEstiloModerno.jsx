@@ -403,109 +403,102 @@ export default function TiendaEstiloModerno() {
         .tm-header {
           max-width: 1280px;
           margin: 0 auto;
-          padding: 40px 48px 0;
+          padding: 28px 48px;
+          border-bottom: 1px solid #141414;
         }
         .tm-topbar {
           display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding-bottom: 40px;
-          border-bottom: 1px solid #141414;
+          align-items: flex-start;
+          gap: 22px;
         }
         .tm-logo {
-          width: 72px; height: 72px;
-          border-radius: 14px;
+          width: 90px; height: 90px;
+          border-radius: 16px;
           background: ${ACCENT}15;
           border: 1px solid ${ACCENT}30;
           display: flex; align-items: center; justify-content: center;
-          font-size: 24px; font-weight: 800;
+          font-size: 30px; font-weight: 800;
           color: ${ACCENT};
           font-family: 'Syne', sans-serif;
           overflow: hidden;
           flex-shrink: 0;
         }
-        .tm-brand { display: flex; align-items: center; gap: 16px; }
-        .tm-brand-name {
-          font-family: 'Syne', sans-serif;
-          font-size: 13px; font-weight: 700;
-          letter-spacing: 0.2em; text-transform: uppercase;
-          color: #444;
+        .tm-brand {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          min-width: 0;
+          padding-top: 4px;
         }
+        .tm-brand-title {
+          font-family: 'Syne', sans-serif;
+          font-size: clamp(22px, 2.8vw, 34px);
+          font-weight: 800; line-height: 1.05;
+          letter-spacing: -0.03em;
+          color: #f0f0f0; margin: 0;
+        }
+        .tm-brand-title em { font-style: normal; color: ${ACCENT}; }
         .tm-slogan {
-          margin-top: 4px;
-          font-size: 11px; font-weight: 400;
-          letter-spacing: 0.04em;
+          font-size: 13px; font-weight: 400;
+          letter-spacing: 0.02em;
           color: ${ACCENT}70;
           font-style: italic;
           font-family: 'Inter', sans-serif;
+          margin: 0;
+        }
+        .tm-cat-badge {
+          display: inline-flex;
+          font-size: 9px; font-weight: 600;
+          letter-spacing: 0.14em; text-transform: uppercase;
+          color: ${ACCENT}80; border: 1px solid ${ACCENT}25;
+          border-radius: 5px; padding: 3px 9px;
+          width: fit-content;
+        }
+        .tm-desc {
+          font-size: 13px; font-weight: 300;
+          color: #383838; line-height: 1.75;
+          max-width: 540px; margin: 4px 0 0;
+        }
+        .tm-topbar-right {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          gap: 14px;
+          flex-shrink: 0;
+          padding-top: 4px;
         }
         .tm-tag {
-          font-size: 10px; font-weight: 600;
+          font-size: 9px; font-weight: 600;
           letter-spacing: 0.2em; text-transform: uppercase;
           color: #222;
           border: 1px solid #1a1a1a;
           border-radius: 6px;
           padding: 5px 12px;
         }
-        .tm-hero {
-          padding: 64px 0 0;
-        }
-        .tm-eyebrow {
-          display: inline-flex; align-items: center; gap: 10px;
-          font-size: 10px; font-weight: 700;
-          letter-spacing: 0.22em; text-transform: uppercase;
-          color: ${ACCENT};
-          margin-bottom: 20px;
-        }
-        .tm-eyebrow::before {
-          content: ''; width: 24px; height: 1.5px;
-          background: ${ACCENT}; border-radius: 1px;
-        }
-        .tm-title {
-          font-family: 'Syne', sans-serif;
-          font-size: clamp(56px, 9vw, 120px);
-          font-weight: 800; line-height: 0.88;
-          letter-spacing: -0.04em;
-          color: #fff; margin: 0;
-        }
-        .tm-title em { font-style: normal; color: ${ACCENT}; }
-        .tm-hero-bottom {
-          display: grid;
-          grid-template-columns: 1fr auto;
-          align-items: end;
-          gap: 32px;
-          margin-top: 32px;
-          padding-top: 28px;
-          border-top: 1px solid #141414;
-        }
-        .tm-desc {
-          font-size: 14px; font-weight: 300;
-          color: #444; line-height: 1.8;
-          max-width: 440px;
-        }
         .tm-stats {
           display: flex; gap: 0; flex-shrink: 0;
         }
         .tm-stat {
-          padding: 0 28px;
-          border-left: 1px solid #141414;
+          padding: 0 20px;
+          border-left: 1px solid #1a1a1a;
           display: flex; flex-direction: column;
           align-items: flex-end; gap: 2px;
         }
         .tm-stat:first-child { border-left: none; padding-left: 0; }
         .tm-stat-val {
           font-family: 'Syne', sans-serif;
-          font-size: 32px; font-weight: 800;
+          font-size: 26px; font-weight: 800;
           color: ${ACCENT}; line-height: 1;
-          letter-spacing: -0.04em;
+          letter-spacing: -0.03em;
         }
         .tm-stat-lbl {
-          font-size: 9px; font-weight: 600;
-          letter-spacing: 0.16em; text-transform: uppercase;
+          font-size: 8px; font-weight: 600;
+          letter-spacing: 0.14em; text-transform: uppercase;
           color: #222; text-align: right;
         }
         .tm-catalog-header {
-          max-width: 1280px; margin: 56px auto 0;
+          max-width: 1280px; margin: 32px auto 0;
           padding: 0 48px;
           display: flex; align-items: center; gap: 20px;
         }
@@ -562,35 +555,37 @@ export default function TiendaEstiloModerno() {
         }
         @media (max-width: 768px) {
           .tm-header, .tm-catalog-header, .tm-catalog { padding-left: 20px; padding-right: 20px; }
-          .tm-header { padding-top: 28px; }
-          .tm-topbar { flex-direction: column; align-items: flex-start; gap: 16px; padding-bottom: 28px; }
-          .tm-logo { width: 60px; height: 60px; font-size: 20px; border-radius: 12px; }
-          .tm-brand { gap: 12px; }
+          .tm-header { padding-top: 22px; padding-bottom: 22px; }
+          .tm-logo { width: 72px; height: 72px; font-size: 24px; border-radius: 12px; }
+          .tm-brand-title { font-size: 26px; }
           .tm-tag { display: none; }
-          .tm-hero { padding-top: 40px; }
-          .tm-title { font-size: 52px; }
-          .tm-hero-bottom { grid-template-columns: 1fr; gap: 20px; margin-top: 24px; padding-top: 20px; }
-          .tm-stats { justify-content: flex-start; gap: 0; }
-          .tm-stat { align-items: flex-start; padding: 0 20px; }
-          .tm-stat:first-child { padding-left: 0; }
-          .tm-stat-val { font-size: 26px; }
-          .tm-stat-lbl { text-align: left; }
-          .tm-catalog-header { margin-top: 36px; gap: 14px; }
-          .tm-catalog { margin-top: 18px; padding-bottom: 72px; }
+          .tm-topbar-right { gap: 10px; }
+          .tm-stats { gap: 0; }
+          .tm-stat { padding: 0 16px; }
+          .tm-stat-val { font-size: 22px; }
+          .tm-stat-lbl { text-align: right; }
+          .tm-catalog-header { margin-top: 24px; gap: 14px; }
+          .tm-catalog { margin-top: 16px; padding-bottom: 72px; }
           .tm-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+        }
+        @media (max-width: 600px) {
+          .tm-topbar { flex-wrap: wrap; gap: 16px; }
+          .tm-topbar-right { flex-direction: row; align-items: center; width: 100%; justify-content: space-between; }
+          .tm-stats { gap: 0; }
+          .tm-stat { padding: 0 14px; align-items: flex-start; }
+          .tm-stat-lbl { text-align: left; }
+          .tm-brand-title { font-size: 22px; }
         }
         @media (max-width: 480px) {
           .tm-header, .tm-catalog-header, .tm-catalog { padding-left: 16px; padding-right: 16px; }
-          .tm-header { padding-top: 20px; }
-          .tm-logo { width: 52px; height: 52px; font-size: 18px; border-radius: 10px; }
-          .tm-brand-name { font-size: 11px; letter-spacing: 0.16em; }
-          .tm-slogan { font-size: 10px; }
-          .tm-hero { padding-top: 28px; }
-          .tm-title { font-size: 38px; letter-spacing: -0.03em; line-height: 0.9; }
-          .tm-eyebrow { margin-bottom: 14px; }
-          .tm-desc { font-size: 13px; line-height: 1.7; }
-          .tm-stat-val { font-size: 24px; }
-          .tm-stat { padding: 0 16px; }
+          .tm-header { padding-top: 18px; padding-bottom: 18px; }
+          .tm-logo { width: 60px; height: 60px; font-size: 20px; border-radius: 10px; }
+          .tm-topbar { gap: 14px; }
+          .tm-brand-title { font-size: 20px; }
+          .tm-slogan { font-size: 11px; }
+          .tm-desc { font-size: 12px; }
+          .tm-stat-val { font-size: 20px; }
+          .tm-stat { padding: 0 10px; }
           .tm-catalog-header { gap: 10px; flex-wrap: wrap; }
           .tm-catalog-label { font-size: 9px; }
           .tm-filters { gap: 5px; }
@@ -601,9 +596,8 @@ export default function TiendaEstiloModerno() {
           .tm-card-btn { padding: 9px !important; font-size: 10px !important; margin-top: 6px !important; }
         }
         @media (max-width: 360px) {
-          .tm-title { font-size: 32px; }
           .tm-grid { grid-template-columns: 1fr; gap: 12px; }
-          .tm-stat { padding: 0 12px; }
+          .tm-stat { padding: 0 8px; }
           .tm-card-body { padding: 12px !important; }
         }
       `}</style>
@@ -614,35 +608,22 @@ export default function TiendaEstiloModerno() {
         <div className="tm-content">
           <div className="tm-header">
             <div className="tm-topbar">
-              <div className="tm-brand">
-                <div className="tm-logo">
-                  {tenant?.logoUrl
-                    ? <img src={tenant.logoUrl} alt={tenantName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    : initials}
-                </div>
-                <div>
-                  <div className="tm-brand-name">{tenantName}</div>
-                  {tenant?.eslogan && <div className="tm-slogan">{tenant.eslogan}</div>}
-                </div>
-                {categoria && (
-                  <span style={{ fontSize: '10px', fontWeight: '600', letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT + '80', border: `1px solid ${ACCENT}20`, borderRadius: '6px', padding: '4px 10px' }}>
-                    {categoria}
-                  </span>
-                )}
+              <div className="tm-logo">
+                {tenant?.logoUrl
+                  ? <img src={tenant.logoUrl} alt={tenantName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  : initials}
               </div>
-              <span className="tm-tag">Tienda oficial</span>
-            </div>
-
-            <div className="tm-hero">
-              <div className="tm-eyebrow">Catálogo</div>
-              <h1 className="tm-title">
-                {firstWords && <span>{firstWords} </span>}
-                <em>{lastWord}</em>
-              </h1>
-              <div className="tm-hero-bottom">
-                <div className="tm-desc">
-                  {tenant?.descripcion || 'Explora nuestra colección y encuentra lo que necesitas.'}
-                </div>
+              <div className="tm-brand">
+                <h1 className="tm-brand-title">
+                  {firstWords && <span>{firstWords} </span>}
+                  <em>{lastWord}</em>
+                </h1>
+                {tenant?.eslogan && <p className="tm-slogan">{tenant.eslogan}</p>}
+                {categoria && <span className="tm-cat-badge">{categoria}</span>}
+                {tenant?.descripcion && <p className="tm-desc">{tenant.descripcion}</p>}
+              </div>
+              <div className="tm-topbar-right">
+                <span className="tm-tag">Tienda oficial</span>
                 <div className="tm-stats">
                   <div className="tm-stat">
                     <span className="tm-stat-val">{productosActivos.length}</span>

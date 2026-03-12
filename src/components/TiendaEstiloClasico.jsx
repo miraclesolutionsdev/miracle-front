@@ -404,106 +404,96 @@ export default function TiendaEstiloClasico() {
         .tc-header {
           max-width: 1200px;
           margin: 0 auto;
-          padding: 48px 56px 0;
+          padding: 28px 56px;
+          border-bottom: 1px solid #161814;
         }
         .tc-topbar {
           display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding-bottom: 48px;
-          border-bottom: 1px solid #161814;
+          align-items: flex-start;
+          gap: 24px;
         }
-        .tc-logo-area { display: flex; align-items: center; gap: 16px; }
         .tc-logo {
-          width: 80px; height: 80px;
+          width: 92px; height: 92px;
           border-radius: 4px;
           background: #151910;
           border: 1px solid #2a3525;
           display: flex; align-items: center; justify-content: center;
           font-family: 'Playfair Display', serif;
-          font-size: 26px; font-weight: 700;
+          font-size: 28px; font-weight: 700;
           color: ${ACCENT};
           overflow: hidden; flex-shrink: 0;
         }
-        .tc-brand-name {
-          font-size: 11px; font-weight: 700;
-          letter-spacing: 0.25em; text-transform: uppercase;
-          color: ${ACCENT};
+        .tc-brand {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          min-width: 0;
+          padding-top: 4px;
         }
-        .tc-brand-slogan {
-          margin-top: 5px;
+        .tc-brand-title {
           font-family: 'Playfair Display', serif;
-          font-size: 12px; font-weight: 400; font-style: italic;
+          font-size: clamp(22px, 2.8vw, 34px);
+          font-weight: 700; line-height: 1.05;
+          letter-spacing: -0.015em;
+          color: #e8e4dc; margin: 0;
+        }
+        .tc-brand-title .accent { color: ${ACCENT}; font-style: italic; }
+        .tc-brand-slogan {
+          font-family: 'Playfair Display', serif;
+          font-size: 13px; font-weight: 400; font-style: italic;
           color: ${ACCENT}80;
-          letter-spacing: 0.03em;
+          letter-spacing: 0.02em;
+          margin: 0;
         }
         .tc-brand-cat {
-          margin-top: 6px;
           font-size: 9px; font-weight: 600;
           letter-spacing: 0.16em; text-transform: uppercase;
           color: ${ACCENT}70;
           border: 1px solid #2a3525;
           padding: 3px 10px;
           display: inline-block;
+          width: fit-content;
+        }
+        .tc-desc {
+          font-size: 13px; font-weight: 300;
+          color: #3a3a2a; line-height: 1.8;
+          letter-spacing: 0.01em; max-width: 540px;
+          margin: 4px 0 0;
+        }
+        .tc-topbar-right {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          gap: 14px;
+          flex-shrink: 0;
+          padding-top: 4px;
         }
         .tc-tag {
-          font-size: 10px; font-weight: 600;
+          font-size: 9px; font-weight: 600;
           letter-spacing: 0.2em; text-transform: uppercase;
           color: #2a2e24;
         }
-        .tc-hero { padding: 60px 0 0; }
-        .tc-eyebrow {
-          display: flex; align-items: center; gap: 12px;
-          margin-bottom: 20px;
-        }
-        .tc-eyebrow-line { width: 32px; height: 1px; background: ${ACCENT}; }
-        .tc-eyebrow-text {
-          font-size: 9px; font-weight: 700;
-          letter-spacing: 0.25em; text-transform: uppercase;
-          color: ${ACCENT};
-        }
-        .tc-title {
-          font-family: 'Playfair Display', serif;
-          font-size: clamp(52px, 8vw, 112px);
-          font-weight: 700; line-height: 0.92;
-          letter-spacing: -0.02em;
-          color: #e8e4dc; margin: 0;
-        }
-        .tc-title .accent { color: ${ACCENT}; font-style: italic; }
-        .tc-hero-bottom {
-          display: grid;
-          grid-template-columns: 1fr 360px;
-          align-items: end;
-          gap: 48px;
-          margin-top: 36px;
-          padding-top: 28px;
-          border-top: 1px solid #161814;
-        }
-        .tc-desc {
-          font-size: 14px; font-weight: 300;
-          color: #4a4a3a; line-height: 1.85;
-          letter-spacing: 0.01em; max-width: 440px;
-        }
-        .tc-stats { display: flex; justify-content: flex-end; gap: 0; }
+        .tc-stats { display: flex; gap: 0; }
         .tc-stat {
-          padding: 0 28px;
+          padding: 0 20px;
           border-left: 1px solid #161814;
           display: flex; flex-direction: column;
-          align-items: center; gap: 4px;
+          align-items: flex-end; gap: 3px;
         }
         .tc-stat:first-child { border-left: none; padding-left: 0; }
         .tc-stat-val {
           font-family: 'Playfair Display', serif;
-          font-size: 30px; font-weight: 700;
+          font-size: 26px; font-weight: 700;
           color: #e8e4dc; line-height: 1;
         }
         .tc-stat-lbl {
           font-size: 8px; font-weight: 700;
-          letter-spacing: 0.2em; text-transform: uppercase;
-          color: #252820;
+          letter-spacing: 0.18em; text-transform: uppercase;
+          color: #252820; text-align: right;
         }
         .tc-catalog-header {
-          max-width: 1200px; margin: 60px auto 0;
+          max-width: 1200px; margin: 32px auto 0;
           padding: 0 56px;
           display: flex; align-items: center; gap: 20px;
         }
@@ -558,35 +548,37 @@ export default function TiendaEstiloClasico() {
         }
         @media (max-width: 768px) {
           .tc-header, .tc-catalog-header, .tc-catalog { padding-left: 20px; padding-right: 20px; }
-          .tc-header { padding-top: 32px; }
-          .tc-topbar { flex-direction: column; align-items: flex-start; gap: 16px; padding-bottom: 32px; }
-          .tc-logo { width: 68px; height: 68px; font-size: 22px; }
-          .tc-logo-area { gap: 14px; }
+          .tc-header { padding-top: 22px; padding-bottom: 22px; }
+          .tc-logo { width: 74px; height: 74px; font-size: 22px; }
           .tc-tag { display: none; }
-          .tc-hero { padding-top: 40px; }
-          .tc-title { font-size: 50px; letter-spacing: -0.015em; }
-          .tc-hero-bottom { margin-top: 28px; padding-top: 24px; gap: 20px; }
-          .tc-stat { padding: 0 20px; }
-          .tc-stat-val { font-size: 26px; }
-          .tc-catalog-header { margin-top: 40px; gap: 14px; }
-          .tc-catalog { margin-top: 18px; padding-bottom: 64px; }
+          .tc-topbar-right { gap: 10px; }
+          .tc-stat { padding: 0 16px; }
+          .tc-stat-val { font-size: 22px; }
+          .tc-stat-lbl { text-align: right; }
+          .tc-brand-title { font-size: 26px; }
+          .tc-catalog-header { margin-top: 24px; gap: 14px; }
+          .tc-catalog { margin-top: 16px; padding-bottom: 64px; }
           .tc-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        }
+        @media (max-width: 600px) {
+          .tc-topbar { flex-wrap: wrap; gap: 16px; }
+          .tc-topbar-right { flex-direction: row; align-items: center; width: 100%; justify-content: space-between; }
+          .tc-stat { padding: 0 14px; align-items: flex-start; }
+          .tc-stat-lbl { text-align: left; }
+          .tc-brand-title { font-size: 22px; }
         }
         @media (max-width: 480px) {
           .tc-header, .tc-catalog-header, .tc-catalog { padding-left: 16px; padding-right: 16px; }
-          .tc-header { padding-top: 22px; }
-          .tc-logo { width: 58px; height: 58px; font-size: 18px; }
-          .tc-logo-area { gap: 12px; }
-          .tc-brand-name { font-size: 10px; letter-spacing: 0.2em; }
-          .tc-brand-slogan { font-size: 11px; margin-top: 4px; }
-          .tc-brand-cat { padding: 2px 8px; font-size: 8px; }
-          .tc-hero { padding-top: 30px; }
-          .tc-eyebrow { margin-bottom: 14px; }
-          .tc-title { font-size: 36px; line-height: 0.9; }
-          .tc-desc { font-size: 13px; line-height: 1.8; }
-          .tc-stat-val { font-size: 24px; }
+          .tc-header { padding-top: 18px; padding-bottom: 18px; }
+          .tc-logo { width: 60px; height: 60px; font-size: 18px; }
+          .tc-topbar { gap: 12px; }
+          .tc-brand-title { font-size: 20px; }
+          .tc-brand-slogan { font-size: 11px; }
+          .tc-brand-cat { font-size: 8px; padding: 2px 8px; }
+          .tc-desc { font-size: 12px; }
+          .tc-stat-val { font-size: 20px; }
           .tc-stat-lbl { font-size: 7px; }
-          .tc-stat { padding: 0 14px; }
+          .tc-stat { padding: 0 10px; }
           .tc-catalog-header { gap: 10px; }
           .tc-catalog-label { font-size: 10px; }
           .tc-filters { gap: 5px; }
@@ -597,9 +589,8 @@ export default function TiendaEstiloClasico() {
           .tc-card-btn { padding: 6px 12px !important; font-size: 8px !important; }
         }
         @media (max-width: 360px) {
-          .tc-title { font-size: 30px; }
           .tc-grid { grid-template-columns: 1fr; gap: 12px; }
-          .tc-stat { padding: 0 10px; }
+          .tc-stat { padding: 0 8px; }
           .tc-card-body { padding: 12px !important; }
         }
       `}</style>
@@ -607,34 +598,22 @@ export default function TiendaEstiloClasico() {
       <div className="tc-root">
         <div className="tc-header">
           <div className="tc-topbar">
-            <div className="tc-logo-area">
-              <div className="tc-logo">
-                {logoUrl
-                  ? <img src={logoUrl} alt={nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  : initials}
-              </div>
-              <div>
-                <div className="tc-brand-name">{nombre}</div>
-                {slogan && <div className="tc-brand-slogan">{slogan}</div>}
-                {categoria && <div className="tc-brand-cat">{categoria}</div>}
-              </div>
+            <div className="tc-logo">
+              {logoUrl
+                ? <img src={logoUrl} alt={nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                : initials}
             </div>
-            <span className="tc-tag">Tienda oficial</span>
-          </div>
-
-          <div className="tc-hero">
-            <div className="tc-eyebrow">
-              <div className="tc-eyebrow-line" />
-              <span className="tc-eyebrow-text">Colección</span>
+            <div className="tc-brand">
+              <h1 className="tc-brand-title">
+                {firstWords && <span>{firstWords} </span>}
+                <span className="accent">{lastWord}</span>
+              </h1>
+              {slogan && <p className="tc-brand-slogan">{slogan}</p>}
+              {categoria && <span className="tc-brand-cat">{categoria}</span>}
+              {descripcion && <p className="tc-desc">{descripcion}</p>}
             </div>
-            <h1 className="tc-title">
-              {firstWords && <>{firstWords}<br /></>}
-              <span className="accent">{lastWord}</span>
-            </h1>
-            <div className="tc-hero-bottom">
-              <p className="tc-desc">
-                {descripcion || 'Bienvenido a nuestra tienda. Explora nuestra colección cuidadosamente seleccionada.'}
-              </p>
+            <div className="tc-topbar-right">
+              <span className="tc-tag">Tienda oficial</span>
               <div className="tc-stats">
                 <div className="tc-stat">
                   <span className="tc-stat-val">{productosActivos.length}</span>
