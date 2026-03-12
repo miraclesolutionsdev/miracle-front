@@ -6,8 +6,6 @@ import VistaDashboard from './VistaDashboard'
 import VistaClientes from './VistaClientes'
 import VistaProductos from './VistaProductos'
 import VistaTienda from './VistaTienda'
-import VistaConfiguraRedes from './VistaConfiguraRedes'
-import VistaInformacionNegocio from './VistaInformacionNegocio'
 import VistaCampañas from './VistaCampañas'
 import VistaAudiovisual from './VistaAudiovisual'
 import MetricsAds from './MetricsAds'
@@ -21,8 +19,6 @@ const PATH_TO_LABEL = {
   '/clientes': 'Clientes',
   '/productos': 'Productos',
   '/configurar-tienda': 'Tienda',
-  '/configura-redes': 'Configura tus redes',
-  '/informacion-negocio': 'Información del negocio',
   '/campanas': 'Campañas',
   '/audiovisual': 'Audiovisual',
   '/metricas-ads': 'Métricas Ads',
@@ -36,8 +32,6 @@ const PAGE_DESCRIPTIONS = {
   'Clientes': 'Gestiona tu base de clientes',
   'Productos': 'Administra tu catálogo de productos',
   'Tienda': 'Personaliza tu tienda online',
-  'Configura tus redes': 'Conecta tus canales publicitarios',
-  'Información del negocio': 'Datos de tu negocio',
   'Campañas': 'Crea y gestiona campañas publicitarias',
   'Audiovisual': 'Biblioteca de piezas audiovisuales',
   'Métricas Ads': 'Análisis de rendimiento de anuncios',
@@ -58,8 +52,6 @@ function DashboardLayout() {
     if (seleccionado === 'Clientes') return <VistaClientes />
     if (seleccionado === 'Productos') return <VistaProductos />
     if (seleccionado === 'Tienda') return <VistaTienda />
-    if (seleccionado === 'Configura tus redes') return <VistaConfiguraRedes />
-    if (seleccionado === 'Información del negocio') return <VistaInformacionNegocio />
     if (seleccionado === 'Audiovisual') return <VistaAudiovisual />
     if (seleccionado === 'Métricas Ads') return <MetricsAds />
     if (seleccionado === 'Ventas') return <VistaVentas />

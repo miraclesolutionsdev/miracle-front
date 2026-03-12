@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-export default function ImageLightbox({ imagenes, indiceActual, onClose, getNombreProducto }) {
+export default function ImageLightbox({ imagenes, indiceActual, onClose, onIndexChange, getNombreProducto }) {
   // Si no hay imágenes o índice inválido, no renderizar
   if (!Array.isArray(imagenes) || imagenes.length === 0 || indiceActual < 0 || indiceActual >= imagenes.length) {
     return null
@@ -10,25 +10,19 @@ export default function ImageLightbox({ imagenes, indiceActual, onClose, getNomb
   const tieneMultiples = imagenes.length > 1
 
   const irAnterior = () => {
-    if (indiceActual > 0) {
-      // Si el padre está manejando el estado, solo cerramos
-      // El padre debe pasar onImageSelect para controlar
-      onClose()
-    }
+    if (indiceActual > 0 && onIndexChange) onIndexChange(indiceActual - 1)
   }
 
   const irSiguiente = () => {
-    if (indiceActual < imagenes.length - 1) {
-      onClose()
-    }
+    if (indiceActual < imagenes.length - 1 && onIndexChange) onIndexChange(indiceActual + 1)
   }
 
-  // Cerrar con ESC
+  // Cerrar con ESC, navegar con flechas
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') onClose()
-      if (e.key === 'ArrowLeft' && indiceActual > 0) irAnterior()
-      if (e.key === 'ArrowRight' && indiceActual < imagenes.length - 1) irSiguiente()
+      if (e.key === 'ArrowLeft') irAnterior()
+      if (e.key === 'ArrowRight') irSiguiente()
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)

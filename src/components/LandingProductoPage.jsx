@@ -4,6 +4,7 @@ import { useProductos } from '../context/ProductosContext.jsx'
 import { useTiendaEstilo, ESTILOS } from '../context/TiendaEstiloContext.jsx'
 import { getProductoImagenSrc, productosApi, pagosApi } from '../utils/api'
 import { ArrowLeft, Check, Package, ChevronRight, ShieldCheck, Zap, Star, ChevronLeft, CreditCard } from 'lucide-react'
+import ImageLightbox from './ImageLightbox.jsx'
 
 const formatPrecio = (valor) =>
   `$${(Number(valor) || 0).toLocaleString('es-CO')}`
@@ -22,6 +23,7 @@ const GALLERY_INTERVAL_MS = 4000
 function ImageGallery({ producto, isClasico }) {
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [isHovered, setIsHovered] = useState(false)
+  const [lightboxIndex, setLightboxIndex] = useState(null)
 
   const images = (producto.imagenes || [])
     .map((_, i) => getProductoImagenSrc(producto, i))
@@ -47,12 +49,24 @@ function ImageGallery({ producto, isClasico }) {
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <>
+      {lightboxIndex !== null && (
+        <ImageLightbox
+          imagenes={images}
+          indiceActual={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+          onIndexChange={(i) => { setLightboxIndex(i); setSelectedIndex(i) }}
+          getNombreProducto={() => producto.nombre}
+        />
+      )}
+
+      <div className="flex flex-col gap-3">
       {/* Imagen principal */}
       <div
         className="group relative aspect-[4/5] overflow-hidden rounded-3xl bg-black/20 ring-1 ring-white/[0.08] cursor-zoom-in"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
+        onClick={() => setLightboxIndex(selectedIndex)}
       >
         {/* Gradient overlay sutil en la parte inferior */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-24 bg-gradient-to-t from-black/40 to-transparent" />
@@ -84,7 +98,7 @@ function ImageGallery({ producto, isClasico }) {
           <>
             <button
               type="button"
-              onClick={() => setSelectedIndex((prev) => (prev - 1 + images.length) % images.length)}
+              onClick={(e) => { e.stopPropagation(); setSelectedIndex((prev) => (prev - 1 + images.length) % images.length) }}
               className="absolute left-3 top-1/2 z-20 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition-all hover:bg-black/70 hover:scale-110"
               aria-label="Imagen anterior"
             >
@@ -92,7 +106,7 @@ function ImageGallery({ producto, isClasico }) {
             </button>
             <button
               type="button"
-              onClick={() => setSelectedIndex((prev) => (prev + 1) % images.length)}
+              onClick={(e) => { e.stopPropagation(); setSelectedIndex((prev) => (prev + 1) % images.length) }}
               className="absolute right-3 top-1/2 z-20 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition-all hover:bg-black/70 hover:scale-110"
               aria-label="Imagen siguiente"
             >
@@ -108,7 +122,7 @@ function ImageGallery({ producto, isClasico }) {
               <button
                 key={i}
                 type="button"
-                onClick={() => setSelectedIndex(i)}
+                onClick={(e) => { e.stopPropagation(); setSelectedIndex(i) }}
                 className="h-1.5 rounded-full transition-all duration-300"
                 style={{
                   width: i === selectedIndex ? '20px' : '6px',
@@ -154,6 +168,7 @@ function ImageGallery({ producto, isClasico }) {
         </div>
       )}
     </div>
+    </>
   )
 }
 
