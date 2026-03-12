@@ -2,457 +2,277 @@ import { useEffect, useMemo, useState } from 'react'
 import { useProductos } from '../context/ProductosContext.jsx'
 import { getProductoImagenSrc, authApi } from '../utils/api'
 
+const ACCENT = '#8aad7a'
+const ACCENT_DARK = '#6a9a5a'
+
 const formatPrecio = (valor) =>
   `$${(Number(valor) || 0).toLocaleString('es-CO')}`
 
 function getInitials(name = '') {
   const s = String(name).trim()
   if (!s) return 'T'
-  return s.split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0, 2)
+  return s.split(/\s+/).map((w) => w[0]).join('').toUpperCase().slice(0, 2)
 }
 
-/* ─── ESTILOS GLOBALES ─────────────────────────────────────────────────────── */
-const STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lato:wght@300;400;600;700&display=swap');
-
-  .tc-root {
-    min-height: 100vh;
-    background: #0e0f0d;
-    color: #e8e4dc;
-    font-family: 'Lato', sans-serif;
-  }
-
-  .tc-hero {
-    max-width: 1140px;
-    margin: 0 auto;
-    padding: 72px 48px 0;
-  }
-
-  .tc-top-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 56px;
-  }
-
-  .tc-logo-area {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .tc-logo-img {
-    width: 72px;
-    height: 72px;
-    border-radius: 10px;
-    object-fit: cover;
-    border: 1px solid #3a4a35;
-  }
-
-  .tc-logo-initials {
-    width: 72px;
-    height: 72px;
-    border-radius: 10px;
-    background: #1e2a1a;
-    border: 1px solid #3a4a35;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Playfair Display', serif;
-    font-size: 18px;
-    font-weight: 700;
-    color: #8aad7a;
-    flex-shrink: 0;
-  }
-
-  .tc-brand-name {
-    font-family: 'Lato', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: #8aad7a;
-  }
-
-  .tc-brand-category {
-    margin-top: 4px;
-    display: inline-flex;
-    align-items: center;
-    border-radius: 999px;
-    border: 1px solid #3a4a35;
-    padding: 3px 10px;
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: #8aad7a;
-    background: #151910;
-  }
-
-  .tc-nav-tag {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: #4a5240;
-  }
-
-  .tc-headline {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(56px, 9vw, 108px);
-    font-weight: 700;
-    line-height: 0.92;
-    letter-spacing: -0.02em;
-    color: #e8e4dc;
-    margin: 0 0 0;
-  }
-
-  .tc-headline span.accent {
-    color: #8aad7a;
-    font-style: italic;
-  }
-
-  .tc-mid {
-    display: grid;
-    grid-template-columns: 1fr 380px;
-    align-items: end;
-    gap: 48px;
-    margin-top: 28px;
-    padding-top: 24px;
-    border-top: 1px solid #1e2018;
-  }
-
-  .tc-slogan {
-    font-size: 14px;
-    font-weight: 300;
-    color: #7a7a6a;
-    line-height: 1.8;
-    letter-spacing: 0.01em;
-    max-width: 480px;
-  }
-
-  .tc-stats-row {
-    display: flex;
-    gap: 0;
-    justify-content: flex-end;
-  }
-
-  .tc-stat {
-    padding: 0 28px;
-    border-left: 1px solid #1e2018;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-  }
-  .tc-stat:first-child { border-left: none; padding-left: 0; }
-
-  .tc-stat-val {
-    font-family: 'Playfair Display', serif;
-    font-size: 28px;
-    font-weight: 700;
-    color: #e8e4dc;
-    line-height: 1;
-  }
-
-  .tc-stat-lbl {
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: #3a3a2a;
-  }
-
-  .tc-sep {
-    max-width: 1140px;
-    margin: 52px auto 0;
-    padding: 0 48px;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
-
-  .tc-sep-lbl {
-    font-family: 'Playfair Display', serif;
-    font-size: 12px;
-    font-style: italic;
-    color: #3a3a2a;
-    white-space: nowrap;
-  }
-
-  .tc-sep-line {
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(90deg, #1e2018, #111);
-  }
-
-  .tc-sep-count {
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    color: #3a3a2a;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-
-  .tc-catalog {
-    max-width: 1140px;
-    margin: 0 auto;
-    padding: 32px 48px 96px;
-  }
-
-  .tc-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-  }
-
-  .tc-card {
-    display: flex;
-    flex-direction: column;
-    background: #111210;
-    border: 1px solid #1c1e18;
-    border-radius: 4px;
-    overflow: hidden;
-    transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-    cursor: pointer;
-  }
-
-  .tc-card:hover {
-    border-color: #3a4a35;
-    transform: translateY(-5px);
-    box-shadow: 0 20px 48px rgba(0,0,0,0.5), 0 0 0 1px #3a4a3540;
-  }
-
-  .tc-card-img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    display: block;
-    filter: grayscale(20%) brightness(0.9);
-    transition: filter 0.4s ease;
-  }
-
-  .tc-card:hover .tc-card-img {
-    filter: grayscale(0%) brightness(1);
-  }
-
-  .tc-card-img-placeholder {
-    height: 200px;
-    background: linear-gradient(145deg, #141612 0%, #1a2016 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .tc-card-img-placeholder::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(ellipse at center, #8aad7a08 0%, transparent 70%);
-  }
-
-  .tc-card-placeholder-initials {
-    font-family: 'Playfair Display', serif;
-    font-size: 28px;
-    font-weight: 700;
-    color: #8aad7a;
-    opacity: 0.6;
-    position: relative;
-    z-index: 1;
-  }
-
-  .tc-card-body {
-    padding: 22px 24px 26px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    flex: 1;
-  }
-
-  .tc-card-tipo {
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: #8aad7a;
-  }
-
-  .tc-card-name {
-    font-family: 'Playfair Display', serif;
-    font-size: 18px;
-    font-weight: 600;
-    color: #e8e4dc;
-    letter-spacing: -0.01em;
-    line-height: 1.2;
-    margin: 0;
-  }
-
-  .tc-card-price {
-    font-family: 'Lato', sans-serif;
-    font-size: 22px;
-    font-weight: 700;
-    color: #8aad7a;
-    letter-spacing: -0.02em;
-    line-height: 1;
-    margin: 4px 0 0;
-  }
-
-  .tc-card-desc {
-    font-size: 12.5px;
-    color: #4a4a3a;
-    line-height: 1.7;
-    flex: 1;
-    margin: 0;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .tc-card-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 10px;
-    padding-top: 14px;
-    border-top: 1px solid #1c1e18;
-  }
-
-  .tc-card-stock {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-  }
-
-  .tc-card-stock-dot {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .tc-card-btn {
-    font-family: 'Lato', sans-serif;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: #e8e4dc;
-    background: transparent;
-    border: 1px solid #2a2e24;
-    border-radius: 2px;
-    padding: 7px 16px;
-    cursor: pointer;
-    transition: all 0.25s ease;
-  }
-
-  .tc-card-btn:hover {
-    background: #8aad7a;
-    border-color: #8aad7a;
-    color: #0e0f0d;
-  }
-
-  .tc-empty {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 80px 24px;
-    color: #3a3a2a;
-    font-family: 'Playfair Display', serif;
-    font-style: italic;
-    font-size: 18px;
-  }
-
-  @media (max-width: 900px) {
-    .tc-grid { grid-template-columns: repeat(2, 1fr); }
-    .tc-hero, .tc-sep, .tc-catalog { padding-left: 24px; padding-right: 24px; }
-    .tc-mid { grid-template-columns: 1fr; gap: 24px; }
-    .tc-stats-row { justify-content: flex-start; }
-    .tc-headline { font-size: 60px; }
-  }
-
-  @media (max-width: 560px) {
-    .tc-grid { grid-template-columns: 1fr; }
-    .tc-headline { font-size: 44px; }
-    .tc-top-bar { flex-direction: column; align-items: flex-start; gap: 12px; }
-  }
-`
-
 function ProductCard({ p }) {
+  const [hov, setHov] = useState(false)
   const imgSrc = getProductoImagenSrc(p, 0)
   const isProducto = p.tipo === 'producto'
   const inStock = isProducto && p.stock != null && p.stock > 0
+  const sinStock = isProducto && p.stock != null && p.stock <= 0
+  const stockBajo = isProducto && p.stock != null && p.stock > 0 && p.stock <= 5
   const nombre = p.nombre || 'Sin nombre'
   const initials = getInitials(nombre)
 
+  const ir = () =>
+    window.open(
+      `${window.location.origin}/landing-producto/${p.id}?estilo=clasico`,
+      '_blank',
+      'noopener,noreferrer',
+    )
+
   return (
     <article
-      className="tc-card"
       role="button"
       tabIndex={0}
-      onClick={() =>
-        window.open(
-          `${window.location.origin}/landing-producto/${p.id}?estilo=clasico`,
-          '_blank',
-          'noopener,noreferrer',
-        )
-      }
-      onKeyDown={(e) =>
-        e.key === 'Enter' &&
-        window.open(
-          `${window.location.origin}/landing-producto/${p.id}?estilo=clasico`,
-          '_blank',
-          'noopener,noreferrer',
-        )
-      }
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      onClick={ir}
+      onKeyDown={(e) => e.key === 'Enter' && ir()}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        background: '#0f100e',
+        border: `1px solid ${hov ? '#3a4a35' : '#1a1e16'}`,
+        borderRadius: '2px',
+        overflow: 'hidden',
+        cursor: 'pointer',
+        transition: 'all 0.4s ease',
+        transform: hov ? 'translateY(-6px)' : 'translateY(0)',
+        boxShadow: hov
+          ? `0 24px 56px rgba(0,0,0,0.6), 0 0 0 1px #3a4a3530`
+          : '0 2px 12px rgba(0,0,0,0.4)',
+      }}
     >
-      {imgSrc ? (
-        <img src={imgSrc} alt={nombre} className="tc-card-img" />
-      ) : (
-        <div className="tc-card-img-placeholder">
-          <span className="tc-card-placeholder-initials">{initials}</span>
+      {/* Imagen en ratio portrait 3:4 */}
+      <div style={{ position: 'relative', paddingBottom: '133%', overflow: 'hidden', background: '#0a0b09' }}>
+        <div style={{ position: 'absolute', inset: 0 }}>
+          {imgSrc ? (
+            <img
+              src={imgSrc}
+              alt={nombre}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                transition: 'transform 0.6s ease, filter 0.4s ease',
+                transform: hov ? 'scale(1.06)' : 'scale(1)',
+                filter: hov ? 'brightness(0.85)' : 'brightness(0.75) grayscale(15%)',
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                width: '100%',
+                height: '100%',
+                background: 'linear-gradient(145deg, #111310 0%, #1a2016 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontFamily: "'Playfair Display', serif",
+                fontSize: '32px',
+                fontWeight: '700',
+                color: ACCENT + '50',
+              }}
+            >
+              {initials}
+            </div>
+          )}
+
+          {/* Overlay base */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: hov
+                ? 'linear-gradient(to top, rgba(10,11,9,0.85) 0%, rgba(10,11,9,0.2) 50%, transparent 100%)'
+                : 'linear-gradient(to top, rgba(10,11,9,0.7) 0%, transparent 60%)',
+              transition: 'all 0.4s ease',
+            }}
+          />
+
+          {/* Badge tipo arriba izq */}
+          <div
+            style={{
+              position: 'absolute',
+              top: 14,
+              left: 14,
+              fontSize: '8px',
+              fontWeight: '700',
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              color: ACCENT,
+              background: 'rgba(10,11,9,0.85)',
+              backdropFilter: 'blur(8px)',
+              border: `1px solid ${ACCENT}30`,
+              padding: '4px 9px',
+            }}
+          >
+            {p.tipo === 'servicio' ? 'Servicio' : 'Producto'}
+          </div>
+
+          {/* Badge stock bajo */}
+          {stockBajo && (
+            <div
+              style={{
+                position: 'absolute',
+                top: 14,
+                right: 14,
+                fontSize: '8px',
+                fontWeight: '700',
+                letterSpacing: '0.1em',
+                color: '#fff',
+                background: 'rgba(180,50,50,0.85)',
+                backdropFilter: 'blur(8px)',
+                padding: '4px 9px',
+              }}
+            >
+              Últimas {p.stock}
+            </div>
+          )}
+
+          {/* Precio flotante abajo en hover */}
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 14,
+              left: 16,
+              fontFamily: "'Playfair Display', serif",
+              fontSize: '20px',
+              fontWeight: '700',
+              color: ACCENT,
+              lineHeight: 1,
+              opacity: hov ? 1 : 0,
+              transform: hov ? 'translateY(0)' : 'translateY(8px)',
+              transition: 'all 0.3s ease',
+            }}
+          >
+            {p.precio != null ? formatPrecio(p.precio) : ''}
+          </div>
         </div>
-      )}
+      </div>
 
-      <div className="tc-card-body">
-        <span className="tc-card-tipo">
-          {p.tipo === 'servicio' ? 'Servicio' : 'Producto'}
-        </span>
-        <h2 className="tc-card-name">{nombre}</h2>
+      {/* Body */}
+      <div
+        style={{
+          padding: '20px 22px 22px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '6px',
+          flex: 1,
+          borderTop: `1px solid ${hov ? '#2a3526' : '#1a1e16'}`,
+          transition: 'border-color 0.3s ease',
+        }}
+      >
+        <h2
+          style={{
+            fontFamily: "'Playfair Display', serif",
+            fontSize: '17px',
+            fontWeight: '600',
+            color: '#e8e4dc',
+            letterSpacing: '-0.01em',
+            lineHeight: 1.25,
+            margin: 0,
+          }}
+        >
+          {nombre}
+        </h2>
+
         {p.precio != null && (
-          <p className="tc-card-price">{formatPrecio(p.precio)}</p>
+          <p
+            style={{
+              fontFamily: "'Lato', sans-serif",
+              fontSize: '16px',
+              fontWeight: '700',
+              color: ACCENT,
+              letterSpacing: '-0.01em',
+              lineHeight: 1,
+              margin: '2px 0 0',
+            }}
+          >
+            {formatPrecio(p.precio)}
+          </p>
         )}
-        <p className="tc-card-desc">{p.descripcion || 'Sin descripción.'}</p>
 
-        <div className="tc-card-footer">
-          {isProducto && (
+        <p
+          style={{
+            fontSize: '12px',
+            fontWeight: '300',
+            color: '#3a3a2a',
+            lineHeight: 1.75,
+            flex: 1,
+            margin: '4px 0 0',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+          }}
+        >
+          {p.descripcion || 'Sin descripción.'}
+        </p>
+
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginTop: '14px',
+            paddingTop: '14px',
+            borderTop: '1px solid #1a1e16',
+          }}
+        >
+          {isProducto ? (
             <span
-              className="tc-card-stock"
-              style={{ color: inStock ? '#6a8f5a' : '#8a4a3a' }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                fontSize: '10px',
+                fontWeight: '600',
+                letterSpacing: '0.06em',
+                color: sinStock ? '#8a4a3a' : '#6a8a5a',
+              }}
             >
               <span
-                className="tc-card-stock-dot"
-                style={{ background: inStock ? '#6a8f5a' : '#8a4a3a' }}
+                style={{
+                  width: 4,
+                  height: 4,
+                  borderRadius: '50%',
+                  background: sinStock ? '#8a4a3a' : '#6a8a5a',
+                  display: 'inline-block',
+                }}
               />
-              {inStock ? `${p.stock} disp.` : 'Sin stock'}
+              {sinStock ? 'Sin stock' : `${p.stock} disponibles`}
             </span>
+          ) : (
+            <span />
           )}
-          {!isProducto && <span />}
+
           <button
             type="button"
-            className="tc-card-btn"
-            onClick={(e) => {
-              e.stopPropagation()
-              window.open(
-                `${window.location.origin}/landing-producto/${p.id}?estilo=clasico`,
-                '_blank',
-                'noopener,noreferrer',
-              )
+            onClick={(e) => { e.stopPropagation(); ir() }}
+            style={{
+              fontFamily: "'Lato', sans-serif",
+              fontSize: '9px',
+              fontWeight: '700',
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              color: hov ? '#0a0b09' : '#e8e4dc',
+              background: hov ? ACCENT : 'transparent',
+              border: `1px solid ${hov ? ACCENT : '#2a2e24'}`,
+              padding: '7px 16px',
+              cursor: 'pointer',
+              transition: 'all 0.25s ease',
             }}
           >
             Ver detalle
@@ -466,16 +286,13 @@ function ProductCard({ p }) {
 export default function TiendaEstiloClasico() {
   const { productos } = useProductos()
   const [tenant, setTenant] = useState(null)
+  const [filtro, setFiltro] = useState('todos')
 
   useEffect(() => {
     let cancelled = false
-    authApi
-      .obtenerPerfil()
-      .then((data) => {
-        if (cancelled) return
-        if (data?.tenant) setTenant(data.tenant)
-      })
-      .catch(() => {})
+    authApi.obtenerPerfil().then((data) => {
+      if (!cancelled && data?.tenant) setTenant(data.tenant)
+    }).catch(() => {})
     return () => { cancelled = true }
   }, [])
 
@@ -483,6 +300,12 @@ export default function TiendaEstiloClasico() {
     () => productos.filter((p) => p.estado === 'activo'),
     [productos],
   )
+
+  const productosFiltrados = useMemo(() => {
+    if (filtro === 'productos') return productosActivos.filter((p) => p.tipo === 'producto')
+    if (filtro === 'servicios') return productosActivos.filter((p) => p.tipo === 'servicio')
+    return productosActivos
+  }, [productosActivos, filtro])
 
   const nombre = tenant?.nombre || 'Tienda'
   const words = nombre.split(' ').filter(Boolean)
@@ -493,77 +316,258 @@ export default function TiendaEstiloClasico() {
   const slogan = tenant?.eslogan || ''
   const descripcion = tenant?.descripcion || ''
   const categoria = tenant?.categoria || ''
-  const enStockCount = productosActivos.filter(
-    (p) => p.tipo === 'producto' && p.stock != null && p.stock > 0,
-  ).length
+  const enStockCount = productosActivos.filter((p) => p.tipo === 'producto' && p.stock > 0).length
+  const serviciosCount = productosActivos.filter((p) => p.tipo === 'servicio').length
 
   return (
     <>
-      <style>{STYLES}</style>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lato:wght@300;400;600;700&display=swap');
+
+        .tc-root {
+          min-height: 100vh;
+          background: #0a0b09;
+          color: #e8e4dc;
+          font-family: 'Lato', sans-serif;
+        }
+        .tc-header {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 48px 56px 0;
+        }
+        .tc-topbar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding-bottom: 48px;
+          border-bottom: 1px solid #161814;
+        }
+        .tc-logo-area { display: flex; align-items: center; gap: 16px; }
+        .tc-logo {
+          width: 64px; height: 64px;
+          border-radius: 4px;
+          background: #151910;
+          border: 1px solid #2a3525;
+          display: flex; align-items: center; justify-content: center;
+          font-family: 'Playfair Display', serif;
+          font-size: 20px; font-weight: 700;
+          color: ${ACCENT};
+          overflow: hidden; flex-shrink: 0;
+        }
+        .tc-brand-name {
+          font-size: 11px; font-weight: 700;
+          letter-spacing: 0.25em; text-transform: uppercase;
+          color: ${ACCENT};
+        }
+        .tc-brand-cat {
+          margin-top: 5px;
+          font-size: 9px; font-weight: 600;
+          letter-spacing: 0.16em; text-transform: uppercase;
+          color: ${ACCENT}70;
+          border: 1px solid #2a3525;
+          padding: 3px 10px;
+          display: inline-block;
+        }
+        .tc-tag {
+          font-size: 10px; font-weight: 600;
+          letter-spacing: 0.2em; text-transform: uppercase;
+          color: #2a2e24;
+        }
+        .tc-hero { padding: 60px 0 0; }
+        .tc-eyebrow {
+          display: flex; align-items: center; gap: 12px;
+          margin-bottom: 20px;
+        }
+        .tc-eyebrow-line { width: 32px; height: 1px; background: ${ACCENT}; }
+        .tc-eyebrow-text {
+          font-size: 9px; font-weight: 700;
+          letter-spacing: 0.25em; text-transform: uppercase;
+          color: ${ACCENT};
+        }
+        .tc-title {
+          font-family: 'Playfair Display', serif;
+          font-size: clamp(52px, 8vw, 112px);
+          font-weight: 700; line-height: 0.92;
+          letter-spacing: -0.02em;
+          color: #e8e4dc; margin: 0;
+        }
+        .tc-title .accent { color: ${ACCENT}; font-style: italic; }
+        .tc-hero-bottom {
+          display: grid;
+          grid-template-columns: 1fr 360px;
+          align-items: end;
+          gap: 48px;
+          margin-top: 36px;
+          padding-top: 28px;
+          border-top: 1px solid #161814;
+        }
+        .tc-desc {
+          font-size: 14px; font-weight: 300;
+          color: #4a4a3a; line-height: 1.85;
+          letter-spacing: 0.01em; max-width: 440px;
+        }
+        .tc-stats { display: flex; justify-content: flex-end; gap: 0; }
+        .tc-stat {
+          padding: 0 28px;
+          border-left: 1px solid #161814;
+          display: flex; flex-direction: column;
+          align-items: center; gap: 4px;
+        }
+        .tc-stat:first-child { border-left: none; padding-left: 0; }
+        .tc-stat-val {
+          font-family: 'Playfair Display', serif;
+          font-size: 30px; font-weight: 700;
+          color: #e8e4dc; line-height: 1;
+        }
+        .tc-stat-lbl {
+          font-size: 8px; font-weight: 700;
+          letter-spacing: 0.2em; text-transform: uppercase;
+          color: #252820;
+        }
+        .tc-catalog-header {
+          max-width: 1200px; margin: 60px auto 0;
+          padding: 0 56px;
+          display: flex; align-items: center; gap: 20px;
+        }
+        .tc-catalog-label {
+          font-family: 'Playfair Display', serif;
+          font-size: 12px; font-style: italic;
+          color: #2a2e24; white-space: nowrap;
+        }
+        .tc-catalog-line { flex: 1; height: 1px; background: #161814; }
+        .tc-filters { display: flex; gap: 6px; }
+        .tc-filter-btn {
+          font-size: 9px; font-weight: 700;
+          letter-spacing: 0.18em; text-transform: uppercase;
+          padding: 6px 14px;
+          border: 1px solid #1e2218;
+          cursor: pointer; transition: all 0.25s ease;
+          font-family: 'Lato', sans-serif;
+          background: transparent;
+        }
+        .tc-filter-btn.active {
+          background: ${ACCENT};
+          color: #0a0b09;
+          border-color: ${ACCENT};
+        }
+        .tc-filter-btn:not(.active) { color: #2a2e24; }
+        .tc-filter-btn:not(.active):hover { border-color: #2a3526; color: #4a5240; }
+        .tc-catalog {
+          max-width: 1200px; margin: 28px auto 0;
+          padding: 0 56px 96px;
+        }
+        .tc-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 24px;
+        }
+        .tc-empty {
+          grid-column: 1 / -1;
+          text-align: center;
+          padding: 80px 24px;
+          color: #1e2218;
+          font-family: 'Playfair Display', serif;
+          font-style: italic;
+          font-size: 18px;
+          border: 1px solid #161814;
+        }
+        @media (max-width: 1024px) {
+          .tc-grid { grid-template-columns: repeat(2, 1fr); }
+          .tc-header, .tc-catalog-header, .tc-catalog { padding-left: 24px; padding-right: 24px; }
+          .tc-hero-bottom { grid-template-columns: 1fr; }
+          .tc-stats { justify-content: flex-start; }
+          .tc-title { font-size: 60px; }
+        }
+        @media (max-width: 640px) {
+          .tc-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
+          .tc-title { font-size: 42px; }
+          .tc-topbar { flex-direction: column; align-items: flex-start; gap: 12px; }
+        }
+        @media (max-width: 400px) {
+          .tc-grid { grid-template-columns: 1fr; }
+        }
+      `}</style>
 
       <div className="tc-root">
-        <div className="tc-hero">
-          <div className="tc-top-bar">
+        <div className="tc-header">
+          <div className="tc-topbar">
             <div className="tc-logo-area">
-              {logoUrl ? (
-                <img src={logoUrl} alt={nombre} className="tc-logo-img" />
-              ) : (
-                <div className="tc-logo-initials">{initials}</div>
-              )}
-              <div className="flex flex-col">
-                <span className="tc-brand-name">{nombre}</span>
-                {categoria && <span className="tc-brand-category">{categoria}</span>}
+              <div className="tc-logo">
+                {logoUrl
+                  ? <img src={logoUrl} alt={nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  : initials}
+              </div>
+              <div>
+                <div className="tc-brand-name">{nombre}</div>
+                {categoria && <div className="tc-brand-cat">{categoria}</div>}
               </div>
             </div>
-            <span className="tc-nav-tag">Tienda oficial</span>
+            <span className="tc-tag">Tienda oficial</span>
           </div>
 
-          <h1 className="tc-headline">
-            {firstWords && <>{firstWords}<br /></>}
-            <span className="accent">{lastWord}</span>
-          </h1>
-
-          <div className="tc-mid">
-            <p className="tc-slogan">
-              {descripcion || slogan || 'Bienvenido a nuestra tienda.'}
-            </p>
-            <div className="tc-stats-row">
-              <div className="tc-stat">
-                <span className="tc-stat-val">{productosActivos.length}</span>
-                <span className="tc-stat-lbl">Productos</span>
-              </div>
-              <div className="tc-stat">
-                <span className="tc-stat-val">{enStockCount}</span>
-                <span className="tc-stat-lbl">En stock</span>
-              </div>
-              <div className="tc-stat">
-                <span className="tc-stat-val">
-                  {productosActivos.filter(p => p.tipo === 'servicio').length}
-                </span>
-                <span className="tc-stat-lbl">Servicios</span>
+          <div className="tc-hero">
+            <div className="tc-eyebrow">
+              <div className="tc-eyebrow-line" />
+              <span className="tc-eyebrow-text">Colección</span>
+            </div>
+            <h1 className="tc-title">
+              {firstWords && <>{firstWords}<br /></>}
+              <span className="accent">{lastWord}</span>
+            </h1>
+            <div className="tc-hero-bottom">
+              <p className="tc-desc">
+                {descripcion || slogan || 'Bienvenido a nuestra tienda. Explora nuestra colección cuidadosamente seleccionada.'}
+              </p>
+              <div className="tc-stats">
+                <div className="tc-stat">
+                  <span className="tc-stat-val">{productosActivos.length}</span>
+                  <span className="tc-stat-lbl">Productos</span>
+                </div>
+                <div className="tc-stat">
+                  <span className="tc-stat-val">{enStockCount}</span>
+                  <span className="tc-stat-lbl">En stock</span>
+                </div>
+                <div className="tc-stat">
+                  <span className="tc-stat-val">{serviciosCount}</span>
+                  <span className="tc-stat-lbl">Servicios</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="tc-sep">
-          <span className="tc-sep-lbl">Catálogo</span>
-          <div className="tc-sep-line" />
-          <span className="tc-sep-count">{productosActivos.length} items</span>
+        <div className="tc-catalog-header">
+          <span className="tc-catalog-label">Catálogo</span>
+          <div className="tc-catalog-line" />
+          <div className="tc-filters">
+            {[
+              { key: 'todos', label: 'Todos' },
+              { key: 'productos', label: 'Productos' },
+              { key: 'servicios', label: 'Servicios' },
+            ].map(({ key, label }) => (
+              <button
+                key={key}
+                type="button"
+                className={`tc-filter-btn${filtro === key ? ' active' : ''}`}
+                onClick={() => setFiltro(key)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="tc-catalog">
-          <div className="tc-grid">
-            {productos.length === 0 || productosActivos.length === 0 ? (
-              <p className="tc-empty">
-                {productos.length === 0
-                  ? 'Aún no hay productos en la tienda.'
-                  : 'No hay productos activos por el momento.'}
-              </p>
-            ) : (
-              productosActivos.map((p) => <ProductCard key={p.id} p={p} />)
-            )}
-          </div>
+          {productosFiltrados.length === 0 ? (
+            <div className="tc-grid">
+              <p className="tc-empty">Sin productos disponibles.</p>
+            </div>
+          ) : (
+            <div className="tc-grid">
+              {productosFiltrados.map((p) => <ProductCard key={p.id} p={p} />)
+              }
+            </div>
+          )}
         </div>
       </div>
     </>

@@ -2,9 +2,8 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useProductos } from '../context/ProductosContext.jsx'
 import { useTiendaEstilo, ESTILOS } from '../context/TiendaEstiloContext.jsx'
-import { getProductoImagenSrc, productosApi } from '../utils/api'
+import { getProductoImagenSrc, productosApi, pagosApi } from '../utils/api'
 import { ArrowLeft, Check, Package, ChevronRight, ShieldCheck, Zap, Star, ChevronLeft, CreditCard } from 'lucide-react'
-import { pagosApi } from '../utils/api'
 
 const formatPrecio = (valor) =>
   `$${(Number(valor) || 0).toLocaleString('es-CO')}`
@@ -294,31 +293,63 @@ function LandingProductoPage() {
 
   return (
     <>
-      {isClasico && (
-        <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lato:wght@300;400;600;700&display=swap');`}</style>
-      )}
+      <style>{`
+        ${isClasico
+          ? `@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lato:wght@300;400;600;700&display=swap');`
+          : `@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600&display=swap');`
+        }
+      `}</style>
 
       <main
         className="min-h-screen text-white"
         style={{
           background: isClasico
-            ? 'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(138,173,122,0.08) 0%, #0a0b09 60%)'
-            : 'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(245,179,66,0.06) 0%, #09090e 60%)',
+            ? '#0a0b09'
+            : '#080808',
+          fontFamily: isClasico ? "'Lato', sans-serif" : "'Inter', sans-serif",
         }}
       >
         {/* Navbar */}
-        <nav className="sticky top-0 z-40 border-b border-white/[0.04] bg-black/40 backdrop-blur-xl">
+        <nav
+          className="sticky top-0 z-40 backdrop-blur-xl"
+          style={{
+            borderBottom: isClasico ? '1px solid #161814' : '1px solid #141414',
+            background: isClasico ? 'rgba(10,11,9,0.85)' : 'rgba(8,8,8,0.85)',
+          }}
+        >
           <div className="mx-auto flex max-w-6xl items-center gap-2 px-4 py-3 sm:px-6">
             <button
               type="button"
               onClick={() => (window.history.length > 1 ? navigate(-1) : navigate(backUrl))}
-              className="flex items-center gap-1.5 rounded-lg bg-white/[0.05] px-3 py-1.5 text-sm text-white/50 transition-all hover:bg-white/[0.08] hover:text-white"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm transition-all"
+              style={{
+                fontFamily: isClasico ? "'Lato', sans-serif" : "'Inter', sans-serif",
+                fontSize: isClasico ? '10px' : '12px',
+                fontWeight: isClasico ? '700' : '500',
+                letterSpacing: isClasico ? '0.18em' : '0.05em',
+                textTransform: isClasico ? 'uppercase' : 'none',
+                color: isClasico ? accent + '80' : 'rgba(255,255,255,0.35)',
+                background: 'transparent',
+                border: `1px solid ${isClasico ? '#1e2218' : '#1a1a1a'}`,
+                borderRadius: isClasico ? '2px' : '8px',
+                cursor: 'pointer',
+              }}
             >
               <ArrowLeft className="h-3.5 w-3.5" />
               Volver
             </button>
-            <span className="text-white/20">/</span>
-            <span className="truncate text-sm text-white/40 max-w-[200px]">{producto.nombre}</span>
+            <span style={{ color: isClasico ? '#1e2218' : '#222' }}>/</span>
+            <span
+              className="truncate max-w-[200px]"
+              style={{
+                fontSize: isClasico ? '10px' : '12px',
+                letterSpacing: isClasico ? '0.12em' : '0',
+                color: isClasico ? '#3a3a2a' : 'rgba(255,255,255,0.25)',
+                fontFamily: isClasico ? "'Lato', sans-serif" : "'Inter', sans-serif",
+              }}
+            >
+              {producto.nombre}
+            </span>
           </div>
         </nav>
 
@@ -350,8 +381,16 @@ function LandingProductoPage() {
               {/* Nombre */}
               <div>
                 <h1
-                  className="text-3xl font-bold leading-tight tracking-tight sm:text-4xl"
-                  style={isClasico ? { fontFamily: "'Playfair Display', serif" } : undefined}
+                  style={{
+                    fontFamily: isClasico ? "'Playfair Display', serif" : "'Syne', sans-serif",
+                    fontSize: 'clamp(28px, 5vw, 42px)',
+                    fontWeight: isClasico ? '700' : '800',
+                    lineHeight: isClasico ? '1.15' : '1.05',
+                    letterSpacing: isClasico ? '-0.01em' : '-0.03em',
+                    color: isClasico ? '#e8e4dc' : '#ffffff',
+                    margin: 0,
+                    fontStyle: isClasico ? 'italic' : 'normal',
+                  }}
                 >
                   {producto.nombre}
                 </h1>
@@ -360,12 +399,25 @@ function LandingProductoPage() {
               {/* Precio destacado */}
               {producto.precio != null && (
                 <div
-                  className="flex items-baseline gap-3 rounded-2xl px-5 py-4"
-                  style={{ backgroundColor: `rgba(${accentRgb},0.07)`, border: `1px solid rgba(${accentRgb},0.15)` }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'baseline',
+                    gap: '12px',
+                    borderRadius: isClasico ? '2px' : '16px',
+                    padding: '16px 20px',
+                    backgroundColor: `rgba(${accentRgb},0.07)`,
+                    border: `1px solid rgba(${accentRgb},0.15)`,
+                  }}
                 >
                   <span
-                    className="text-4xl font-bold tracking-tight sm:text-5xl"
-                    style={{ color: accent }}
+                    style={{
+                      fontFamily: isClasico ? "'Playfair Display', serif" : "'Syne', sans-serif",
+                      fontSize: 'clamp(32px, 5vw, 48px)',
+                      fontWeight: isClasico ? '700' : '900',
+                      letterSpacing: isClasico ? '-0.01em' : '-0.04em',
+                      color: accent,
+                      lineHeight: 1,
+                    }}
                   >
                     {formatPrecio(producto.precio)}
                   </span>
