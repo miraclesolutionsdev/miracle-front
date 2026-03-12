@@ -1,14 +1,12 @@
 import Swal from 'sweetalert2'
 
 const base = Swal.mixin({
-  toast: true,
-  position: 'top-end',
   showConfirmButton: false,
-  timer: 3500,
+  timer: 3000,
   timerProgressBar: true,
-  didOpen: (toast) => {
-    toast.onmouseenter = Swal.stopTimer
-    toast.onmouseleave = Swal.resumeTimer
+  didOpen: (popup) => {
+    popup.onmouseenter = Swal.stopTimer
+    popup.onmouseleave = Swal.resumeTimer
   },
 })
 
@@ -30,8 +28,6 @@ export const swalConfirm = (opts = {}) =>
     showCancelButton: true,
     confirmButtonText: opts.confirmText || 'Sí, continuar',
     cancelButtonText: opts.cancelText || 'Cancelar',
-    confirmButtonColor: 'hsl(258 84% 60%)',
-    cancelButtonColor: 'hsl(220 12% 48%)',
     title: opts.title || '¿Estás seguro?',
     text: opts.text || '',
     ...opts,
