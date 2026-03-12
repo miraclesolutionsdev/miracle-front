@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useProductos } from '../context/ProductosContext.jsx'
 import { getProductoImagenSrc, authApi } from '../utils/api'
 
@@ -14,14 +14,27 @@ function getInitials(name) {
 
 function ProductCard({ producto, accent }) {
   const [hov, setHov] = useState(false)
+  const [imgIndex, setImgIndex] = useState(0)
+  const touchX = useRef(null)
+  const totalImgs = Math.max(producto.imagenes?.length || 1, 1)
   const isProducto = producto.tipo === 'producto'
   const inStock = isProducto && producto.stock != null && producto.stock > 0
   const sinStock = isProducto && producto.stock != null && producto.stock <= 0
   const stockBajo = isProducto && producto.stock != null && producto.stock > 0 && producto.stock <= 5
 
-  const imgSrc = getProductoImagenSrc(producto, 0)
+  const imgSrc = getProductoImagenSrc(producto, imgIndex)
   const nombre = producto.nombre || 'Sin nombre'
   const initials = getInitials(nombre)
+
+  const goNext = (e) => { e.stopPropagation(); setImgIndex((i) => (i + 1) % totalImgs) }
+  const goPrev = (e) => { e.stopPropagation(); setImgIndex((i) => (i - 1 + totalImgs) % totalImgs) }
+  const onTouchStart = (e) => { touchX.current = e.touches[0].clientX }
+  const onTouchEnd = (e) => {
+    if (touchX.current === null) return
+    const d = e.changedTouches[0].clientX - touchX.current
+    if (Math.abs(d) > 40) { if (d < 0) goNext(e); else goPrev(e) }
+    touchX.current = null
+  }
 
   const ir = () =>
     window.open(
@@ -56,7 +69,11 @@ function ProductCard({ producto, accent }) {
     >
       {/* Imagen con ratio fijo */}
       <div style={{ position: 'relative', paddingBottom: '100%', overflow: 'hidden', background: '#0a0a0a' }}>
-        <div style={{ position: 'absolute', inset: 0 }}>
+        <div
+          style={{ position: 'absolute', inset: 0 }}
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
+        >
           {imgSrc ? (
             <img
               src={imgSrc}
@@ -86,6 +103,58 @@ function ProductCard({ producto, accent }) {
             >
               {initials}
             </div>
+          )}
+          {/* Flechas carrusel */}
+          {totalImgs > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={goPrev}
+                style={{
+                  position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)',
+                  width: 28, height: 28, borderRadius: '50%',
+                  background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)',
+                  border: `1px solid ${accent}40`, color: accent,
+                  fontSize: '16px', lineHeight: 1, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  opacity: hov ? 1 : 0.5, transition: 'opacity 0.2s ease',
+                  zIndex: 3,
+                }}
+              >‹</button>
+              <button
+                type="button"
+                onClick={goNext}
+                style={{
+                  position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)',
+                  width: 28, height: 28, borderRadius: '50%',
+                  background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)',
+                  border: `1px solid ${accent}40`, color: accent,
+                  fontSize: '16px', lineHeight: 1, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  opacity: hov ? 1 : 0.5, transition: 'opacity 0.2s ease',
+                  zIndex: 3,
+                }}
+              >›</button>
+              {/* Dots */}
+              <div style={{
+                position: 'absolute', bottom: 10, left: '50%', transform: 'translateX(-50%)',
+                display: 'flex', gap: 5, zIndex: 3,
+              }}>
+                {Array.from({ length: totalImgs }).map((_, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); setImgIndex(i) }}
+                    style={{
+                      width: i === imgIndex ? 18 : 6, height: 6, borderRadius: 3,
+                      background: i === imgIndex ? accent : 'rgba(255,255,255,0.3)',
+                      border: 'none', padding: 0, cursor: 'pointer',
+                      transition: 'all 0.25s ease',
+                    }}
+                  />
+                ))}
+              </div>
+            </>
           )}
           {/* Overlay gradiente abajo */}
           <div
@@ -160,7 +229,7 @@ function ProductCard({ producto, accent }) {
       </div>
 
       {/* Info */}
-      <div style={{ padding: '18px 20px 20px', flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <div className="tm-card-body" style={{ padding: '18px 20px 20px', flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
         <h3
           style={{
             fontSize: '15px',
@@ -241,6 +310,7 @@ function ProductCard({ producto, accent }) {
 
         <button
           type="button"
+          className="tm-card-btn"
           onClick={(e) => { e.stopPropagation(); ir() }}
           style={{
             marginTop: '8px',
@@ -343,23 +413,31 @@ export default function TiendaEstiloModerno() {
           border-bottom: 1px solid #141414;
         }
         .tm-logo {
-          width: 52px; height: 52px;
+          width: 72px; height: 72px;
           border-radius: 14px;
           background: ${ACCENT}15;
           border: 1px solid ${ACCENT}30;
           display: flex; align-items: center; justify-content: center;
-          font-size: 18px; font-weight: 800;
+          font-size: 24px; font-weight: 800;
           color: ${ACCENT};
           font-family: 'Syne', sans-serif;
           overflow: hidden;
           flex-shrink: 0;
         }
-        .tm-brand { display: flex; align-items: center; gap: 14px; }
+        .tm-brand { display: flex; align-items: center; gap: 16px; }
         .tm-brand-name {
           font-family: 'Syne', sans-serif;
           font-size: 13px; font-weight: 700;
           letter-spacing: 0.2em; text-transform: uppercase;
           color: #444;
+        }
+        .tm-slogan {
+          margin-top: 4px;
+          font-size: 11px; font-weight: 400;
+          letter-spacing: 0.04em;
+          color: ${ACCENT}70;
+          font-style: italic;
+          font-family: 'Inter', sans-serif;
         }
         .tm-tag {
           font-size: 10px; font-weight: 600;
@@ -479,20 +557,54 @@ export default function TiendaEstiloModerno() {
         }
         @media (max-width: 1024px) {
           .tm-grid { grid-template-columns: repeat(2, 1fr); }
-          .tm-header, .tm-catalog-header, .tm-catalog { padding-left: 24px; padding-right: 24px; }
-          .tm-title { font-size: 64px; }
+          .tm-header, .tm-catalog-header, .tm-catalog { padding-left: 28px; padding-right: 28px; }
+          .tm-title { font-size: 72px; }
         }
-        @media (max-width: 640px) {
-          .tm-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
-          .tm-title { font-size: 44px; }
-          .tm-hero-bottom { grid-template-columns: 1fr; }
-          .tm-stats { justify-content: flex-start; }
-          .tm-stat { align-items: flex-start; }
+        @media (max-width: 768px) {
+          .tm-header, .tm-catalog-header, .tm-catalog { padding-left: 20px; padding-right: 20px; }
+          .tm-header { padding-top: 28px; }
+          .tm-topbar { flex-direction: column; align-items: flex-start; gap: 16px; padding-bottom: 28px; }
+          .tm-logo { width: 60px; height: 60px; font-size: 20px; border-radius: 12px; }
+          .tm-brand { gap: 12px; }
+          .tm-tag { display: none; }
+          .tm-hero { padding-top: 40px; }
+          .tm-title { font-size: 52px; }
+          .tm-hero-bottom { grid-template-columns: 1fr; gap: 20px; margin-top: 24px; padding-top: 20px; }
+          .tm-stats { justify-content: flex-start; gap: 0; }
+          .tm-stat { align-items: flex-start; padding: 0 20px; }
+          .tm-stat:first-child { padding-left: 0; }
+          .tm-stat-val { font-size: 26px; }
           .tm-stat-lbl { text-align: left; }
-          .tm-topbar { flex-direction: column; align-items: flex-start; gap: 12px; }
+          .tm-catalog-header { margin-top: 36px; gap: 14px; }
+          .tm-catalog { margin-top: 18px; padding-bottom: 72px; }
+          .tm-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
         }
-        @media (max-width: 420px) {
-          .tm-grid { grid-template-columns: 1fr; }
+        @media (max-width: 480px) {
+          .tm-header, .tm-catalog-header, .tm-catalog { padding-left: 16px; padding-right: 16px; }
+          .tm-header { padding-top: 20px; }
+          .tm-logo { width: 52px; height: 52px; font-size: 18px; border-radius: 10px; }
+          .tm-brand-name { font-size: 11px; letter-spacing: 0.16em; }
+          .tm-slogan { font-size: 10px; }
+          .tm-hero { padding-top: 28px; }
+          .tm-title { font-size: 38px; letter-spacing: -0.03em; line-height: 0.9; }
+          .tm-eyebrow { margin-bottom: 14px; }
+          .tm-desc { font-size: 13px; line-height: 1.7; }
+          .tm-stat-val { font-size: 24px; }
+          .tm-stat { padding: 0 16px; }
+          .tm-catalog-header { gap: 10px; flex-wrap: wrap; }
+          .tm-catalog-label { font-size: 9px; }
+          .tm-filters { gap: 5px; }
+          .tm-filter-btn { padding: 5px 10px; font-size: 9px; }
+          .tm-grid { gap: 10px; }
+          .tm-catalog { padding-bottom: 56px; }
+          .tm-card-body { padding: 14px 14px 16px !important; gap: 6px !important; }
+          .tm-card-btn { padding: 9px !important; font-size: 10px !important; margin-top: 6px !important; }
+        }
+        @media (max-width: 360px) {
+          .tm-title { font-size: 32px; }
+          .tm-grid { grid-template-columns: 1fr; gap: 12px; }
+          .tm-stat { padding: 0 12px; }
+          .tm-card-body { padding: 12px !important; }
         }
       `}</style>
 
@@ -508,7 +620,10 @@ export default function TiendaEstiloModerno() {
                     ? <img src={tenant.logoUrl} alt={tenantName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     : initials}
                 </div>
-                <span className="tm-brand-name">{tenantName}</span>
+                <div>
+                  <div className="tm-brand-name">{tenantName}</div>
+                  {tenant?.eslogan && <div className="tm-slogan">{tenant.eslogan}</div>}
+                </div>
                 {categoria && (
                   <span style={{ fontSize: '10px', fontWeight: '600', letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT + '80', border: `1px solid ${ACCENT}20`, borderRadius: '6px', padding: '4px 10px' }}>
                     {categoria}
@@ -525,9 +640,9 @@ export default function TiendaEstiloModerno() {
                 <em>{lastWord}</em>
               </h1>
               <div className="tm-hero-bottom">
-                <p className="tm-desc">
-                  {tenant?.descripcion || tenant?.eslogan || 'Explora nuestra colección y encuentra lo que necesitas.'}
-                </p>
+                <div className="tm-desc">
+                  {tenant?.descripcion || 'Explora nuestra colección y encuentra lo que necesitas.'}
+                </div>
                 <div className="tm-stats">
                   <div className="tm-stat">
                     <span className="tm-stat-val">{productosActivos.length}</span>

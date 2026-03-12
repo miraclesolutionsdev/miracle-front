@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useProductos } from '../context/ProductosContext.jsx'
 import { getProductoImagenSrc, authApi } from '../utils/api'
 
@@ -16,13 +16,26 @@ function getInitials(name = '') {
 
 function ProductCard({ p }) {
   const [hov, setHov] = useState(false)
-  const imgSrc = getProductoImagenSrc(p, 0)
+  const [imgIndex, setImgIndex] = useState(0)
+  const touchX = useRef(null)
+  const totalImgs = Math.max(p.imagenes?.length || 1, 1)
+  const imgSrc = getProductoImagenSrc(p, imgIndex)
   const isProducto = p.tipo === 'producto'
   const inStock = isProducto && p.stock != null && p.stock > 0
   const sinStock = isProducto && p.stock != null && p.stock <= 0
   const stockBajo = isProducto && p.stock != null && p.stock > 0 && p.stock <= 5
   const nombre = p.nombre || 'Sin nombre'
   const initials = getInitials(nombre)
+
+  const goNext = (e) => { e.stopPropagation(); setImgIndex((i) => (i + 1) % totalImgs) }
+  const goPrev = (e) => { e.stopPropagation(); setImgIndex((i) => (i - 1 + totalImgs) % totalImgs) }
+  const onTouchStart = (e) => { touchX.current = e.touches[0].clientX }
+  const onTouchEnd = (e) => {
+    if (touchX.current === null) return
+    const d = e.changedTouches[0].clientX - touchX.current
+    if (Math.abs(d) > 40) { if (d < 0) goNext(e); else goPrev(e) }
+    touchX.current = null
+  }
 
   const ir = () =>
     window.open(
@@ -56,7 +69,11 @@ function ProductCard({ p }) {
     >
       {/* Imagen en ratio portrait 3:4 */}
       <div style={{ position: 'relative', paddingBottom: '133%', overflow: 'hidden', background: '#0a0b09' }}>
-        <div style={{ position: 'absolute', inset: 0 }}>
+        <div
+          style={{ position: 'absolute', inset: 0 }}
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
+        >
           {imgSrc ? (
             <img
               src={imgSrc}
@@ -87,6 +104,58 @@ function ProductCard({ p }) {
             >
               {initials}
             </div>
+          )}
+          {/* Flechas carrusel */}
+          {totalImgs > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={goPrev}
+                style={{
+                  position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)',
+                  width: 28, height: 28, borderRadius: '50%',
+                  background: 'rgba(10,11,9,0.7)', backdropFilter: 'blur(6px)',
+                  border: `1px solid ${ACCENT}30`, color: ACCENT,
+                  fontSize: '16px', lineHeight: 1, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  opacity: hov ? 1 : 0.6, transition: 'opacity 0.2s ease',
+                  zIndex: 3,
+                }}
+              >‹</button>
+              <button
+                type="button"
+                onClick={goNext}
+                style={{
+                  position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)',
+                  width: 28, height: 28, borderRadius: '50%',
+                  background: 'rgba(10,11,9,0.7)', backdropFilter: 'blur(6px)',
+                  border: `1px solid ${ACCENT}30`, color: ACCENT,
+                  fontSize: '16px', lineHeight: 1, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  opacity: hov ? 1 : 0.6, transition: 'opacity 0.2s ease',
+                  zIndex: 3,
+                }}
+              >›</button>
+              {/* Dots */}
+              <div style={{
+                position: 'absolute', bottom: 10, left: '50%', transform: 'translateX(-50%)',
+                display: 'flex', gap: 5, zIndex: 3,
+              }}>
+                {Array.from({ length: totalImgs }).map((_, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); setImgIndex(i) }}
+                    style={{
+                      width: i === imgIndex ? 18 : 6, height: 6, borderRadius: 3,
+                      background: i === imgIndex ? ACCENT : 'rgba(255,255,255,0.35)',
+                      border: 'none', padding: 0, cursor: 'pointer',
+                      transition: 'all 0.25s ease',
+                    }}
+                  />
+                ))}
+              </div>
+            </>
           )}
 
           {/* Overlay base */}
@@ -164,6 +233,7 @@ function ProductCard({ p }) {
 
       {/* Body */}
       <div
+        className="tc-card-body"
         style={{
           padding: '20px 22px 22px',
           display: 'flex',
@@ -260,6 +330,7 @@ function ProductCard({ p }) {
 
           <button
             type="button"
+            className="tc-card-btn"
             onClick={(e) => { e.stopPropagation(); ir() }}
             style={{
               fontFamily: "'Lato', sans-serif",
@@ -344,13 +415,13 @@ export default function TiendaEstiloClasico() {
         }
         .tc-logo-area { display: flex; align-items: center; gap: 16px; }
         .tc-logo {
-          width: 64px; height: 64px;
+          width: 80px; height: 80px;
           border-radius: 4px;
           background: #151910;
           border: 1px solid #2a3525;
           display: flex; align-items: center; justify-content: center;
           font-family: 'Playfair Display', serif;
-          font-size: 20px; font-weight: 700;
+          font-size: 26px; font-weight: 700;
           color: ${ACCENT};
           overflow: hidden; flex-shrink: 0;
         }
@@ -359,8 +430,15 @@ export default function TiendaEstiloClasico() {
           letter-spacing: 0.25em; text-transform: uppercase;
           color: ${ACCENT};
         }
-        .tc-brand-cat {
+        .tc-brand-slogan {
           margin-top: 5px;
+          font-family: 'Playfair Display', serif;
+          font-size: 12px; font-weight: 400; font-style: italic;
+          color: ${ACCENT}80;
+          letter-spacing: 0.03em;
+        }
+        .tc-brand-cat {
+          margin-top: 6px;
           font-size: 9px; font-weight: 600;
           letter-spacing: 0.16em; text-transform: uppercase;
           color: ${ACCENT}70;
@@ -473,18 +551,56 @@ export default function TiendaEstiloClasico() {
         }
         @media (max-width: 1024px) {
           .tc-grid { grid-template-columns: repeat(2, 1fr); }
-          .tc-header, .tc-catalog-header, .tc-catalog { padding-left: 24px; padding-right: 24px; }
-          .tc-hero-bottom { grid-template-columns: 1fr; }
+          .tc-header, .tc-catalog-header, .tc-catalog { padding-left: 28px; padding-right: 28px; }
+          .tc-hero-bottom { grid-template-columns: 1fr; gap: 28px; }
           .tc-stats { justify-content: flex-start; }
-          .tc-title { font-size: 60px; }
+          .tc-title { font-size: 68px; }
         }
-        @media (max-width: 640px) {
-          .tc-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
-          .tc-title { font-size: 42px; }
-          .tc-topbar { flex-direction: column; align-items: flex-start; gap: 12px; }
+        @media (max-width: 768px) {
+          .tc-header, .tc-catalog-header, .tc-catalog { padding-left: 20px; padding-right: 20px; }
+          .tc-header { padding-top: 32px; }
+          .tc-topbar { flex-direction: column; align-items: flex-start; gap: 16px; padding-bottom: 32px; }
+          .tc-logo { width: 68px; height: 68px; font-size: 22px; }
+          .tc-logo-area { gap: 14px; }
+          .tc-tag { display: none; }
+          .tc-hero { padding-top: 40px; }
+          .tc-title { font-size: 50px; letter-spacing: -0.015em; }
+          .tc-hero-bottom { margin-top: 28px; padding-top: 24px; gap: 20px; }
+          .tc-stat { padding: 0 20px; }
+          .tc-stat-val { font-size: 26px; }
+          .tc-catalog-header { margin-top: 40px; gap: 14px; }
+          .tc-catalog { margin-top: 18px; padding-bottom: 64px; }
+          .tc-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
         }
-        @media (max-width: 400px) {
-          .tc-grid { grid-template-columns: 1fr; }
+        @media (max-width: 480px) {
+          .tc-header, .tc-catalog-header, .tc-catalog { padding-left: 16px; padding-right: 16px; }
+          .tc-header { padding-top: 22px; }
+          .tc-logo { width: 58px; height: 58px; font-size: 18px; }
+          .tc-logo-area { gap: 12px; }
+          .tc-brand-name { font-size: 10px; letter-spacing: 0.2em; }
+          .tc-brand-slogan { font-size: 11px; margin-top: 4px; }
+          .tc-brand-cat { padding: 2px 8px; font-size: 8px; }
+          .tc-hero { padding-top: 30px; }
+          .tc-eyebrow { margin-bottom: 14px; }
+          .tc-title { font-size: 36px; line-height: 0.9; }
+          .tc-desc { font-size: 13px; line-height: 1.8; }
+          .tc-stat-val { font-size: 24px; }
+          .tc-stat-lbl { font-size: 7px; }
+          .tc-stat { padding: 0 14px; }
+          .tc-catalog-header { gap: 10px; }
+          .tc-catalog-label { font-size: 10px; }
+          .tc-filters { gap: 5px; }
+          .tc-filter-btn { padding: 5px 10px; font-size: 8px; letter-spacing: 0.14em; }
+          .tc-grid { gap: 10px; }
+          .tc-catalog { padding-bottom: 56px; }
+          .tc-card-body { padding: 14px 14px 16px !important; gap: 4px !important; }
+          .tc-card-btn { padding: 6px 12px !important; font-size: 8px !important; }
+        }
+        @media (max-width: 360px) {
+          .tc-title { font-size: 30px; }
+          .tc-grid { grid-template-columns: 1fr; gap: 12px; }
+          .tc-stat { padding: 0 10px; }
+          .tc-card-body { padding: 12px !important; }
         }
       `}</style>
 
@@ -499,6 +615,7 @@ export default function TiendaEstiloClasico() {
               </div>
               <div>
                 <div className="tc-brand-name">{nombre}</div>
+                {slogan && <div className="tc-brand-slogan">{slogan}</div>}
                 {categoria && <div className="tc-brand-cat">{categoria}</div>}
               </div>
             </div>
@@ -516,7 +633,7 @@ export default function TiendaEstiloClasico() {
             </h1>
             <div className="tc-hero-bottom">
               <p className="tc-desc">
-                {descripcion || slogan || 'Bienvenido a nuestra tienda. Explora nuestra colección cuidadosamente seleccionada.'}
+                {descripcion || 'Bienvenido a nuestra tienda. Explora nuestra colección cuidadosamente seleccionada.'}
               </p>
               <div className="tc-stats">
                 <div className="tc-stat">
