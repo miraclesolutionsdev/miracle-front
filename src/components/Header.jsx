@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Bell, Search, Sun, Moon, LayoutDashboard, Users, Package, Megaphone, Film, BarChart3, ShoppingCart, ShoppingBag, Settings, LogOut, ShieldCheck, Sparkles } from 'lucide-react'
-import { useTheme } from '../context/ThemeContext.jsx'
+import { Bell, Search, LayoutDashboard, Users, Package, Megaphone, Film, BarChart3, ShoppingCart, ShoppingBag, Settings, LogOut, ShieldCheck, Sparkles } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 
 const SEARCH_ITEMS = [
@@ -17,33 +16,6 @@ const SEARCH_ITEMS = [
   { label: 'Configuración', path: '/configuracion', icon: Settings },
 ]
 
-function ThemeToggle() {
-  const { theme, toggleTheme } = useTheme()
-  const isDark = theme === 'dark'
-  return (
-    <button
-      type="button"
-      onClick={toggleTheme}
-      role="switch"
-      aria-checked={isDark}
-      aria-label={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
-      className="relative flex h-8 w-16 shrink-0 rounded-full bg-muted p-0.5 transition-colors hover:bg-muted/80 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
-    >
-      <span
-        className="absolute left-0.5 top-0.5 flex h-7 w-[calc(50%-0.125rem)] items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition-[transform] duration-300 ease-out"
-        style={{ transform: isDark ? 'translateX(100%)' : 'translateX(0)' }}
-      >
-        {isDark ? <Moon className="h-3.5 w-3.5" /> : <Sun className="h-3.5 w-3.5" />}
-      </span>
-      <span className="relative z-10 flex w-1/2 items-center justify-center text-muted-foreground">
-        <Sun className="h-4 w-4" />
-      </span>
-      <span className="relative z-10 flex w-1/2 items-center justify-center text-muted-foreground">
-        <Moon className="h-4 w-4" />
-      </span>
-    </button>
-  )
-}
 
 export function Header() {
   const navigate = useNavigate()
@@ -158,8 +130,6 @@ export function Header() {
               </div>
             )}
           </div>
-
-          <ThemeToggle />
 
           {/* User menu */}
           <div className="relative ml-1" ref={userMenuRef}>
