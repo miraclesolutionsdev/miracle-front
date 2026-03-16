@@ -31,6 +31,7 @@ function getAuthToken() {
 
 async function request(path, options = {}) {
   const url = `${BASE_URL.replace(/\/$/, '')}/${path.replace(/^\//, '')}`
+  console.log(`[api] ${options.method || 'GET'} ${url}`)
   const headers = { 'Content-Type': 'application/json', ...options.headers }
   const token = getAuthToken()
   if (token) headers.Authorization = `Bearer ${token}`

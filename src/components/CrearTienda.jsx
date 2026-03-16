@@ -22,7 +22,7 @@ export default function CrearTienda() {
       </div>
     )
   }
-  if (isAuthenticated) return <Navigate to="/" replace />
+  if (isAuthenticated) return <Navigate to="/plataforma" replace />
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -36,7 +36,7 @@ export default function CrearTienda() {
         nombre: nombre.trim() || undefined,
       })
       login(data)
-      navigate('/', { replace: true })
+      navigate('/plataforma', { replace: true })
     } catch (err) {
       setError(err.message || 'Error al crear la tienda')
     } finally {

@@ -14,17 +14,17 @@ import VistaAdministradores from './VistaAdministradores'
 import VistaConfiguracion from './VistaConfiguracion'
 
 const PATH_TO_LABEL = {
-  '/': 'Dashboard',
-  '/dashboard': 'Dashboard',
-  '/clientes': 'Clientes',
-  '/productos': 'Productos',
-  '/configurar-tienda': 'Tienda',
-  '/campanas': 'Campañas',
-  '/audiovisual': 'Audiovisual',
-  '/metricas-ads': 'Métricas Ads',
-  '/ventas': 'Ventas',
-  '/administradores': 'Administradores',
-  '/configuracion': 'Configuración',
+  '/plataforma': 'Dashboard',
+  '/plataforma/dashboard': 'Dashboard',
+  '/plataforma/clientes': 'Clientes',
+  '/plataforma/productos': 'Productos',
+  '/plataforma/configurar-tienda': 'Tienda',
+  '/plataforma/campanas': 'Campañas',
+  '/plataforma/audiovisual': 'Audiovisual',
+  '/plataforma/metricas-ads': 'Métricas Ads',
+  '/plataforma/ventas': 'Ventas',
+  '/plataforma/administradores': 'Administradores',
+  '/plataforma/configuracion': 'Configuración',
 }
 
 const PAGE_DESCRIPTIONS = {
@@ -43,7 +43,7 @@ const PAGE_DESCRIPTIONS = {
 function DashboardLayout() {
   const { pathname } = useLocation()
   const seleccionado = useMemo(() => {
-    const path = pathname.replace(/\/$/, '') || '/'
+    const path = pathname.replace(/\/$/, '') || '/plataforma'
     return PATH_TO_LABEL[path] ?? 'Dashboard'
   }, [pathname])
 

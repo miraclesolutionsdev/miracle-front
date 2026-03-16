@@ -23,7 +23,7 @@ export default function Login() {
       </div>
     )
   }
-  if (isAuthenticated) return <Navigate to="/" replace />
+  if (isAuthenticated) return <Navigate to="/plataforma" replace />
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -32,7 +32,7 @@ export default function Login() {
     try {
       const data = await authApi.login(email, password)
       login(data)
-      navigate('/', { replace: true })
+      navigate('/plataforma', { replace: true })
     } catch (err) {
       setError(err.message || 'Error al iniciar sesión')
     } finally {

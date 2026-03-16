@@ -6,6 +6,7 @@ import Login from './components/Login'
 import CrearTienda from './components/CrearTienda'
 import IACopyResumenPage from './components/IACopyResumenPage'
 import PagoResultado from './components/PagoResultado'
+import ServiciosPage from './components/ServiciosPage'
 import { useAuth } from './context/AuthContext'
 import './App.css'
 
@@ -19,6 +20,8 @@ function ProtectedRoute({ children }) {
 function App() {
   return (
     <Routes>
+      <Route path="/" element={<ServiciosPage />} />
+      <Route path="/servicios" element={<ServiciosPage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/crear-tienda" element={<CrearTienda />} />
       <Route path="/tienda" element={<TiendaPage />} />
@@ -27,14 +30,14 @@ function App() {
       <Route path="/pago/fallido" element={<PagoResultado tipo="fallido" />} />
       <Route path="/pago/pendiente" element={<PagoResultado tipo="pendiente" />} />
       <Route
-        path="/ia-resumen"
+        path="/plataforma/ia-resumen"
         element={
           <ProtectedRoute>
             <IACopyResumenPage />
           </ProtectedRoute>
         }
       />
-      <Route path="/*" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>} />
+      <Route path="/plataforma/*" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>} />
     </Routes>
   )
 }

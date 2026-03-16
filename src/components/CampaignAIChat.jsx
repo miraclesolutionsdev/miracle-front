@@ -236,7 +236,7 @@ export default function CampaignAIChat() {
 
     try {
       localStorage.setItem('miracle_ia_resumen', JSON.stringify(payload))
-      await iaApi.guardarResumen({ ...payload, imagenPorCopy: {} }).catch(() => {})
+      await iaApi.guardarResumen({ ...payload, imagenPorCopy: {}, mensajes: [] }).catch(() => {})
       window.open('/ia-resumen', '_blank', 'noopener,noreferrer')
     } catch (err) {
       setError('No se pudo abrir el resumen. Intenta de nuevo.')

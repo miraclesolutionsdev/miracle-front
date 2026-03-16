@@ -4,16 +4,16 @@ import { Bell, Search, LayoutDashboard, Users, Package, Megaphone, Film, BarChar
 import { useAuth } from '../context/AuthContext'
 
 const SEARCH_ITEMS = [
-  { label: 'Dashboard', path: '/', icon: LayoutDashboard },
-  { label: 'Clientes', path: '/clientes', icon: Users },
-  { label: 'Productos', path: '/productos', icon: Package },
-  { label: 'Tienda', path: '/configurar-tienda', icon: ShoppingBag },
-  { label: 'Campañas', path: '/campanas', icon: Megaphone },
-  { label: 'Audiovisual', path: '/audiovisual', icon: Film },
-  { label: 'Métricas Ads', path: '/metricas-ads', icon: BarChart3 },
-  { label: 'Ventas', path: '/ventas', icon: ShoppingCart },
-  { label: 'Administradores', path: '/administradores', icon: ShieldCheck },
-  { label: 'Configuración', path: '/configuracion', icon: Settings },
+  { label: 'Dashboard', path: '/plataforma', icon: LayoutDashboard },
+  { label: 'Clientes', path: '/plataforma/clientes', icon: Users },
+  { label: 'Productos', path: '/plataforma/productos', icon: Package },
+  { label: 'Tienda', path: '/plataforma/configurar-tienda', icon: ShoppingBag },
+  { label: 'Campañas', path: '/plataforma/campanas', icon: Megaphone },
+  { label: 'Audiovisual', path: '/plataforma/audiovisual', icon: Film },
+  { label: 'Métricas Ads', path: '/plataforma/metricas-ads', icon: BarChart3 },
+  { label: 'Ventas', path: '/plataforma/ventas', icon: ShoppingCart },
+  { label: 'Administradores', path: '/plataforma/administradores', icon: ShieldCheck },
+  { label: 'Configuración', path: '/plataforma/configuracion', icon: Settings },
 ]
 
 
@@ -153,7 +153,7 @@ export function Header() {
                 <div className="py-1">
                   <button
                     type="button"
-                    onClick={() => { setUserMenuOpen(false); navigate('/configuracion') }}
+                    onClick={() => { setUserMenuOpen(false); navigate('/plataforma/configuracion') }}
                     className="flex w-full items-center gap-2.5 px-4 py-2.5 text-[13px] text-foreground hover:bg-accent transition-colors"
                   >
                     <Settings className="h-3.5 w-3.5 text-muted-foreground" />
@@ -161,7 +161,7 @@ export function Header() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => { setUserMenuOpen(false); navigate('/administradores') }}
+                    onClick={() => { setUserMenuOpen(false); navigate('/plataforma/administradores') }}
                     className="flex w-full items-center gap-2.5 px-4 py-2.5 text-[13px] text-foreground hover:bg-accent transition-colors"
                   >
                     <ShieldCheck className="h-3.5 w-3.5 text-muted-foreground" />

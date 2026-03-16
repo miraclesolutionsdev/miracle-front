@@ -22,14 +22,14 @@ const NAV_ITEMS = [
 ]
 
 const LABEL_TO_PATH = {
-  'Dashboard': '/',
-  'Clientes': '/clientes',
-  'Productos': '/productos',
-  'Tienda': '/configurar-tienda',
-  'Campañas': '/campanas',
-  'Audiovisual': '/audiovisual',
-  'Métricas Ads': '/metricas-ads',
-  'Ventas': '/ventas',
+  'Dashboard': '/plataforma',
+  'Clientes': '/plataforma/clientes',
+  'Productos': '/plataforma/productos',
+  'Tienda': '/plataforma/configurar-tienda',
+  'Campañas': '/plataforma/campanas',
+  'Audiovisual': '/plataforma/audiovisual',
+  'Métricas Ads': '/plataforma/metricas-ads',
+  'Ventas': '/plataforma/ventas',
 }
 
 function Sidebar({ seleccionado }) {
