@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { authApi } from '../utils/api'
 import { useAuth } from '../context/AuthContext'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, User, Lock, CheckCircle2, AlertCircle } from 'lucide-react'
 
 export default function VistaConfiguracion() {
   const { user, updateUser } = useAuth()
@@ -98,148 +98,124 @@ export default function VistaConfiguracion() {
     }
   }
 
+  const inputCls = 'w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-colors'
+  const passInputCls = `${inputCls} pr-10`
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12 text-muted-foreground">
-        Cargando…
+      <div className="flex items-center gap-3 py-12 text-muted-foreground">
+        <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <span className="text-sm">Cargando...</span>
       </div>
     )
   }
 
   return (
-    <div className="space-y-8 max-w-2xl">
+    <div className="space-y-6 max-w-2xl">
+
+      {/* Alertas */}
       {error && (
-        <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm text-red-600 dark:text-red-400">
-          {error}
+        <div className="flex items-start gap-3 rounded-xl border border-destructive/25 bg-destructive/8 px-4 py-3">
+          <AlertCircle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+          <p className="text-sm text-destructive">{error}</p>
         </div>
       )}
       {success && (
-        <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-700 dark:text-emerald-400">
-          {success}
+        <div className="flex items-start gap-3 rounded-xl border border-emerald-500/25 bg-emerald-500/8 px-4 py-3">
+          <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
+          <p className="text-sm text-emerald-600 dark:text-emerald-400">{success}</p>
         </div>
       )}
 
-      <section className="rounded-xl border border-border bg-card p-6">
-        <h2 className="text-lg font-semibold text-foreground mb-4">Información personal y de la tienda</h2>
-        <form onSubmit={handleGuardarPerfil} className="flex flex-col gap-4">
-          <div>
-            <label className="mb-1 block text-sm font-medium text-muted-foreground">Email</label>
-            <input
-              type="email"
-              value={perfil.email}
-              onChange={(e) => setPerfil((p) => ({ ...p, email: e.target.value }))}
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-foreground"
-              placeholder="tu@email.com"
-              required
-            />
+      {/* Información personal */}
+      <section className="relative rounded-xl border border-border bg-card overflow-hidden">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+        <div className="p-6">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 border border-primary/20">
+              <User className="h-4 w-4 text-primary" strokeWidth={1.8} />
+            </div>
+            <div>
+              <h2 className="text-[15px] font-bold text-foreground">Información personal</h2>
+              <p className="text-[12px] text-muted-foreground">Datos de tu cuenta y tienda</p>
+            </div>
           </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium text-muted-foreground">Tu nombre</label>
-            <input
-              type="text"
-              value={perfil.nombre}
-              onChange={(e) => setPerfil((p) => ({ ...p, nombre: e.target.value }))}
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-foreground"
-              placeholder="Nombre"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium text-muted-foreground">Nombre de la tienda</label>
-            <input
-              type="text"
-              value={perfil.tenantNombre}
-              onChange={(e) => setPerfil((p) => ({ ...p, tenantNombre: e.target.value }))}
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-foreground"
-              placeholder="Ej. Miracle Solutions"
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={guardandoPerfil}
-            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
-          >
-            {guardandoPerfil ? 'Guardando…' : 'Guardar datos'}
-          </button>
-        </form>
+          <form onSubmit={handleGuardarPerfil} className="flex flex-col gap-4">
+            <div>
+              <label className="mb-1.5 block text-[12px] font-semibold text-muted-foreground uppercase tracking-wide">Email</label>
+              <input type="email" value={perfil.email} onChange={(e) => setPerfil((p) => ({ ...p, email: e.target.value }))} className={inputCls} placeholder="tu@email.com" required />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-[12px] font-semibold text-muted-foreground uppercase tracking-wide">Tu nombre</label>
+              <input type="text" value={perfil.nombre} onChange={(e) => setPerfil((p) => ({ ...p, nombre: e.target.value }))} className={inputCls} placeholder="Nombre" />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-[12px] font-semibold text-muted-foreground uppercase tracking-wide">Nombre de la tienda</label>
+              <input type="text" value={perfil.tenantNombre} onChange={(e) => setPerfil((p) => ({ ...p, tenantNombre: e.target.value }))} className={inputCls} placeholder="Ej. Miracle Solutions" />
+            </div>
+            <div className="pt-1">
+              <button type="submit" disabled={guardandoPerfil} className="rounded-lg bg-gradient-to-r from-primary to-primary/80 px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50 transition-opacity shadow-md shadow-primary/20">
+                {guardandoPerfil ? (
+                  <span className="flex items-center gap-2">
+                    <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    Guardando...
+                  </span>
+                ) : 'Guardar datos'}
+              </button>
+            </div>
+          </form>
+        </div>
       </section>
 
-      <section className="rounded-xl border border-border bg-card p-6">
-        <h2 className="text-lg font-semibold text-foreground mb-4">Cambiar contraseña</h2>
-        <p className="text-sm text-muted-foreground mb-4">
-          Introduce tu contraseña actual y la nueva. Debe tener al menos 6 caracteres.
-        </p>
-        <form onSubmit={handleCambiarPassword} className="flex flex-col gap-4">
-          <div>
-            <label className="mb-1 block text-sm font-medium text-muted-foreground">Contraseña actual</label>
-            <div className="relative">
-              <input
-                type={showPassActual ? 'text' : 'password'}
-                value={password.contraseñaActual}
-                onChange={(e) => setPassword((p) => ({ ...p, contraseñaActual: e.target.value }))}
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 pr-10 text-foreground"
-                placeholder="••••••••"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassActual((v) => !v)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:text-foreground"
-                aria-label={showPassActual ? 'Ocultar' : 'Ver'}
-              >
-                {showPassActual ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
+      {/* Cambiar contraseña */}
+      <section className="relative rounded-xl border border-border bg-card overflow-hidden">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent" />
+        <div className="p-6">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-500/10 border border-violet-500/20">
+              <Lock className="h-4 w-4 text-violet-500" strokeWidth={1.8} />
+            </div>
+            <div>
+              <h2 className="text-[15px] font-bold text-foreground">Cambiar contraseña</h2>
+              <p className="text-[12px] text-muted-foreground">Mínimo 6 caracteres</p>
             </div>
           </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium text-muted-foreground">Nueva contraseña</label>
-            <div className="relative">
-              <input
-                type={showPassNueva ? 'text' : 'password'}
-                value={password.nuevaContraseña}
-                onChange={(e) => setPassword((p) => ({ ...p, nuevaContraseña: e.target.value }))}
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 pr-10 text-foreground"
-                placeholder="••••••••"
-                minLength={6}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassNueva((v) => !v)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:text-foreground"
-                aria-label={showPassNueva ? 'Ocultar' : 'Ver'}
-              >
-                {showPassNueva ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          <form onSubmit={handleCambiarPassword} className="flex flex-col gap-4 mt-5">
+            {[
+              { key: 'contraseñaActual', label: 'Contraseña actual', show: showPassActual, toggle: setShowPassActual },
+              { key: 'nuevaContraseña', label: 'Nueva contraseña', show: showPassNueva, toggle: setShowPassNueva },
+              { key: 'repetirNueva', label: 'Repetir nueva contraseña', show: showPassRepetir, toggle: setShowPassRepetir },
+            ].map(({ key, label, show, toggle }) => (
+              <div key={key}>
+                <label className="mb-1.5 block text-[12px] font-semibold text-muted-foreground uppercase tracking-wide">{label}</label>
+                <div className="relative">
+                  <input
+                    type={show ? 'text' : 'password'}
+                    value={password[key]}
+                    onChange={(e) => setPassword((p) => ({ ...p, [key]: e.target.value }))}
+                    className={passInputCls}
+                    placeholder="••••••••"
+                    required={key === 'contraseñaActual'}
+                    minLength={key !== 'contraseñaActual' ? 6 : undefined}
+                  />
+                  <button type="button" onClick={() => toggle((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors" aria-label={show ? 'Ocultar' : 'Ver'}>
+                    {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+            ))}
+            <div className="pt-1">
+              <button type="submit" disabled={guardandoPassword || !password.contraseñaActual || !password.nuevaContraseña || !password.repetirNueva} className="rounded-lg bg-gradient-to-r from-primary to-primary/80 px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50 transition-opacity shadow-md shadow-primary/20">
+                {guardandoPassword ? (
+                  <span className="flex items-center gap-2">
+                    <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    Cambiando...
+                  </span>
+                ) : 'Cambiar contraseña'}
               </button>
             </div>
-          </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium text-muted-foreground">Repetir nueva contraseña</label>
-            <div className="relative">
-              <input
-                type={showPassRepetir ? 'text' : 'password'}
-                value={password.repetirNueva}
-                onChange={(e) => setPassword((p) => ({ ...p, repetirNueva: e.target.value }))}
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 pr-10 text-foreground"
-                placeholder="••••••••"
-                minLength={6}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassRepetir((v) => !v)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:text-foreground"
-                aria-label={showPassRepetir ? 'Ocultar' : 'Ver'}
-              >
-                {showPassRepetir ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
-          </div>
-          <button
-            type="submit"
-            disabled={guardandoPassword || !password.contraseñaActual || !password.nuevaContraseña || !password.repetirNueva}
-            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
-          >
-            {guardandoPassword ? 'Cambiando…' : 'Cambiar contraseña'}
-          </button>
-        </form>
+          </form>
+        </div>
       </section>
     </div>
   )

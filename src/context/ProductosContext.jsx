@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { productosApi } from '../utils/api'
+import { useAuth } from './AuthContext'
 
 const ProductosContext = createContext(null)
 
@@ -13,6 +14,7 @@ function formatProductoFromApi(p) {
 
 export function ProductosProvider({ children }) {
   const [productos, setProductos] = useState([])
+  const { isAuthenticated } = useAuth()
 
   const loadProductos = useCallback(async () => {
     try {
@@ -25,8 +27,9 @@ export function ProductosProvider({ children }) {
   }, [])
 
   useEffect(() => {
-    loadProductos()
-  }, [loadProductos])
+    if (isAuthenticated) loadProductos()
+    else setProductos([])
+  }, [isAuthenticated, loadProductos])
 
   const guardarProducto = async (payload) => {
     if (payload.formData instanceof FormData) {

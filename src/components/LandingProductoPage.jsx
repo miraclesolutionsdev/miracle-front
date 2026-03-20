@@ -11,7 +11,7 @@ const formatPrecio = (valor) =>
   `$${(Number(valor) || 0).toLocaleString('es-CO')}`
 
 // Cambia este numero por el tuyo en formato internacional, sin "+"
-const WHATSAPP_NUMBER = '573001234567'
+const WHATSAPP_NUMBER = '573243524983'
 
 const WhatsAppIcon = ({ className = 'h-6 w-6' }) => (
   <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden>
@@ -210,9 +210,6 @@ function LandingProductoPage() {
   const [producto, setProducto] = useState(null)
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
-  const [nombre, setNombre] = useState('')
-  const [telefono, setTelefono] = useState('')
-  const [showWhatsappForm, setShowWhatsappForm] = useState(false)
   const [loadingPago, setLoadingPago] = useState(false)
 
   const backUrl = isClasico ? '/tienda?estilo=clasico' : '/tienda?estilo=moderno'
@@ -259,17 +256,13 @@ function LandingProductoPage() {
     }
   }
 
-  const handleWhatsapp = (e) => {
-    e.preventDefault()
-    const base = `https://wa.me/${WHATSAPP_NUMBER}`
+  const handleWhatsapp = () => {
     const texto = [
       'Hola, estoy interesado en el siguiente producto:',
       `Producto: ${producto.nombre}`,
       producto.precio != null ? `Precio mostrado: ${formatPrecio(producto.precio)}` : '',
-      nombre ? `Mi nombre: ${nombre}` : '',
-      telefono ? `Mi numero de contacto: ${telefono}` : '',
     ].filter(Boolean).join('\n')
-    window.open(`${base}?text=${encodeURIComponent(texto)}`, '_blank', 'noopener,noreferrer')
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(texto)}`, '_blank', 'noopener,noreferrer')
   }
 
   if (cargando) {
@@ -520,78 +513,19 @@ function LandingProductoPage() {
 
               {/* CTA Principal */}
               <div className="flex flex-col gap-4">
-                {!showWhatsappForm ? (
-                  <button
-                    type="button"
-                    onClick={() => setShowWhatsappForm(true)}
-                    className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-2xl py-4 text-base font-bold text-white shadow-xl transition-all duration-200 hover:scale-[1.01] active:scale-[0.99]"
-                    style={{
-                      background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
-                      boxShadow: '0 8px 32px rgba(37,211,102,0.25)',
-                    }}
-                  >
-                    <div className="absolute inset-0 bg-white/0 transition-colors group-hover:bg-white/5" />
-                    <WhatsAppIcon className="h-5 w-5" />
-                    Pedir por WhatsApp
-                  </button>
-                ) : (
-                  <div className="flex flex-col gap-5 rounded-2xl bg-white/[0.03] p-5 ring-1 ring-white/[0.08]">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#25D366]">
-                          <WhatsAppIcon className="h-5 w-5 text-white" />
-                        </div>
-                        <div>
-                          <h3 className="text-sm font-semibold text-white">Hablemos por WhatsApp</h3>
-                          <p className="text-xs text-white/35">Completa y te redirigimos al chat.</p>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setShowWhatsappForm(false)}
-                        className="text-xs text-white/25 hover:text-white/60 transition-colors"
-                      >
-                        Cerrar
-                      </button>
-                    </div>
-                    <form onSubmit={handleWhatsapp} className="flex flex-col gap-3">
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        <div>
-                          <label className="mb-1 block text-xs font-medium text-white/40">
-                            Nombre
-                          </label>
-                          <input
-                            type="text"
-                            value={nombre}
-                            onChange={(e) => setNombre(e.target.value)}
-                            className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-3 py-2.5 text-sm text-white placeholder:text-white/20 focus:border-[#25D366]/40 focus:outline-none focus:ring-1 focus:ring-[#25D366]/20 transition-colors"
-                            placeholder="Tu nombre"
-                          />
-                        </div>
-                        <div>
-                          <label className="mb-1 block text-xs font-medium text-white/40">
-                            Celular
-                          </label>
-                          <input
-                            type="tel"
-                            value={telefono}
-                            onChange={(e) => setTelefono(e.target.value)}
-                            className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-3 py-2.5 text-sm text-white placeholder:text-white/20 focus:border-[#25D366]/40 focus:outline-none focus:ring-1 focus:ring-[#25D366]/20 transition-colors"
-                            placeholder="+57 300 000 0000"
-                          />
-                        </div>
-                      </div>
-                      <button
-                        type="submit"
-                        className="flex items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold text-white transition-all hover:opacity-90"
-                        style={{ background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)' }}
-                      >
-                        <WhatsAppIcon className="h-4 w-4" />
-                        Ir a WhatsApp
-                      </button>
-                    </form>
-                  </div>
-                )}
+                <button
+                  type="button"
+                  onClick={handleWhatsapp}
+                  className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-2xl py-4 text-base font-bold text-white shadow-xl transition-all duration-200 hover:scale-[1.01] active:scale-[0.99]"
+                  style={{
+                    background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
+                    boxShadow: '0 8px 32px rgba(37,211,102,0.25)',
+                  }}
+                >
+                  <div className="absolute inset-0 bg-white/0 transition-colors group-hover:bg-white/5" />
+                  <WhatsAppIcon className="h-5 w-5" />
+                  Pedir por WhatsApp
+                </button>
 
                 {/* Botón MercadoPago */}
                 <button
@@ -643,7 +577,7 @@ function LandingProductoPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setShowWhatsappForm(true)}
+                  onClick={handleWhatsapp}
                   className="flex items-center gap-1.5 rounded-xl px-3 py-3 text-xs font-bold text-white transition-all hover:opacity-90"
                   style={{ background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)' }}
                 >

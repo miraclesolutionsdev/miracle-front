@@ -135,13 +135,22 @@ export const iaApi = {
       method: 'POST',
       body: JSON.stringify(payload),
     }),
-  generarVideo: (payload) =>
-    request('ia/generar-video', {
+  generarVideoRunway: (payload) =>
+    request('ia/generar-video-runway', {
       method: 'POST',
       body: JSON.stringify(payload),
     }),
-  obtenerEstadoVideo: (id) =>
-    request(`ia/video-estado/${id}`, {
+  obtenerEstadoVideoRunway: (id) =>
+    request(`ia/video-runway-estado/${id}`, {
+      method: 'GET',
+    }),
+  generarVozRunway: (payload) =>
+    request('ia/generar-voz-runway', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  obtenerEstadoVozRunway: (id) =>
+    request(`ia/voz-runway-estado/${id}`, {
       method: 'GET',
     }),
   obtenerResumen: () =>
