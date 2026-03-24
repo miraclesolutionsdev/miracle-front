@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { swalError } from '../utils/swal'
 import { productosApi } from '../utils/api'
 
@@ -19,6 +19,11 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
     stock: '',
   })
   const [eliminandoImagen, setEliminandoImagen] = useState(null)
+
+  const archivoUrls = useMemo(
+    () => (form.archivosImagen || []).map(f => URL.createObjectURL(f)),
+    [form.archivosImagen]
+  )
 
   useEffect(() => {
     if (producto) {
@@ -278,10 +283,10 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
                   </button>
                 </div>
               ))}
-              {form.archivosImagen?.map((file, i) => (
+              {archivoUrls.map((url, i) => (
                 <div key={`f-${i}`} className="relative group">
                   <img
-                    src={URL.createObjectURL(file)}
+                    src={url}
                     alt={`Nueva ${i + 1}`}
                     className="h-20 w-20 rounded object-cover"
                   />

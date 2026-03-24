@@ -245,8 +245,6 @@ function LandingProductoPage() {
     try {
       const { init_point } = await pagosApi.crearPreferencia({
         productoId: producto.id,
-        nombre,
-        telefono,
       })
       window.location.href = init_point
     } catch (err) {

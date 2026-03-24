@@ -1,7 +1,7 @@
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { CheckCircle, XCircle, Clock, ArrowLeft, MessageCircle } from 'lucide-react'
 
-const WHATSAPP_NUMBER = '573001234567'
+const WHATSAPP_NUMBER = '573243524983'
 
 const ESTADOS = {
   exitoso: {
@@ -40,7 +40,6 @@ function PagoResultado({ tipo }) {
   const estado = ESTADOS[tipo] || ESTADOS.pendiente
   const Icon = estado.icon
 
-  const productoNombre = searchParams.get('preference_id') ? '' : ''
   const paymentId = searchParams.get('payment_id')
 
   const handleWhatsapp = () => {
