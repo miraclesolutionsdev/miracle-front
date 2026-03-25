@@ -4,7 +4,6 @@ import CampañaForm from './CampañaForm'
 import CampañaDetalle from './CampañaDetalle'
 import CampaignChart from './CampaignChart'
 import { useProductos } from '../context/ProductosContext.jsx'
-import { useAuth } from '../context/AuthContext'
 import { campanasApi, audiovisualApi } from '../utils/api'
 
 // Fallback si no hay piezas desde API
@@ -17,7 +16,6 @@ const PIEZAS_FALLBACK = [
 ]
 
 export default function VistaCampañas() {
-  const { user } = useAuth()
   const { productos } = useProductos()
   const [campañas, setCampañas] = useState([])
   const [busqueda, setBusqueda] = useState('')
@@ -37,17 +35,11 @@ export default function VistaCampañas() {
   }
 
   useEffect(() => {
-    if (!user?.tenantId) {
-      setCampañas([])
-      setLoading(false)
-      return
-    }
     setLoading(true)
     cargarCampañas()
-  }, [user?.tenantId])
+  }, [])
 
   useEffect(() => {
-    if (!user?.tenantId) return
     audiovisualApi
       .listar()
       .then((data) => {
@@ -59,7 +51,7 @@ export default function VistaCampañas() {
         )
       })
       .catch(() => setPiezas(PIEZAS_FALLBACK))
-  }, [user?.tenantId])
+  }, [])
 
   const handleCrear = () => setFormAbierto('crear')
   const handleEditar = (c) => setFormAbierto(c)

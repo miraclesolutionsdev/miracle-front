@@ -1,19 +1,10 @@
-// URL base del backend:
-// - En producción DEBE venir de VITE_API_URL (configurada en Vercel con el dominio real del backend).
-// - BACKEND_FALLBACK solo se usa como respaldo en desarrollo local.
 const BACKEND_FALLBACK = 'http://localhost:3000'
 
 export const BASE_URL = (() => {
   const fromEnv = import.meta.env.VITE_API_URL?.trim()
   if (fromEnv) return fromEnv
-
   if (import.meta.env.PROD) {
-    // En prod, si no hay VITE_API_URL, avisamos en consola para que no apunte
-    // accidentalmente al dominio incorrecto.
-    // Esto evitará llamadas al propio dominio del front y problemas de CORS.
-    console.warn(
-      '[api] VITE_API_URL no está configurada. Configura la URL del backend en las variables de entorno.',
-    )
+    console.warn('[api] VITE_API_URL no está configurada. Configura la URL del backend en las variables de entorno.')
   }
   return BACKEND_FALLBACK
 })()
@@ -29,14 +20,40 @@ function getAuthToken() {
   return null
 }
 
+function handleUnauthorized() {
+  localStorage.removeItem('miracle_auth')
+  if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+    window.location.href = '/login'
+  }
+}
+
 async function request(path, options = {}) {
   const url = `${BASE_URL.replace(/\/$/, '')}/${path.replace(/^\//, '')}`
-  console.log(`[api] ${options.method || 'GET'} ${url}`)
   const headers = { 'Content-Type': 'application/json', ...options.headers }
   const token = getAuthToken()
   if (token) headers.Authorization = `Bearer ${token}`
   const res = await fetch(url, { ...options, headers })
   const data = await res.json().catch(() => ({}))
+  if (res.status === 401) {
+    handleUnauthorized()
+    throw new Error('Sesión expirada. Inicia sesión de nuevo.')
+  }
+  if (!res.ok) throw new Error(data.error || res.statusText || 'Error en la solicitud')
+  return data
+}
+
+/** Realiza un fetch multipart/form-data incluyendo el token de autenticación. */
+async function requestFormData(path, method, formData) {
+  const url = `${BASE_URL.replace(/\/$/, '')}/${path.replace(/^\//, '')}`
+  const headers = {}
+  const token = getAuthToken()
+  if (token) headers.Authorization = `Bearer ${token}`
+  const res = await fetch(url, { method, body: formData, headers })
+  const data = await res.json().catch(() => ({}))
+  if (res.status === 401) {
+    handleUnauthorized()
+    throw new Error('Sesión expirada. Inicia sesión de nuevo.')
+  }
   if (!res.ok) throw new Error(data.error || res.statusText || 'Error en la solicitud')
   return data
 }
@@ -47,10 +64,8 @@ export const clientesApi = {
     return request(`clientes${q ? `?${q}` : ''}`)
   },
   obtener: (id) => request(`clientes/${id}`),
-  crear: (body) =>
-    request('clientes', { method: 'POST', body: JSON.stringify(body) }),
-  actualizar: (id, body) =>
-    request(`clientes/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+  crear: (body) => request('clientes', { method: 'POST', body: JSON.stringify(body) }),
+  actualizar: (id, body) => request(`clientes/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
 }
 
 export const productosApi = {
@@ -59,28 +74,12 @@ export const productosApi = {
     return request(`productos${q ? `?${q}` : ''}`)
   },
   obtener: (id) => request(`productos/${id}`),
-  crear: (body) =>
-    request('productos', { method: 'POST', body: JSON.stringify(body) }),
-  crearConArchivos: async (formData) => {
-    const url = `${BASE_URL.replace(/\/$/, '')}/productos`
-    const res = await fetch(url, { method: 'POST', body: formData })
-    const data = await res.json().catch(() => ({}))
-    if (!res.ok) throw new Error(data.error || res.statusText)
-    return data
-  },
-  actualizar: (id, body) =>
-    request(`productos/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
-  actualizarConArchivos: async (id, formData) => {
-    const url = `${BASE_URL.replace(/\/$/, '')}/productos/${id}`
-    const res = await fetch(url, { method: 'PUT', body: formData })
-    const data = await res.json().catch(() => ({}))
-    if (!res.ok) throw new Error(data.error || res.statusText)
-    return data
-  },
-  inactivar: (id) =>
-    request(`productos/${id}/inactivar`, { method: 'PATCH' }),
-  eliminarImagen: (id, index) =>
-    request(`productos/${id}/imagenes/${index}`, { method: 'DELETE' }),
+  crear: (body) => request('productos', { method: 'POST', body: JSON.stringify(body) }),
+  crearConArchivos: (formData) => requestFormData('productos', 'POST', formData),
+  actualizar: (id, body) => request(`productos/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+  actualizarConArchivos: (id, formData) => requestFormData(`productos/${id}`, 'PUT', formData),
+  inactivar: (id) => request(`productos/${id}/inactivar`, { method: 'PATCH' }),
+  eliminarImagen: (id, index) => request(`productos/${id}/imagenes/${index}`, { method: 'DELETE' }),
   urlImagen: (productoId, index) =>
     `${BASE_URL.replace(/\/$/, '')}/productos/${productoId}/imagenes/${index}`,
 }
@@ -90,13 +89,7 @@ export const audiovisualApi = {
     const q = new URLSearchParams(params || {}).toString()
     return request(`audiovisual${q ? `?${q}` : ''}`)
   },
-  crearConArchivo: async (formData) => {
-    const url = `${BASE_URL.replace(/\/$/, '')}/audiovisual`
-    const res = await fetch(url, { method: 'POST', body: formData })
-    const data = await res.json().catch(() => ({}))
-    if (!res.ok) throw new Error(data.error || res.statusText)
-    return data
-  },
+  crearConArchivo: (formData) => requestFormData('audiovisual', 'POST', formData),
   actualizarEstado: (id, estado) =>
     request(`audiovisual/${id}/estado`, { method: 'PATCH', body: JSON.stringify({ estado }) }),
 }
@@ -107,10 +100,8 @@ export const campanasApi = {
     return request(`campanas${q ? `?${q}` : ''}`)
   },
   obtener: (id) => request(`campanas/${id}`),
-  crear: (body) =>
-    request('campanas', { method: 'POST', body: JSON.stringify(body) }),
-  actualizar: (id, body) =>
-    request(`campanas/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+  crear: (body) => request('campanas', { method: 'POST', body: JSON.stringify(body) }),
+  actualizar: (id, body) => request(`campanas/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
   actualizarEstado: (id, estado) =>
     request(`campanas/${id}/estado`, { method: 'PATCH', body: JSON.stringify({ estado }) }),
 }
@@ -121,47 +112,21 @@ export const iaApi = {
   generarCopys: (payload) =>
     request('ia/copys', { method: 'POST', body: JSON.stringify(payload) }),
   generarGuionDesdeImagen: (payload) =>
-    request('ia/guion-imagen', {
-      method: 'POST',
-      body: JSON.stringify({ payload }),
-    }),
+    request('ia/guion-imagen', { method: 'POST', body: JSON.stringify({ payload }) }),
   generarCopyDesdeImagen: (payload) =>
-    request('ia/copy-desde-imagen', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    }),
+    request('ia/copy-desde-imagen', { method: 'POST', body: JSON.stringify(payload) }),
   generarImagen: (payload) =>
-    request('ia/generar-imagen', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    }),
+    request('ia/generar-imagen', { method: 'POST', body: JSON.stringify(payload) }),
   generarVideoRunway: (payload) =>
-    request('ia/generar-video-runway', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    }),
-  obtenerEstadoVideoRunway: (id) =>
-    request(`ia/video-runway-estado/${id}`, {
-      method: 'GET',
-    }),
+    request('ia/generar-video-runway', { method: 'POST', body: JSON.stringify(payload) }),
+  obtenerEstadoVideoRunway: (id) => request(`ia/video-runway-estado/${id}`),
   generarVozRunway: (payload) =>
-    request('ia/generar-voz-runway', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    }),
-  obtenerEstadoVozRunway: (id) =>
-    request(`ia/voz-runway-estado/${id}`, {
-      method: 'GET',
-    }),
-  obtenerResumen: () =>
-    request('ia/resumen', { method: 'GET' }),
+    request('ia/generar-voz-runway', { method: 'POST', body: JSON.stringify(payload) }),
+  obtenerEstadoVozRunway: (id) => request(`ia/voz-runway-estado/${id}`),
+  obtenerResumen: () => request('ia/resumen'),
   guardarResumen: (payload) =>
-    request('ia/resumen', {
-      method: 'PUT',
-      body: JSON.stringify(payload),
-    }),
-  limpiarResumen: () =>
-    request('ia/resumen', { method: 'DELETE' }),
+    request('ia/resumen', { method: 'PUT', body: JSON.stringify(payload) }),
+  limpiarResumen: () => request('ia/resumen', { method: 'DELETE' }),
 }
 
 export const usersApi = {
@@ -169,10 +134,8 @@ export const usersApi = {
     const q = new URLSearchParams(params || {}).toString()
     return request(`users${q ? `?${q}` : ''}`)
   },
-  crear: (body) =>
-    request('users', { method: 'POST', body: JSON.stringify(body) }),
-  actualizar: (id, body) =>
-    request(`users/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+  crear: (body) => request('users', { method: 'POST', body: JSON.stringify(body) }),
+  actualizar: (id, body) => request(`users/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
   eliminar: (id) => request(`users/${id}`, { method: 'DELETE' }),
 }
 
@@ -181,13 +144,16 @@ export const pagosApi = {
     request('pagos/crear-preferencia', { method: 'POST', body: JSON.stringify(body) }),
 }
 
+export const ventasApi = {
+  listar: () => request('ventas'),
+}
+
 export const authApi = {
   login: (email, password) =>
     request('auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
   crearTienda: (body) =>
     request('auth/crear-tienda', { method: 'POST', body: JSON.stringify(body) }),
-  obtenerPerfil: () =>
-    request('auth/me'),
+  obtenerPerfil: () => request('auth/me'),
   actualizarPerfil: (body) =>
     request('auth/me', { method: 'PATCH', body: JSON.stringify(body) }),
   actualizarTenant: (payload) => {
@@ -203,6 +169,31 @@ export const authApi = {
     request('auth/cambiar-password', {
       method: 'POST',
       body: JSON.stringify({ contraseñaActual, nuevaContraseña }),
+    }),
+}
+
+export const ordenesApi = {
+  listar: (params = {}) => {
+    const query = new URLSearchParams(params).toString()
+    return request(`ordenes${query ? `?${query}` : ''}`)
+  },
+  obtener: (id) => request(`ordenes/${id}`),
+  crear: (body) =>
+    request('ordenes', { method: 'POST', body: JSON.stringify(body) }),
+  actualizarEstado: (id, nuevoEstado, notas) =>
+    request(`ordenes/${id}/estado`, {
+      method: 'PATCH',
+      body: JSON.stringify({ nuevoEstado, notas }),
+    }),
+  cancelar: (id, motivo) =>
+    request(`ordenes/${id}/cancelar`, {
+      method: 'PATCH',
+      body: JSON.stringify({ motivo }),
+    }),
+  crearTicket: (id, ticket) =>
+    request(`ordenes/${id}/tickets`, {
+      method: 'POST',
+      body: JSON.stringify(ticket),
     }),
 }
 

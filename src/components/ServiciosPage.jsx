@@ -155,11 +155,11 @@ const FAQS = [
   },
   {
     q: '¿Cómo funciona la pasarela de pagos de la tienda?',
-    a: 'La tienda online tiene pasarela de pagos integrada. Cada tenant tiene su propia configuración de métodos de pago, con seguimiento de ventas y estado de transacciones en tiempo real.',
+    a: 'La tienda online tiene pasarela de pagos integrada con MercadoPago. Permite configurar métodos de pago, con seguimiento de ventas y estado de transacciones en tiempo real.',
   },
   {
     q: '¿Mis datos están seguros en la plataforma?',
-    a: 'Sí. Cada empresa opera en un entorno aislado (multi-tenant). Tus clientes, campañas y datos nunca son visibles para otras organizaciones dentro de la plataforma.',
+    a: 'Sí. La plataforma opera en un entorno privado y seguro. Tus clientes, campañas y datos están protegidos y son accesibles únicamente desde tu cuenta.',
   },
   {
     q: '¿La IA puede generar copy en español?',

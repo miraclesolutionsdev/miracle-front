@@ -37,14 +37,9 @@ export default function VistaAdministradores() {
   }
 
   useEffect(() => {
-    if (!user?.tenantId) {
-      setLista([])
-      setLoading(false)
-      return
-    }
     setLoading(true)
     cargar()
-  }, [user?.tenantId])
+  }, [])
 
   const handleCrear = (e) => {
     e.preventDefault()

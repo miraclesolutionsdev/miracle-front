@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Users, Megaphone, Package, Coins, Film, TrendingUp } from 'lucide-react'
 import { clientesApi, audiovisualApi, campanasApi } from '../utils/api'
-import { useAuth } from '../context/AuthContext'
 import { useProductos } from '../context/ProductosContext.jsx'
 
 const KPI_CARDS = [
@@ -58,7 +57,6 @@ const KPI_CARDS = [
 ]
 
 export default function ResumenGeneral() {
-  const { user } = useAuth()
   const { productos } = useProductos()
   const [totalClientes, setTotalClientes] = useState(null)
   const [totalPiezas, setTotalPiezas] = useState(null)
@@ -75,7 +73,7 @@ export default function ResumenGeneral() {
         if (!cancelled) setTotalClientes(0)
       })
     return () => { cancelled = true }
-  }, [user?.tenantId])
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -88,13 +86,9 @@ export default function ResumenGeneral() {
         if (!cancelled) setTotalPiezas(0)
       })
     return () => { cancelled = true }
-  }, [user?.tenantId])
+  }, [])
 
   useEffect(() => {
-    if (!user?.tenantId) {
-      setTotalCampanas(null)
-      return
-    }
     let cancelled = false
     campanasApi
       .listar()
@@ -105,7 +99,7 @@ export default function ResumenGeneral() {
         if (!cancelled) setTotalCampanas(0)
       })
     return () => { cancelled = true }
-  }, [user?.tenantId])
+  }, [])
 
   const getValue = (key) => {
     if (key === 'clientes') return totalClientes !== null ? String(totalClientes) : '—'
