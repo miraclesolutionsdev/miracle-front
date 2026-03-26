@@ -33,7 +33,7 @@ export const ESTADO_ETIQUETA = {
 const TRANSICIONES_VALIDAS = {
   pendiente: ['procesando', 'cancelada'],
   procesando: ['completada', 'cancelada'],
-  completada: ['entregada'],
+  completada: ['entregada', 'cancelada'],
   entregada: [],
   cancelada: [],
 }
