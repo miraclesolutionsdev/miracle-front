@@ -38,8 +38,8 @@ function TabOrdenes({
     (o) =>
       (filtro === '' || o.estado === filtro) &&
       (o.ordenNumero?.toLowerCase().includes(busqueda.toLowerCase()) ||
-        o.clienteNombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
-        o.clienteEmail?.toLowerCase().includes(busqueda.toLowerCase()))
+        o.cliente?.nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
+        o.cliente?.email?.toLowerCase().includes(busqueda.toLowerCase()))
   )
 
   return (
@@ -124,7 +124,7 @@ function TabOrdenes({
                 <tbody>
                   {ordenesFiltradas.map((o) => (
                     <tr
-                      key={o.id}
+                      key={o._id}
                       className="border-b border-border hover:bg-white/[0.02] transition-colors"
                     >
                       <td className="py-3 pr-4 font-mono text-xs font-bold text-foreground">
@@ -133,13 +133,13 @@ function TabOrdenes({
                       <td className="py-3 pr-4">
                         <div className="text-xs">
                           <p className="font-medium text-foreground">
-                            {o.clienteNombre}
+                            {o.cliente?.nombre}
                           </p>
-                          <p className="text-muted-foreground">{o.clienteEmail}</p>
+                          <p className="text-muted-foreground">{o.cliente?.email}</p>
                         </div>
                       </td>
                       <td className="py-3 pr-4 font-medium text-foreground">
-                        {formatMonto(o.monto)}
+                        {formatMonto(o.totalMonto)}
                       </td>
                       <td className="py-3 pr-4">
                         <span
@@ -151,11 +151,11 @@ function TabOrdenes({
                         </span>
                       </td>
                       <td className="py-3 pr-4 text-xs text-muted-foreground">
-                        {formatFecha(o.fecha)}
+                        {formatFecha(o.createdAt)}
                       </td>
                       <td className="py-3 pr-4">
                         <button
-                          onClick={() => onSeleccionar(o.id)}
+                          onClick={() => onSeleccionar(o._id)}
                           className="rounded-md bg-blue-500/10 px-2 py-1 text-xs font-medium text-blue-400 hover:bg-blue-500/20 transition-colors"
                         >
                           Ver detalles
