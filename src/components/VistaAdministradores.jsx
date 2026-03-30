@@ -233,7 +233,7 @@ export default function VistaAdministradores() {
                         </p>
                         <p className="text-[11px] text-muted-foreground truncate sm:hidden">{u.email}</p>
                         {u.isOriginalAdmin && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-600 dark:text-amber-400 mt-0.5">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-600 mt-0.5">
                             <Shield className="h-2.5 w-2.5" /> Original
                           </span>
                         )}
@@ -243,7 +243,7 @@ export default function VistaAdministradores() {
                   <td className="px-4 py-3 text-[13px] text-muted-foreground hidden sm:table-cell">{u.email}</td>
                   <td className="px-4 py-3">
                     {u.activo ? (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 text-[11px] font-bold text-emerald-600">
                         <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Activo
                       </span>
                     ) : (

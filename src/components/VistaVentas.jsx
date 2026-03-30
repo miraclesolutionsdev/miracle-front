@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { ordenesApi } from '../utils/api'
+import { alertConfirm, alertSuccess, alertError } from '../utils/alerts'
 import SectionCard from './SectionCard'
 import {
   ESTADO_ORDEN_STYLE,
@@ -27,6 +28,9 @@ function TabOrdenes({
   onSeleccionar,
   filtro,
   onCambiarFiltro,
+  desde,
+  hasta,
+  onCambiarFechas,
   total,
   skip,
   limit,
@@ -80,18 +84,42 @@ function TabOrdenes({
             onChange={(e) => setBusqueda(e.target.value)}
             className="w-full rounded-lg border border-input bg-background px-3 py-2 text-xs placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
           />
-          <select
-            value={filtro}
-            onChange={(e) => onCambiarFiltro(e.target.value)}
-            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
-          >
-            <option value="">Todos los estados</option>
-            <option value="pendiente">Pendiente</option>
-            <option value="procesando">Procesando</option>
-            <option value="completada">Completada</option>
-            <option value="entregada">Entregada</option>
-            <option value="cancelada">Cancelada</option>
-          </select>
+          <div className="flex flex-wrap gap-3">
+            <select
+              value={filtro}
+              onChange={(e) => onCambiarFiltro(e.target.value)}
+              className="flex-1 rounded-lg border border-input bg-background px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+            >
+              <option value="">Todos los estados</option>
+              <option value="pendiente">Pendiente</option>
+              <option value="procesando">Procesando</option>
+              <option value="completada">Completada</option>
+              <option value="entregada">Entregada</option>
+              <option value="cancelada">Cancelada</option>
+            </select>
+            <input
+              type="date"
+              value={desde}
+              onChange={(e) => onCambiarFechas(e.target.value, hasta)}
+              className="rounded-lg border border-input bg-background px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+              title="Desde"
+            />
+            <input
+              type="date"
+              value={hasta}
+              onChange={(e) => onCambiarFechas(desde, e.target.value)}
+              className="rounded-lg border border-input bg-background px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+              title="Hasta"
+            />
+            {(desde || hasta) && (
+              <button
+                onClick={() => onCambiarFechas('', '')}
+                className="rounded-lg border border-input px-3 py-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Limpiar fechas
+              </button>
+            )}
+          </div>
         </div>
       </SectionCard>
 
@@ -222,28 +250,41 @@ function TabDetalles({ ordenId, onVolver, onActualizar }) {
   }, [cargarDetalles])
 
   const cambiarEstado = async (nuevoEstado) => {
-    if (!confirm(`¿Confirmar cambio a "${nuevoEstado}"?`)) return
+    const ok = await alertConfirm({
+      title: `¿Cambiar a "${ESTADO_ETIQUETA[nuevoEstado] ?? nuevoEstado}"?`,
+      text: 'Este cambio quedará registrado en el timeline de la orden.',
+      confirmText: 'Sí, cambiar',
+    })
+    if (!ok) return
     try {
       setAccionando(true)
       await ordenesApi.actualizarEstado(ordenId, nuevoEstado, '')
       await cargarDetalles()
       onActualizar()
+      alertSuccess(`Orden marcada como ${ESTADO_ETIQUETA[nuevoEstado] ?? nuevoEstado}`)
     } catch (err) {
-      alert(`Error: ${err.message}`)
+      alertError(err.message || 'No se pudo cambiar el estado')
     } finally {
       setAccionando(false)
     }
   }
 
   const cancelarOrden = async () => {
-    if (!confirm('¿Confirmar cancelación de orden?')) return
+    const ok = await alertConfirm({
+      title: '¿Cancelar esta orden?',
+      text: 'Esta acción no se puede deshacer.',
+      confirmText: 'Sí, cancelar',
+      confirmButtonColor: '#ef4444',
+    })
+    if (!ok) return
     try {
       setAccionando(true)
       await ordenesApi.cancelar(ordenId, 'Cancelada desde dashboard')
       await cargarDetalles()
       onActualizar()
+      alertSuccess('Orden cancelada')
     } catch (err) {
-      alert(`Error: ${err.message}`)
+      alertError(err.message || 'No se pudo cancelar la orden')
     } finally {
       setAccionando(false)
     }
@@ -280,6 +321,16 @@ function TabDetalles({ ordenId, onVolver, onActualizar }) {
   }
 
   const estadosDisponibles = obtenerEstadosPermitidos(orden.estado)
+  const FLUJO = ['pendiente', 'procesando', 'completada', 'entregada']
+  const idxActual = FLUJO.indexOf(orden.estado)
+  const esCancelada = orden.estado === 'cancelada'
+
+  const ESTADO_BTN = {
+    procesando: 'bg-blue-500/10 text-blue-400 border border-blue-500/25 hover:bg-blue-500/20',
+    completada:  'bg-purple-500/10 text-purple-400 border border-purple-500/25 hover:bg-purple-500/20',
+    entregada:   'bg-green-500/10 text-green-400 border border-green-500/25 hover:bg-green-500/20',
+    cancelada:   'bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20',
+  }
 
   return (
     <div className="space-y-4">
@@ -289,6 +340,94 @@ function TabDetalles({ ordenId, onVolver, onActualizar }) {
       >
         ← Volver a órdenes
       </button>
+
+      {/* ── ESTADO Y ACCIONES ── */}
+      <SectionCard>
+        {/* Cabecera: estado actual + cancelar */}
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">Estado actual</span>
+            <span className={`rounded-full px-3 py-1 text-xs font-semibold ${ESTADO_ORDEN_STYLE[orden.estado]}`}>
+              {ESTADO_ETIQUETA[orden.estado]}
+            </span>
+          </div>
+          {['pendiente', 'procesando', 'completada'].includes(orden.estado) && (
+            <button
+              onClick={cancelarOrden}
+              disabled={accionando}
+              className="text-xs text-red-400 underline-offset-2 hover:underline disabled:opacity-40"
+            >
+              Cancelar orden
+            </button>
+          )}
+        </div>
+
+        {/* Stepper visual del flujo */}
+        {!esCancelada ? (
+          <div className="mb-5 flex items-start gap-0">
+            {FLUJO.map((e, i) => {
+              const isPast    = i < idxActual
+              const isCurrent = i === idxActual
+              return (
+                <div key={e} className="flex flex-1 flex-col items-center gap-1.5">
+                  <div className="flex w-full items-center">
+                    {/* línea izquierda */}
+                    {i > 0 && (
+                      <div className={`h-0.5 flex-1 ${isPast || isCurrent ? 'bg-primary' : 'bg-border'}`} />
+                    )}
+                    {/* círculo */}
+                    <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold border ${
+                      isCurrent
+                        ? 'border-primary bg-primary text-white'
+                        : isPast
+                          ? 'border-primary bg-primary/20 text-primary'
+                          : 'border-border bg-background text-muted-foreground'
+                    }`}>
+                      {isPast ? '✓' : i + 1}
+                    </div>
+                    {/* línea derecha */}
+                    {i < FLUJO.length - 1 && (
+                      <div className={`h-0.5 flex-1 ${isPast ? 'bg-primary' : 'bg-border'}`} />
+                    )}
+                  </div>
+                  <span className={`text-[10px] font-medium ${
+                    isCurrent ? 'text-primary' : isPast ? 'text-foreground/50' : 'text-muted-foreground'
+                  }`}>
+                    {ESTADO_ETIQUETA[e]}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+        ) : (
+          <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-500/20 bg-red-500/5 px-4 py-3">
+            <span className="text-sm text-red-400">✕</span>
+            <span className="text-sm font-medium text-red-400">Esta orden fue cancelada</span>
+          </div>
+        )}
+
+        {/* Botones de transición */}
+        {estadosDisponibles.filter(e => e !== 'cancelada').length > 0 && (
+          <div className="flex flex-col gap-2 sm:flex-row">
+            {estadosDisponibles.filter(e => e !== 'cancelada').map((estado) => (
+              <button
+                key={estado}
+                onClick={() => cambiarEstado(estado)}
+                disabled={accionando}
+                className={`flex-1 rounded-xl px-4 py-3 text-sm font-semibold transition-all disabled:opacity-50 ${ESTADO_BTN[estado]}`}
+              >
+                Marcar como {ESTADO_ETIQUETA[estado]}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {(orden.estado === 'entregada' || esCancelada) && (
+          <p className="text-center text-xs text-muted-foreground">
+            {orden.estado === 'entregada' ? 'Orden finalizada exitosamente' : ''}
+          </p>
+        )}
+      </SectionCard>
 
       {/* Información General */}
       <SectionCard title="Información de la orden">
@@ -325,6 +464,12 @@ function TabDetalles({ ordenId, onVolver, onActualizar }) {
               {orden.cliente.whatsapp || '—'}
             </p>
           </div>
+          {orden.cliente.cedula && (
+            <div>
+              <p className="text-xs text-muted-foreground">Cédula / NIT</p>
+              <p className="mt-1 text-sm text-foreground">{orden.cliente.cedula}</p>
+            </div>
+          )}
           <div>
             <p className="text-xs text-muted-foreground">Método de pago</p>
             <p className="mt-1 text-sm text-foreground capitalize">
@@ -345,6 +490,44 @@ function TabDetalles({ ordenId, onVolver, onActualizar }) {
           </div>
         </div>
       </SectionCard>
+
+      {/* Datos de envío */}
+      {orden.envio && (orden.envio.direccion || orden.envio.barrio) && (
+        <SectionCard title="Datos de envío">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {orden.envio.direccion && (
+              <div>
+                <p className="text-xs text-muted-foreground">Dirección</p>
+                <p className="mt-1 text-sm text-foreground">{orden.envio.direccion}</p>
+              </div>
+            )}
+            {orden.envio.barrio && (
+              <div>
+                <p className="text-xs text-muted-foreground">Barrio / Ciudad</p>
+                <p className="mt-1 text-sm text-foreground">{orden.envio.barrio}</p>
+              </div>
+            )}
+            {orden.envio.unidadResidencial && (
+              <div>
+                <p className="text-xs text-muted-foreground">Unidad residencial</p>
+                <p className="mt-1 text-sm text-foreground">{orden.envio.unidadResidencial}</p>
+              </div>
+            )}
+            {orden.envio.torre && (
+              <div>
+                <p className="text-xs text-muted-foreground">Torre / Bloque</p>
+                <p className="mt-1 text-sm text-foreground">{orden.envio.torre}</p>
+              </div>
+            )}
+            {orden.envio.apto && (
+              <div>
+                <p className="text-xs text-muted-foreground">Apto / Casa</p>
+                <p className="mt-1 text-sm text-foreground">{orden.envio.apto}</p>
+              </div>
+            )}
+          </div>
+        </SectionCard>
+      )}
 
       {/* Productos */}
       <SectionCard title="Productos">
@@ -426,30 +609,6 @@ function TabDetalles({ ordenId, onVolver, onActualizar }) {
         </div>
       </SectionCard>
 
-      {/* Acciones */}
-      <SectionCard title="Acciones">
-        <div className="flex flex-wrap gap-2">
-          {estadosDisponibles.map((estado) => (
-            <button
-              key={estado}
-              onClick={() => cambiarEstado(estado)}
-              disabled={accionando}
-              className="rounded-lg bg-blue-500/10 px-4 py-2 text-xs font-medium text-blue-400 hover:bg-blue-500/20 disabled:opacity-50 transition-colors"
-            >
-              Marcar como {ESTADO_ETIQUETA[estado]}
-            </button>
-          ))}
-          {['pendiente', 'procesando'].includes(orden.estado) && (
-            <button
-              onClick={cancelarOrden}
-              disabled={accionando}
-              className="rounded-lg bg-red-500/10 px-4 py-2 text-xs font-medium text-red-400 hover:bg-red-500/20 disabled:opacity-50 transition-colors"
-            >
-              Cancelar orden
-            </button>
-          )}
-        </div>
-      </SectionCard>
     </div>
   )
 }
@@ -462,6 +621,8 @@ export default function VistaVentas() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [filtro, setFiltro] = useState('')
+  const [desde, setDesde] = useState('')
+  const [hasta, setHasta] = useState('')
   const [skip, setSkip] = useState(0)
   const [total, setTotal] = useState(0)
   const limit = 10
@@ -469,7 +630,11 @@ export default function VistaVentas() {
   const cargarOrdenes = useCallback(async () => {
     try {
       setError(null)
-      const data = await ordenesApi.listar({ limit, skip, ...(filtro && { estado: filtro }) })
+      const params = { limit, skip }
+      if (filtro) params.estado = filtro
+      if (desde) params.desde = desde
+      if (hasta) params.hasta = hasta
+      const data = await ordenesApi.listar(params)
       setOrdenes(data.ordenes || [])
       setTotal(data.total || 0)
     } catch (err) {
@@ -477,7 +642,7 @@ export default function VistaVentas() {
     } finally {
       setLoading(false)
     }
-  }, [filtro, skip])
+  }, [filtro, desde, hasta, skip])
 
   useEffect(() => {
     cargarOrdenes()
@@ -530,6 +695,13 @@ export default function VistaVentas() {
           filtro={filtro}
           onCambiarFiltro={(f) => {
             setFiltro(f)
+            setSkip(0)
+          }}
+          desde={desde}
+          hasta={hasta}
+          onCambiarFechas={(d, h) => {
+            setDesde(d)
+            setHasta(h)
             setSkip(0)
           }}
           total={total}

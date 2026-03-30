@@ -9,20 +9,10 @@ export const BASE_URL = (() => {
   return BACKEND_FALLBACK
 })()
 
-function getAuthToken() {
-  try {
-    const raw = typeof localStorage !== 'undefined' && localStorage.getItem('miracle_auth')
-    if (raw) {
-      const data = JSON.parse(raw)
-      return data?.token || null
-    }
-  } catch (_) {}
-  return null
-}
-
 function handleUnauthorized() {
-  localStorage.removeItem('miracle_auth')
-  if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+  if (typeof window === 'undefined') return
+  // Solo redirigir si el usuario estaba en una ruta protegida
+  if (window.location.pathname.startsWith('/plataforma')) {
     window.location.href = '/login'
   }
 }
@@ -30,9 +20,7 @@ function handleUnauthorized() {
 async function request(path, options = {}) {
   const url = `${BASE_URL.replace(/\/$/, '')}/${path.replace(/^\//, '')}`
   const headers = { 'Content-Type': 'application/json', ...options.headers }
-  const token = getAuthToken()
-  if (token) headers.Authorization = `Bearer ${token}`
-  const res = await fetch(url, { ...options, headers })
+  const res = await fetch(url, { ...options, headers, credentials: 'include' })
   const data = await res.json().catch(() => ({}))
   if (res.status === 401) {
     handleUnauthorized()
@@ -42,13 +30,9 @@ async function request(path, options = {}) {
   return data
 }
 
-/** Realiza un fetch multipart/form-data incluyendo el token de autenticación. */
 async function requestFormData(path, method, formData) {
   const url = `${BASE_URL.replace(/\/$/, '')}/${path.replace(/^\//, '')}`
-  const headers = {}
-  const token = getAuthToken()
-  if (token) headers.Authorization = `Bearer ${token}`
-  const res = await fetch(url, { method, body: formData, headers })
+  const res = await fetch(url, { method, body: formData, credentials: 'include' })
   const data = await res.json().catch(() => ({}))
   if (res.status === 401) {
     handleUnauthorized()
@@ -104,6 +88,7 @@ export const campanasApi = {
   actualizar: (id, body) => request(`campanas/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
   actualizarEstado: (id, estado) =>
     request(`campanas/${id}/estado`, { method: 'PATCH', body: JSON.stringify({ estado }) }),
+  eliminar: (id) => request(`campanas/${id}`, { method: 'DELETE' }),
 }
 
 export const iaApi = {
@@ -144,13 +129,10 @@ export const pagosApi = {
     request('pagos/crear-preferencia', { method: 'POST', body: JSON.stringify(body) }),
 }
 
-export const ventasApi = {
-  listar: () => request('ventas'),
-}
-
 export const authApi = {
   login: (email, password) =>
     request('auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
+  logout: () => request('auth/logout', { method: 'POST' }),
   crearTienda: (body) =>
     request('auth/crear-tienda', { method: 'POST', body: JSON.stringify(body) }),
   obtenerPerfil: () => request('auth/me'),

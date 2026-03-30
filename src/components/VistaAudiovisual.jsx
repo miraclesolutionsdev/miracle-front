@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { swalError, swalInfo } from '../utils/swal'
+import { alertError, alertInfo } from '../utils/alerts'
 import SectionCard from './SectionCard'
 import CampaignAIChat from './CampaignAIChat'
 import { audiovisualApi } from '../utils/api'
@@ -73,9 +73,9 @@ function validarImagen(file, resolucionEsperada) {
 
 function badgeEstado(estado) {
   const base = 'inline-flex rounded-full px-2 py-0.5 text-xs font-medium'
-  if (estado === 'aprobada') return `${base} bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300`
-  if (estado === 'usada') return `${base} bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300`
-  return `${base} bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300`
+  if (estado === 'aprobada') return `${base} bg-emerald-100 text-emerald-700`
+  if (estado === 'usada') return `${base} bg-sky-100 text-sky-700`
+  return `${base} bg-amber-100 text-amber-700`
 }
 
 const formInitial = {
@@ -174,7 +174,7 @@ export default function VistaAudiovisual() {
   }
 
   const handleAsociar = (pieza) => {
-    swalInfo(`Asociar la pieza ${pieza.id} a una campaña.`)
+    alertInfo(`Asociar la pieza ${pieza.id} a una campaña.`)
   }
 
   const handleAprobar = async (pieza) => {
@@ -182,12 +182,12 @@ export default function VistaAudiovisual() {
       await audiovisualApi.actualizarEstado(pieza.id, 'aprobada')
       await loadPiezas()
     } catch (err) {
-      swalError(err.message || 'Error al aprobar')
+      alertError(err.message || 'Error al aprobar')
     }
   }
 
   const handleReutilizar = (pieza) => {
-    swalInfo(`Reutilizar la pieza ${pieza.id} en otras campañas.`)
+    alertInfo(`Reutilizar la pieza ${pieza.id} en otras campañas.`)
   }
 
   const esImagen = (contentType) =>

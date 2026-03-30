@@ -123,7 +123,7 @@ export default function VistaConfiguracion() {
       {success && (
         <div className="flex items-start gap-3 rounded-xl border border-emerald-500/25 bg-emerald-500/8 px-4 py-3">
           <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
-          <p className="text-sm text-emerald-600 dark:text-emerald-400">{success}</p>
+          <p className="text-sm text-emerald-600">{success}</p>
         </div>
       )}
 

@@ -18,6 +18,7 @@ function CampañasList({
   onLanzar,
   onActivarPausar,
   onFinalizar,
+  onEliminar,
 }) {
   return (
     <SectionCard title="Campañas">
@@ -105,6 +106,15 @@ function CampañasList({
                         className="text-muted-foreground hover:underline"
                       >
                         Finalizar
+                      </button>
+                    )}
+                    {(c.estado === 'borrador' || c.estado === 'finalizada') && onEliminar && (
+                      <button
+                        type="button"
+                        onClick={() => onEliminar(c)}
+                        className="text-red-500 hover:underline"
+                      >
+                        Eliminar
                       </button>
                     )}
                   </div>

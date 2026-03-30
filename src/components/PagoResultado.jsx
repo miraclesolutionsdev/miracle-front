@@ -1,8 +1,6 @@
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { CheckCircle, XCircle, Clock, ArrowLeft, MessageCircle } from 'lucide-react'
 
-const WHATSAPP_NUMBER = '573243524983'
-
 const ESTADOS = {
   exitoso: {
     icon: CheckCircle,
@@ -41,6 +39,7 @@ function PagoResultado({ tipo }) {
   const Icon = estado.icon
 
   const paymentId = searchParams.get('payment_id')
+  const whatsappNumber = searchParams.get('wa') || ''
 
   const handleWhatsapp = () => {
     const texto = [
@@ -51,7 +50,7 @@ function PagoResultado({ tipo }) {
           : 'Hola, mi pago quedó pendiente de confirmación.',
       paymentId ? `ID de pago: ${paymentId}` : '',
     ].filter(Boolean).join('\n')
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(texto)}`, '_blank', 'noopener,noreferrer')
+    window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(texto)}`, '_blank', 'noopener,noreferrer')
   }
 
   return (
@@ -88,7 +87,7 @@ function PagoResultado({ tipo }) {
 
         {/* Acciones */}
         <div className="flex w-full flex-col gap-3">
-          {estado.mostrarWhatsapp && (
+          {estado.mostrarWhatsapp && whatsappNumber && (
             <button
               type="button"
               onClick={handleWhatsapp}

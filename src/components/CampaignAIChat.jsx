@@ -289,19 +289,27 @@ export default function CampaignAIChat() {
 
     try {
       setImagenLoading(true)
-      console.log('[CampaignAIChat] Payload para generar imagen:', payloadImagen)
+      setImagenError(null)
+      const prompt = [
+        `Producto: ${payloadImagen.producto.nombre}`,
+        payloadImagen.producto.categoria ? `Categoría: ${payloadImagen.producto.categoria}` : null,
+        payloadImagen.producto.publico_objetivo ? `Público objetivo: ${payloadImagen.producto.publico_objetivo}` : null,
+        `Ángulo: ${payloadImagen.angulo.nombre} — ${payloadImagen.angulo.descripcion}`,
+        payloadImagen.copy.titulo ? `Título: ${payloadImagen.copy.titulo}` : null,
+        payloadImagen.copy.cuerpo ? `Cuerpo: ${payloadImagen.copy.cuerpo}` : null,
+        payloadImagen.copy.cta ? `CTA: ${payloadImagen.copy.cta}` : null,
+      ].filter(Boolean).join('\n')
 
-      // Simulación de generación de imagen; luego aquí iría la llamada real a la API.
-      setTimeout(() => {
-        setImagenPreview(
-          'https://via.placeholder.com/1080x1080.png?text=Preview+imagen+copy',
-        )
-        setImagenLoading(false)
-      }, 800)
+      const imagenesProducto = (productoSeleccionado?.imagenes || [])
+        .map((img) => (typeof img === 'string' ? { url: img } : img?.url ? { url: img.url } : null))
+        .filter(Boolean)
+
+      const resultado = await iaApi.generarImagen({ prompt, aspectRatio: '1:1', imagenesProducto })
+      setImagenPreview(`data:image/png;base64,${resultado.imageBase64}`)
     } catch (err) {
-      setImagenError('No se pudo generar la imagen (simulación).')
+      setImagenError('No se pudo generar la imagen.')
+    } finally {
       setImagenLoading(false)
-      console.error('[CampaignAIChat] Error al simular imagen:', err)
     }
   }
 
@@ -534,7 +542,7 @@ export default function CampaignAIChat() {
             {imagenPreview && (
               <div className="mt-2">
                 <p className="mb-1 text-[11px] text-muted-foreground">
-                  Preview simulada de la imagen (luego vendrá de la API de imágenes):
+                  Imagen generada:
                 </p>
                 <img
                   src={imagenPreview}

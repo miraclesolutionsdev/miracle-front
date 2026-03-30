@@ -56,40 +56,6 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  html.dark {
-    /* Tema oscuro premium */
-    --background: 228 42% 5%;
-    --foreground: 210 22% 95%;
-    --card: 226 32% 8%;
-    --card-foreground: 210 22% 95%;
-    --popover: 226 32% 8%;
-    --popover-foreground: 210 22% 95%;
-    --primary: 258 84% 66%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 226 22% 12%;
-    --secondary-foreground: 210 18% 78%;
-    --muted: 226 22% 11%;
-    --muted-foreground: 218 14% 50%;
-    --accent: 226 22% 13%;
-    --accent-foreground: 210 22% 95%;
-    --destructive: 0 68% 56%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 226 18% 14%;
-    --input: 226 18% 14%;
-    --ring: 258 84% 66%;
-    --chart-1: 258 84% 66%;
-    --chart-2: 173 58% 48%;
-    --chart-3: 43 80% 62%;
-    --chart-4: 340 65% 60%;
-    --chart-5: 27 90% 62%;
-    --sidebar-background: 228 46% 4%;
-    --sidebar-foreground: 218 14% 52%;
-    --sidebar-accent: 226 28% 10%;
-    --sidebar-accent-foreground: 210 22% 95%;
-    --sidebar-border: 226 18% 11%;
-    --sidebar-ring: 258 84% 66%;
-  }
-
   * {
     @apply border-border;
   }
@@ -100,7 +66,6 @@
     padding: 0;
     min-height: 100vh;
     width: 100%;
-    transition: background-color 0.3s ease-out, color 0.3s ease-out;
   }
 
   /* Scrollbar */
@@ -120,6 +85,12 @@
   textarea,
   select {
     transition: border-color 150ms ease-out, box-shadow 150ms ease-out;
+  }
+
+  /* Native <option> elements inherit bg/color from the select */
+  option {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
   }
 
   /* Form elements – focus ring */
@@ -228,7 +199,7 @@
   background: transparent !important;
 }
 
-/* Iconos – ajuste de colores para que no queden raros en dark */
+/* Iconos – ajuste de colores */
 .swal2-icon.swal2-success {
   border-color: hsl(173 58% 44% / 0.4) !important;
   color: hsl(173 58% 44%) !important;
@@ -252,3 +223,4 @@
   border-color: hsl(var(--primary) / 0.4) !important;
   color: hsl(var(--primary)) !important;
 }
+

@@ -305,9 +305,9 @@ Reglas estrictas:
             <div className="grid gap-4 md:grid-cols-2">
               {copys.map((c, idx) => {
                 const etapaConfig = {
-                  TOF: { label: 'TOF · Top of Funnel', pill: 'bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20', line: 'via-violet-500/50' },
-                  MOF: { label: 'MOF · Middle of Funnel', pill: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20', line: 'via-amber-500/50' },
-                  BOF: { label: 'BOF · Bottom of Funnel', pill: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20', line: 'via-emerald-500/50' },
+                  TOF: { label: 'TOF · Top of Funnel', pill: 'bg-violet-500/10 text-violet-600 border-violet-500/20', line: 'via-violet-500/50' },
+                  MOF: { label: 'MOF · Middle of Funnel', pill: 'bg-amber-500/10 text-amber-600 border-amber-500/20', line: 'via-amber-500/50' },
+                  BOF: { label: 'BOF · Bottom of Funnel', pill: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20', line: 'via-emerald-500/50' },
                 }[c.etapa] || { label: c.etapa, pill: 'bg-muted text-muted-foreground border-border', line: 'via-primary/30' }
 
                 return (

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { swalError, swalWarning, swalSuccess } from '../utils/swal'
+import { alertError, alertWarning, alertSuccess } from '../utils/alerts'
 import ClientesList from './ClientesList'
 import ClienteForm from './ClienteForm'
 import ClienteDetalle from './ClienteDetalle'
@@ -77,7 +77,7 @@ export default function VistaClientes() {
       if (clienteDetalle?.id === payload.id) setClienteDetalle(null)
       cerrarForm()
     } catch (err) {
-      swalError(err.message || 'No se pudo guardar el cliente')
+      alertError(err.message || 'No se pudo guardar el cliente')
     }
   }
 
@@ -91,7 +91,7 @@ export default function VistaClientes() {
       const rows = await readExcelFile(file)
       const validacion = validarCabecerasClientes(rows)
       if (!validacion.valido) {
-        swalError('Faltan columnas: ' + validacion.faltantes.join(', ') + '. Revisa la primera fila del Excel.')
+        alertError('Faltan columnas: ' + validacion.faltantes.join(', ') + '. Revisa la primera fila del Excel.')
         return
       }
       const validacionFilas = validarFilasClientes(rows)
@@ -99,12 +99,12 @@ export default function VistaClientes() {
         const msg = validacionFilas.filasConError
           .map((e) => `Fila ${e.numeroFila}: faltan ${e.camposFaltantes.join(', ')}`)
           .join('\n')
-        swalError('Filas incompletas: ' + msg)
+        alertError('Filas incompletas: ' + msg)
         return
       }
       const importados = rowsToClientes(rows)
       if (importados.length === 0) {
-        swalWarning('No hay filas de datos para importar. Revisa el archivo Excel.')
+        alertWarning('No hay filas de datos para importar. Revisa el archivo Excel.')
         return
       }
       let importadosOk = 0
@@ -132,10 +132,10 @@ export default function VistaClientes() {
         duplicados > 0
           ? `Se importaron ${importadosOk} de ${importados.length} clientes. ${duplicados} ya existían (cédula/NIT duplicada).`
           : `Se importaron ${importadosOk} de ${importados.length} clientes.`
-      swalSuccess(msg)
+      alertSuccess(msg)
     } catch (err) {
       console.error('Error al importar Excel:', err)
-      swalError('No se pudo leer el archivo. Comprueba que sea un Excel (.xlsx) válido.')
+      alertError('No se pudo leer el archivo. Comprueba que sea un Excel (.xlsx) válido.')
     }
   }
 

@@ -6,20 +6,11 @@ import CampaignChart from './CampaignChart'
 import { useProductos } from '../context/ProductosContext.jsx'
 import { campanasApi, audiovisualApi } from '../utils/api'
 
-// Fallback si no hay piezas desde API
-const PIEZAS_FALLBACK = [
-  { id: 'AV-001', nombre: 'Pixel Web - Sitio principal' },
-  { id: 'AV-002', nombre: 'Pixel Web - Landing campañas' },
-  { id: 'AV-003', nombre: 'Catálogo de productos' },
-  { id: 'AV-004', nombre: 'Video 15s TikTok' },
-  { id: 'AV-005', nombre: 'Banner 1080x1080 Meta' },
-]
-
 export default function VistaCampañas() {
   const { productos } = useProductos()
   const [campañas, setCampañas] = useState([])
   const [busqueda, setBusqueda] = useState('')
-  const [piezas, setPiezas] = useState(PIEZAS_FALLBACK)
+  const [piezas, setPiezas] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [formAbierto, setFormAbierto] = useState(null)
@@ -44,13 +35,9 @@ export default function VistaCampañas() {
       .listar()
       .then((data) => {
         const list = Array.isArray(data) ? data : []
-        setPiezas(
-          list.length
-            ? list.map((p) => ({ id: p.id, nombre: p.nombre || p.titulo || p.id }))
-            : PIEZAS_FALLBACK
-        )
+        setPiezas(list.map((p) => ({ id: p.id, nombre: p.nombre || p.titulo || p.id })))
       })
-      .catch(() => setPiezas(PIEZAS_FALLBACK))
+      .catch(() => setPiezas([]))
   }, [])
 
   const handleCrear = () => setFormAbierto('crear')
@@ -113,6 +100,23 @@ export default function VistaCampañas() {
       .catch((err) => setError(err.message))
   }
 
+  const handleEliminar = (c) => {
+    campanasApi
+      .eliminar(c.id)
+      .then(() => setCampañas((prev) => prev.filter((camp) => camp.id !== c.id)))
+      .catch((err) => setError(err.message))
+  }
+
+  const handleAsociarMaterial = (c, piezaNombre) => {
+    campanasApi
+      .actualizar(c.id, { piezaCreativo: piezaNombre })
+      .then((actualizada) => {
+        setCampañas((prev) => prev.map((camp) => (camp.id === actualizada.id ? actualizada : camp)))
+        if (campañaDetalle?.id === actualizada.id) setCampañaDetalle(actualizada)
+      })
+      .catch((err) => setError(err.message))
+  }
+
   const campañasFiltradas = useMemo(() => {
     const q = busqueda.trim().toLowerCase()
     if (!q) return campañas
@@ -138,7 +142,7 @@ export default function VistaCampañas() {
   return (
     <div className="space-y-6">
       {error && (
-        <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm text-red-600 dark:text-red-400">
+        <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm text-red-600">
           {error}
         </div>
       )}
@@ -159,6 +163,7 @@ export default function VistaCampañas() {
         onLanzar={handleLanzar}
         onActivarPausar={handleActivarPausar}
         onFinalizar={handleFinalizar}
+        onEliminar={handleEliminar}
       />
 
       <CampaignChart />
@@ -176,9 +181,11 @@ export default function VistaCampañas() {
       {campañaDetalle && (
         <CampañaDetalle
           campaña={campañaDetalle}
+          piezas={piezas}
           onCerrar={cerrarDetalle}
           onActivarPausar={handleActivarPausar}
           onFinalizar={handleFinalizar}
+          onAsociarMaterial={handleAsociarMaterial}
         />
       )}
     </div>

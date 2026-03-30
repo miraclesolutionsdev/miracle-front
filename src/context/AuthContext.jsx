@@ -1,60 +1,34 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-
-const STORAGE_KEY = 'miracle_auth'
+import { authApi } from '../utils/api'
 
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
-  const [token, setToken] = useState(null)
   const [loading, setLoading] = useState(true)
 
+  // Al montar, verifica si la cookie de sesión sigue vigente
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY)
-      if (raw) {
-        const data = JSON.parse(raw)
-        if (data?.token) {
-          setToken(data.token)
-          setUser(data.user ?? null)
-        }
-      }
-    } catch (_) {
-      localStorage.removeItem(STORAGE_KEY)
-    } finally {
-      setLoading(false)
-    }
+    authApi.obtenerPerfil()
+      .then((data) => setUser(data?.user ?? null))
+      .catch(() => setUser(null))
+      .finally(() => setLoading(false))
   }, [])
 
   const login = (data) => {
-    const { token: t, user: u } = data
-    setToken(t)
-    setUser(u ?? null)
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ token: t, user: u }))
+    setUser(data.user ?? null)
   }
 
-  const logout = () => {
-    setToken(null)
+  const logout = async () => {
     setUser(null)
-    localStorage.removeItem(STORAGE_KEY)
+    await authApi.logout().catch(() => {})
   }
 
   const updateUser = (partial) => {
-    setUser((prev) => {
-      if (!prev) return prev
-      const next = { ...prev, ...partial }
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY)
-        if (raw) {
-          const data = JSON.parse(raw)
-          if (data?.token) localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...data, user: next }))
-        }
-      } catch (_) {}
-      return next
-    })
+    setUser((prev) => (prev ? { ...prev, ...partial } : prev))
   }
 
-  const value = { user, token, login, logout, updateUser, loading, isAuthenticated: !!token }
+  const value = { user, login, logout, updateUser, loading, isAuthenticated: !!user }
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 

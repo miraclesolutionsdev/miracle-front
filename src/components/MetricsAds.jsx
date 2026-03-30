@@ -1,119 +1,75 @@
-import { useState } from 'react'
-import { swalInfo } from '../utils/swal'
+import { useState, useEffect } from 'react'
+import { campanasApi } from '../utils/api'
 import SectionCard from './SectionCard'
 
-function calcularKpis(campanas) {
-  const totImpresiones = campanas.reduce((acc, c) => acc + c.impresiones, 0)
-  const totClicks = campanas.reduce((acc, c) => acc + c.clicks, 0)
-  const totConversiones = campanas.reduce((acc, c) => acc + c.conversiones, 0)
-  const totCoins = campanas.reduce((acc, c) => acc + c.miracleCoins, 0)
-  const ctrPromedio =
-    totImpresiones > 0 ? ((totClicks / totImpresiones) * 100).toFixed(2) : '0.00'
-
-  return {
-    impresiones: totImpresiones.toLocaleString(),
-    clicks: totClicks.toLocaleString(),
-    ctr: `${ctrPromedio}%`,
-    conversiones: totConversiones.toLocaleString(),
-    gasto: campanas.reduce(
-      (acc, c) => acc + Number(c.gasto.replace(/[^0-9.]/g, '') || 0),
-      0,
-    ),
-    miracleCoins: totCoins.toLocaleString(),
-  }
+const ESTADO_LABEL = {
+  activa: 'Activa',
+  pausada: 'Pausada',
+  borrador: 'Borrador',
+  finalizada: 'Finalizada',
 }
 
-const CAMPANAS_DEMO = [
-  {
-    id: 'CP-001',
-    nombre: 'Lanzamiento Q2',
-    plataforma: 'Meta',
-    impresiones: 50321,
-    clicks: 2103,
-    ctr: 4.18,
-    conversiones: 120,
-    gasto: '$850.00',
-    miracleCoins: 320,
-    cliente: 'Acme Corp',
-  },
-  {
-    id: 'CP-002',
-    nombre: 'Remarketing sitio web',
-    plataforma: 'Google Ads',
-    impresiones: 73210,
-    clicks: 1890,
-    ctr: 2.58,
-    conversiones: 95,
-    gasto: '$620.00',
-    miracleCoins: 250,
-    cliente: 'Startup XYZ',
-  },
-  {
-    id: 'CP-003',
-    nombre: 'Promo fin de mes',
-    plataforma: 'Meta',
-    impresiones: 21045,
-    clicks: 328,
-    ctr: 1.56,
-    conversiones: 32,
-    gasto: '$310.00',
-    miracleCoins: 140,
-    cliente: 'Tienda Digital',
-  },
-]
+const ESTADO_COLOR = {
+  activa: 'text-emerald-500',
+  pausada: 'text-amber-500',
+  borrador: 'text-muted-foreground',
+  finalizada: 'text-blue-400',
+}
 
 export default function MetricsAds() {
-  const [campañaSeleccionadaId, setCampañaSeleccionadaId] = useState('')
-  const [plataforma, setPlataforma] = useState('')
-  const [rangoFechas, setRangoFechas] = useState('30d')
+  const [campanas, setCampanas] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [campanaSeleccionadaId, setCampanaSeleccionadaId] = useState('')
+  const [plataformaFiltro, setPlataformaFiltro] = useState('')
 
-  const campanasFiltradas = CAMPANAS_DEMO.filter((c) =>
-    plataforma ? c.plataforma.toLowerCase().includes(plataforma) : true,
+  useEffect(() => {
+    campanasApi
+      .listar()
+      .then((data) => setCampanas(Array.isArray(data) ? data : []))
+      .catch(() => setCampanas([]))
+      .finally(() => setLoading(false))
+  }, [])
+
+  const plataformas = [...new Set(campanas.map((c) => c.plataforma).filter(Boolean))]
+
+  const campanasFiltradas = campanas.filter((c) =>
+    plataformaFiltro ? c.plataforma === plataformaFiltro : true
   )
 
-  const campañaSeleccionada = campañaSeleccionadaId
-    ? campanasFiltradas.find((c) => c.id === campañaSeleccionadaId) || null
+  const campanaSeleccionada = campanaSeleccionadaId
+    ? campanasFiltradas.find((c) => c.id === campanaSeleccionadaId) || null
     : null
 
-  const kpis = calcularKpis(campanasFiltradas)
+  const totalCoins = campanasFiltradas.reduce((acc, c) => acc + (c.miracleCoins || 0), 0)
+  const activas = campanasFiltradas.filter((c) => c.estado === 'activa').length
 
-  const handleVerCampana = (c) => {
-    setCampañaSeleccionadaId(c.id)
-  }
-
-  const handleVerCliente = (c) => {
-    // eslint-disable-next-line no-alert
-    swalInfo(`Ver métricas agregadas del cliente ${c.cliente}.`)
-  }
-
-  const handleComparar = (c) => {
-    // eslint-disable-next-line no-alert
-    swalInfo(`Comparar la campaña ${c.id} con otras campañas.`)
+  if (loading) {
+    return (
+      <SectionCard title="Métricas Ads">
+        <div className="py-8 text-center text-sm text-muted-foreground">Cargando campañas…</div>
+      </SectionCard>
+    )
   }
 
   return (
     <div className="space-y-6">
       <SectionCard title="Métricas Ads">
         <p className="mb-4 text-sm text-muted-foreground">
-          Visualiza el rendimiento de tus campañas publicitarias. Selecciona una campaña para ver
-          sus métricas detalladas.
+          Visualiza el rendimiento de tus campañas. Selecciona una para ver sus detalles.
         </p>
 
-        {/* Selector de campaña + filtros */}
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:gap-3">
           <div className="min-w-[200px] flex-1 space-y-1">
-            <label className="block text-xs font-medium text-muted-foreground">
-              Seleccionar campaña
-            </label>
+            <label className="block text-xs font-medium text-muted-foreground">Seleccionar campaña</label>
             <select
-              value={campañaSeleccionadaId}
-              onChange={(e) => setCampañaSeleccionadaId(e.target.value)}
+              value={campanaSeleccionadaId}
+              onChange={(e) => setCampanaSeleccionadaId(e.target.value)}
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-card-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
             >
-              <option value="">Seleccione una campaña...</option>
+              <option value="">Todas las campañas…</option>
               {campanasFiltradas.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {c.nombre} ({c.plataforma})
+                  {c.producto || 'Sin producto'} — {c.plataforma || 'Sin plataforma'}
                 </option>
               ))}
             </select>
@@ -121,247 +77,120 @@ export default function MetricsAds() {
           <div className="space-y-1">
             <label className="block text-xs font-medium text-muted-foreground">Plataforma</label>
             <select
-              value={plataforma}
-              onChange={(e) => {
-                setPlataforma(e.target.value)
-                if (campañaSeleccionadaId) setCampañaSeleccionadaId('')
-              }}
+              value={plataformaFiltro}
+              onChange={(e) => { setPlataformaFiltro(e.target.value); setCampanaSeleccionadaId('') }}
               className="rounded-lg border border-border bg-background px-3 py-2 text-sm text-card-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
             >
               <option value="">Todas</option>
-              <option value="meta">Meta (Facebook/Instagram)</option>
-              <option value="google">Google Ads</option>
-            </select>
-          </div>
-          <div className="space-y-1">
-            <label className="block text-xs font-medium text-muted-foreground">
-              Rango de fechas
-            </label>
-            <select
-              value={rangoFechas}
-              onChange={(e) => setRangoFechas(e.target.value)}
-              className="rounded-lg border border-border bg-background px-3 py-2 text-sm text-card-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-            >
-              <option value="7d">Últimos 7 días</option>
-              <option value="30d">Últimos 30 días</option>
-              <option value="90d">Últimos 90 días</option>
+              {plataformas.map((p) => (
+                <option key={p} value={p}>{p}</option>
+              ))}
             </select>
           </div>
         </div>
 
-        {/* Vista detallada de una sola campaña */}
-        {campañaSeleccionada ? (
+        {campanaSeleccionada ? (
           <div className="space-y-6">
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-muted/30 p-4">
               <div>
                 <h3 className="text-base font-semibold text-card-foreground">
-                  {campañaSeleccionada.nombre}
+                  {campanaSeleccionada.producto || 'Sin producto'}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  {campañaSeleccionada.plataforma}
-                  {campañaSeleccionada.cliente
-                    ? ` · Cliente: ${campañaSeleccionada.cliente}`
-                    : ''}
-                </p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Datos del rango: {rangoFechas === '7d' ? 'Últimos 7 días' : rangoFechas === '30d' ? 'Últimos 30 días' : 'Últimos 90 días'}
+                  {campanaSeleccionada.plataforma || 'Sin plataforma'}
+                  {campanaSeleccionada.piezaCreativo ? ` · ${campanaSeleccionada.piezaCreativo}` : ''}
                 </p>
               </div>
               <button
                 type="button"
-                onClick={() => setCampañaSeleccionadaId('')}
+                onClick={() => setCampanaSeleccionadaId('')}
                 className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted"
               >
-                Ver todas las campañas
+                Ver todas
               </button>
             </div>
 
-            <p className="text-sm font-medium text-muted-foreground">
-              Métricas de esta campaña
-            </p>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-                <p className="text-xs font-medium text-muted-foreground">
-                  Impresiones totales de la campaña
-                </p>
+                <p className="text-xs font-medium text-muted-foreground">Miracle Coins asignadas</p>
                 <p className="mt-1 text-2xl font-bold text-card-foreground">
-                  {campañaSeleccionada.impresiones.toLocaleString()}
+                  {(campanaSeleccionada.miracleCoins || 0).toLocaleString()}
                 </p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Veces que se mostró el anuncio
-                </p>
+                <p className="mt-1 text-xs text-muted-foreground">Créditos asignados a esta campaña</p>
               </div>
               <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-                <p className="text-xs font-medium text-muted-foreground">
-                  Clicks totales
-                </p>
+                <p className="text-xs font-medium text-muted-foreground">Plataforma</p>
                 <p className="mt-1 text-2xl font-bold text-card-foreground">
-                  {campañaSeleccionada.clicks.toLocaleString()}
+                  {campanaSeleccionada.plataforma || '—'}
                 </p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Interacciones en el anuncio
-                </p>
+                <p className="mt-1 text-xs text-muted-foreground">Canal de publicación</p>
               </div>
               <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-                <p className="text-xs font-medium text-muted-foreground">
-                  CTR (tasa de clics)
+                <p className="text-xs font-medium text-muted-foreground">Estado</p>
+                <p className={`mt-1 text-2xl font-bold ${ESTADO_COLOR[campanaSeleccionada.estado] || ''}`}>
+                  {ESTADO_LABEL[campanaSeleccionada.estado] || campanaSeleccionada.estado}
                 </p>
-                <p className="mt-1 text-2xl font-bold text-card-foreground">
-                  {campañaSeleccionada.ctr}%
-                </p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Porcentaje de impresiones que generaron clic
-                </p>
-              </div>
-              <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-                <p className="text-xs font-medium text-muted-foreground">
-                  Conversiones de la campaña
-                </p>
-                <p className="mt-1 text-2xl font-bold text-card-foreground">
-                  {campañaSeleccionada.conversiones.toLocaleString()}
-                </p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Objetivos completados (ventas, registros, etc.)
-                </p>
-              </div>
-              <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-                <p className="text-xs font-medium text-muted-foreground">
-                  Gasto publicitario
-                </p>
-                <p className="mt-1 text-2xl font-bold text-card-foreground">
-                  {campañaSeleccionada.gasto}
-                </p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Inversión en esta campaña
-                </p>
-              </div>
-              <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-                <p className="text-xs font-medium text-muted-foreground">
-                  Miracle Coins consumidas
-                </p>
-                <p className="mt-1 text-2xl font-bold text-card-foreground">
-                  {campañaSeleccionada.miracleCoins.toLocaleString()}
-                </p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Créditos usados en la campaña
-                </p>
+                <p className="mt-1 text-xs text-muted-foreground">Estado actual de la campaña</p>
               </div>
             </div>
           </div>
         ) : (
           <>
-            <p className="mb-4 text-sm text-muted-foreground">
-              Elige una campaña en el selector de arriba para ver sus métricas, o revisa el listado
-              y haz clic en &quot;Ver métricas&quot;.
-            </p>
-
-            {/* KPIs globales (todas las campañas filtradas) */}
-            <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+            <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
               <div className="rounded-lg border border-border bg-muted/30 p-3">
-                <p className="text-xs font-medium text-muted-foreground">Impresiones</p>
-                <p className="text-lg font-semibold text-card-foreground">{kpis.impresiones}</p>
+                <p className="text-xs font-medium text-muted-foreground">Total campañas</p>
+                <p className="text-lg font-semibold text-card-foreground">{campanasFiltradas.length}</p>
               </div>
               <div className="rounded-lg border border-border bg-muted/30 p-3">
-                <p className="text-xs font-medium text-muted-foreground">Clicks</p>
-                <p className="text-lg font-semibold text-card-foreground">{kpis.clicks}</p>
+                <p className="text-xs font-medium text-muted-foreground">Activas</p>
+                <p className="text-lg font-semibold text-emerald-500">{activas}</p>
               </div>
               <div className="rounded-lg border border-border bg-muted/30 p-3">
-                <p className="text-xs font-medium text-muted-foreground">CTR</p>
-                <p className="text-lg font-semibold text-card-foreground">{kpis.ctr}</p>
-              </div>
-              <div className="rounded-lg border border-border bg-muted/30 p-3">
-                <p className="text-xs font-medium text-muted-foreground">Conversiones</p>
-                <p className="text-lg font-semibold text-card-foreground">{kpis.conversiones}</p>
-              </div>
-              <div className="rounded-lg border border-border bg-muted/30 p-3">
-                <p className="text-xs font-medium text-muted-foreground">Gasto aprox.</p>
-                <p className="text-lg font-semibold text-card-foreground">
-                  $
-                  {kpis.gasto.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                </p>
-              </div>
-              <div className="rounded-lg border border-border bg-muted/30 p-3">
-                <p className="text-xs font-medium text-muted-foreground">Miracle Coins</p>
-                <p className="text-lg font-semibold text-card-foreground">{kpis.miracleCoins}</p>
+                <p className="text-xs font-medium text-muted-foreground">Miracle Coins totales</p>
+                <p className="text-lg font-semibold text-card-foreground">{totalCoins.toLocaleString()}</p>
               </div>
             </div>
 
-            {/* Tabla de todas las campañas */}
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead>
-                  <tr className="border-b border-border text-muted-foreground">
-                    <th className="pb-3 pr-4 font-medium">Campaña</th>
-                    <th className="pb-3 pr-4 font-medium">Plataforma</th>
-                    <th className="pb-3 pr-4 font-medium">Impresiones</th>
-                    <th className="pb-3 pr-4 font-medium">Clicks</th>
-                    <th className="pb-3 pr-4 font-medium">CTR</th>
-                    <th className="pb-3 pr-4 font-medium">Conversiones</th>
-                    <th className="pb-3 pr-4 font-medium">Gasto</th>
-                    <th className="pb-3 pr-4 font-medium">Miracle Coins</th>
-                    <th className="pb-3 pr-4 font-medium">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {campanasFiltradas.map((c) => (
-                    <tr key={c.id} className="border-b border-border">
-                      <td className="py-3 pr-4 text-card-foreground whitespace-nowrap">
-                        {c.nombre}
-                      </td>
-                      <td className="py-3 pr-4 text-muted-foreground whitespace-nowrap">
-                        {c.plataforma}
-                      </td>
-                      <td className="py-3 pr-4 text-muted-foreground whitespace-nowrap">
-                        {c.impresiones.toLocaleString()}
-                      </td>
-                      <td className="py-3 pr-4 text-muted-foreground whitespace-nowrap">
-                        {c.clicks.toLocaleString()}
-                      </td>
-                      <td className="py-3 pr-4 text-muted-foreground whitespace-nowrap">
-                        {c.ctr}%
-                      </td>
-                      <td className="py-3 pr-4 text-muted-foreground whitespace-nowrap">
-                        {c.conversiones.toLocaleString()}
-                      </td>
-                      <td className="py-3 pr-4 text-muted-foreground whitespace-nowrap">
-                        {c.gasto}
-                      </td>
-                      <td className="py-3 pr-4 text-muted-foreground whitespace-nowrap">
-                        {c.miracleCoins.toLocaleString()}
-                      </td>
-                      <td className="py-3 pr-4">
-                        <div className="flex flex-wrap gap-2">
-                          <button
-                            type="button"
-                            onClick={() => handleVerCampana(c)}
-                            className="text-primary hover:underline"
-                          >
-                            Ver métricas
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleVerCliente(c)}
-                            className="text-primary hover:underline"
-                          >
-                            Ver por cliente
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleComparar(c)}
-                            className="text-primary hover:underline"
-                          >
-                            Comparar
-                          </button>
-                        </div>
-                      </td>
+            {campanasFiltradas.length === 0 ? (
+              <p className="py-8 text-center text-sm text-muted-foreground">No hay campañas registradas.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead>
+                    <tr className="border-b border-border text-muted-foreground">
+                      <th className="pb-3 pr-4 font-medium">Producto</th>
+                      <th className="pb-3 pr-4 font-medium">Plataforma</th>
+                      <th className="pb-3 pr-4 font-medium">Pieza creativo</th>
+                      <th className="pb-3 pr-4 font-medium">Miracle Coins</th>
+                      <th className="pb-3 pr-4 font-medium">Estado</th>
+                      <th className="pb-3 font-medium">Acción</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {campanasFiltradas.map((c) => (
+                      <tr key={c.id} className="border-b border-border">
+                        <td className="py-3 pr-4 text-card-foreground whitespace-nowrap">{c.producto || '—'}</td>
+                        <td className="py-3 pr-4 text-muted-foreground whitespace-nowrap">{c.plataforma || '—'}</td>
+                        <td className="py-3 pr-4 text-muted-foreground whitespace-nowrap">{c.piezaCreativo || '—'}</td>
+                        <td className="py-3 pr-4 text-muted-foreground whitespace-nowrap">{(c.miracleCoins || 0).toLocaleString()}</td>
+                        <td className={`py-3 pr-4 whitespace-nowrap font-medium ${ESTADO_COLOR[c.estado] || ''}`}>
+                          {ESTADO_LABEL[c.estado] || c.estado}
+                        </td>
+                        <td className="py-3">
+                          <button
+                            type="button"
+                            onClick={() => setCampanaSeleccionadaId(c.id)}
+                            className="text-primary hover:underline text-xs"
+                          >
+                            Ver detalle
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </>
         )}
       </SectionCard>

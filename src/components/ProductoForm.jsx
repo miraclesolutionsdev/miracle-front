@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { swalError } from '../utils/swal'
+import { alertError } from '../utils/alerts'
 import { productosApi } from '../utils/api'
 
 const TIPOS = ['servicio', 'producto']
@@ -17,6 +17,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
     usosTexto: '',
     caracteristicasTexto: '',
     stock: '',
+    whatsapp: '',
   })
   const [eliminandoImagen, setEliminandoImagen] = useState(null)
 
@@ -39,6 +40,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
           ? producto.caracteristicas.join('\n')
           : '',
         stock: producto.stock != null ? String(producto.stock) : '',
+        whatsapp: producto.whatsapp ?? '',
       })
     } else {
       setForm({
@@ -71,6 +73,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
       formData.append('tipo', form.tipo)
       formData.append('estado', form.estado)
       formData.append('stock', form.tipo === 'producto' ? String(Number(form.stock) || 0) : '0')
+      formData.append('whatsapp', form.whatsapp || '')
       formData.append('usos', JSON.stringify(usos))
       formData.append('caracteristicas', JSON.stringify(caracteristicas))
       form.archivosImagen.forEach((file) => formData.append('imagenes', file))
@@ -104,7 +107,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
       const productoActualizado = await productosApi.eliminarImagen(producto.id, i)
       onGuardar({ id: producto.id, data: productoActualizado })
     } catch (err) {
-      swalError('Error al eliminar la imagen: ' + err.message)
+      alertError('Error al eliminar la imagen: ' + err.message)
     } finally {
       setEliminandoImagen(null)
     }
@@ -203,6 +206,19 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
               />
             </div>
           )}
+          <div>
+            <label className="mb-1 block text-sm font-medium text-muted-foreground">
+              WhatsApp de contacto (con código de país)
+            </label>
+            <input
+              type="text"
+              value={form.whatsapp}
+              onChange={(e) => setForm((f) => ({ ...f, whatsapp: e.target.value }))}
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
+              placeholder="Ej. 573001234567"
+            />
+            <p className="mt-1 text-xs text-muted-foreground">Se usa para redirigir al cliente por WhatsApp después del pago.</p>
+          </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="mb-1 block text-sm font-medium text-muted-foreground">

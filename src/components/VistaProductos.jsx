@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { swalError, swalWarning, swalSuccess } from '../utils/swal'
+import { alertError, alertWarning, alertSuccess } from '../utils/alerts'
 import ProductosList from './ProductosList'
 import ProductoForm from './ProductoForm'
 import { useProductos } from '../context/ProductosContext.jsx'
@@ -27,7 +27,7 @@ export default function VistaProductos() {
       await guardarProducto(payload)
       cerrarForm()
     } catch (err) {
-      swalError(err.message || 'No se pudo guardar el producto')
+      alertError(err.message || 'No se pudo guardar el producto')
     }
   }
 
@@ -45,7 +45,7 @@ export default function VistaProductos() {
       const rows = await readExcelFile(file)
       const validacionCabeceras = validarCabecerasProductos(rows)
       if (!validacionCabeceras.valido) {
-        swalError('Faltan columnas: ' + validacionCabeceras.faltantes.join(', ') + '. Revisa la primera fila del Excel.')
+        alertError('Faltan columnas: ' + validacionCabeceras.faltantes.join(', ') + '. Revisa la primera fila del Excel.')
         return
       }
       const validacionFilas = validarFilasProductos(rows)
@@ -53,12 +53,12 @@ export default function VistaProductos() {
         const msg = validacionFilas.filasConError
           .map((e) => `Fila ${e.numeroFila}: faltan ${e.camposFaltantes.join(', ')}`)
           .join('\n')
-        swalError('Filas incompletas: ' + msg)
+        alertError('Filas incompletas: ' + msg)
         return
       }
       const importados = rowsToProductos(rows)
       if (importados.length === 0) {
-        swalWarning('No hay filas de datos para importar. Revisa el archivo Excel.')
+        alertWarning('No hay filas de datos para importar. Revisa el archivo Excel.')
         return
       }
       const { importadosOk, duplicados, total } = await importarProductos(importados)
@@ -66,10 +66,10 @@ export default function VistaProductos() {
         duplicados > 0
           ? `Se importaron ${importadosOk} de ${total} productos. ${duplicados} ya existían (nombre duplicado).`
           : `Se importaron ${importadosOk} de ${total} productos.`
-      swalSuccess(msg)
+      alertSuccess(msg)
     } catch (err) {
       console.error('Error al importar Excel:', err)
-      swalError('No se pudo leer el archivo. Comprueba que sea un Excel (.xlsx) válido.')
+      alertError('No se pudo leer el archivo. Comprueba que sea un Excel (.xlsx) válido.')
     }
   }
 

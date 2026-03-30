@@ -61,6 +61,7 @@ export default function ResumenGeneral() {
   const [totalClientes, setTotalClientes] = useState(null)
   const [totalPiezas, setTotalPiezas] = useState(null)
   const [totalCampanas, setTotalCampanas] = useState(null)
+  const [totalCoins, setTotalCoins] = useState(null)
 
   useEffect(() => {
     let cancelled = false
@@ -93,10 +94,14 @@ export default function ResumenGeneral() {
     campanasApi
       .listar()
       .then((data) => {
-        if (!cancelled) setTotalCampanas(Array.isArray(data) ? data.length : 0)
+        if (!cancelled) {
+          const list = Array.isArray(data) ? data : []
+          setTotalCampanas(list.length)
+          setTotalCoins(list.reduce((sum, c) => sum + (c.miracleCoins || 0), 0))
+        }
       })
       .catch(() => {
-        if (!cancelled) setTotalCampanas(0)
+        if (!cancelled) { setTotalCampanas(0); setTotalCoins(0) }
       })
     return () => { cancelled = true }
   }, [])
@@ -106,7 +111,7 @@ export default function ResumenGeneral() {
     if (key === 'productos') return String(productos?.length ?? 0)
     if (key === 'piezas') return totalPiezas !== null ? String(totalPiezas) : '—'
     if (key === 'campanas') return totalCampanas !== null ? String(totalCampanas) : '—'
-    if (key === 'coins') return '—'
+    if (key === 'coins') return totalCoins !== null ? totalCoins.toLocaleString() : '—'
     return '—'
   }
 

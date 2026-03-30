@@ -1,31 +1,33 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { ordenesApi } from '../utils/api'
 
 const TABS = [
-  { id: 'productos', label: 'Productos asociados' },
-  { id: 'campanas', label: 'Campañas asociadas' },
-  { id: 'ventas', label: 'Ventas asociadas' },
-  { id: 'coins', label: 'Consumo Miracle Coins' },
+  { id: 'ventas',  label: 'Ventas asociadas' },
+  { id: 'coins',   label: 'Miracle Coins' },
 ]
 
-const productosEjemplo = [
-  { name: 'Pack Social Media', price: '$1,200', estado: 'Activo' },
-  { name: 'Video Corporativo', price: '$3,500', estado: 'En uso' },
-]
-const campañasEjemplo = [
-  { nombre: 'Facebook Ads Q1', estado: 'Activa', alcance: '12.5k' },
-  { nombre: 'Google Search', estado: 'Activa', alcance: '8.2k' },
-]
-const ventasEjemplo = [
-  { fecha: '2025-01-15', monto: '$2,400', estado: 'Completada' },
-  { fecha: '2025-01-08', monto: '$800', estado: 'Completada' },
-]
-const consumoCoinsEjemplo = [
-  { fecha: '2025-01-14', concepto: 'Creación de anuncios', coins: 150 },
-  { fecha: '2025-01-10', concepto: 'Reporte semanal', coins: 50 },
-]
+const ESTADO_COLOR = {
+  pendiente:   'text-amber-500',
+  procesando:  'text-blue-400',
+  completada:  'text-emerald-500',
+  entregada:   'text-emerald-600',
+  cancelada:   'text-red-500',
+}
 
 function ClienteDetalle({ cliente, onCerrar }) {
-  const [tab, setTab] = useState('productos')
+  const [tab, setTab] = useState('ventas')
+  const [ventas, setVentas] = useState([])
+  const [loadingVentas, setLoadingVentas] = useState(true)
+
+  useEffect(() => {
+    if (!cliente?.email) { setLoadingVentas(false); return }
+    setLoadingVentas(true)
+    ordenesApi
+      .listar({ email: cliente.email, limit: 50 })
+      .then((data) => setVentas(Array.isArray(data?.ordenes) ? data.ordenes : []))
+      .catch(() => setVentas([]))
+      .finally(() => setLoadingVentas(false))
+  }, [cliente?.email])
 
   if (!cliente) return null
 
@@ -54,7 +56,7 @@ function ClienteDetalle({ cliente, onCerrar }) {
             </div>
             <div>
               <dt className="text-muted-foreground">WhatsApp</dt>
-              <dd className="text-card-foreground">{cliente.whatsapp}</dd>
+              <dd className="text-card-foreground">{cliente.whatsapp || '—'}</dd>
             </div>
             <div className="col-span-2">
               <dt className="text-muted-foreground">Dirección</dt>
@@ -70,11 +72,13 @@ function ClienteDetalle({ cliente, onCerrar }) {
             </div>
             <div>
               <dt className="text-muted-foreground">Miracle Coins</dt>
-              <dd className="text-card-foreground">{cliente.miracleCoins}</dd>
+              <dd className="text-card-foreground font-semibold">{cliente.miracleCoins ?? 0}</dd>
             </div>
             <div>
               <dt className="text-muted-foreground">Fecha de creación</dt>
-              <dd className="text-card-foreground">{cliente.fechaCreacion}</dd>
+              <dd className="text-card-foreground">
+                {cliente.fechaCreacion ? new Date(cliente.fechaCreacion).toLocaleDateString('es-CO') : '—'}
+              </dd>
             </div>
           </dl>
         </div>
@@ -97,45 +101,36 @@ function ClienteDetalle({ cliente, onCerrar }) {
         </div>
 
         <div className="flex-1 overflow-auto p-6">
-          {tab === 'productos' && (
-            <ul className="space-y-2">
-              {productosEjemplo.map((p, i) => (
-                <li key={i} className="flex justify-between rounded-lg bg-muted/40 px-4 py-2.5 text-sm">
-                  <span className="text-card-foreground">{p.name}</span>
-                  <span className="text-muted-foreground">{p.price} · {p.estado}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-          {tab === 'campanas' && (
-            <ul className="space-y-2">
-              {campañasEjemplo.map((c, i) => (
-                <li key={i} className="flex justify-between rounded-lg bg-muted/40 px-4 py-2.5 text-sm">
-                  <span className="text-card-foreground">{c.nombre}</span>
-                  <span className="text-muted-foreground">{c.estado} · Alcance {c.alcance}</span>
-                </li>
-              ))}
-            </ul>
-          )}
           {tab === 'ventas' && (
-            <ul className="space-y-2">
-              {ventasEjemplo.map((v, i) => (
-                <li key={i} className="flex justify-between rounded-lg bg-muted/40 px-4 py-2.5 text-sm">
-                  <span className="text-card-foreground">{v.fecha}</span>
-                  <span className="text-muted-foreground">{v.monto} · {v.estado}</span>
-                </li>
-              ))}
-            </ul>
+            loadingVentas ? (
+              <p className="text-sm text-muted-foreground">Cargando ventas…</p>
+            ) : ventas.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Este cliente no tiene ventas registradas.</p>
+            ) : (
+              <ul className="space-y-2">
+                {ventas.map((v) => (
+                  <li key={v._id || v.ordenNumero} className="flex justify-between rounded-lg bg-muted/40 px-4 py-2.5 text-sm">
+                    <span className="text-card-foreground font-medium">{v.ordenNumero}</span>
+                    <span className="text-muted-foreground">
+                      ${(v.totalMonto ?? 0).toLocaleString('es-CO')}
+                      {' · '}
+                      <span className={ESTADO_COLOR[v.estado] || ''}>
+                        {v.estado}
+                      </span>
+                      {' · '}
+                      {v.createdAt ? new Date(v.createdAt).toLocaleDateString('es-CO') : ''}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )
           )}
+
           {tab === 'coins' && (
-            <ul className="space-y-2">
-              {consumoCoinsEjemplo.map((c, i) => (
-                <li key={i} className="flex justify-between rounded-lg bg-muted/40 px-4 py-2.5 text-sm">
-                  <span className="text-card-foreground">{c.concepto}</span>
-                  <span className="text-muted-foreground">{c.fecha} · {c.coins} coins</span>
-                </li>
-              ))}
-            </ul>
+            <div className="flex flex-col items-center justify-center gap-2 py-6">
+              <p className="text-5xl font-bold text-amber-500">{(cliente.miracleCoins ?? 0).toLocaleString()}</p>
+              <p className="text-sm text-muted-foreground">Miracle Coins disponibles para este cliente</p>
+            </div>
           )}
         </div>
       </div>

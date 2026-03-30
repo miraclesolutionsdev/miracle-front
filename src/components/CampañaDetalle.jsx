@@ -1,20 +1,21 @@
 import { useState } from 'react'
 import SectionCard from './SectionCard'
 
-const materialEjemplo = {
-  videos: ['video_principal.mp4', 'story_15s.mp4'],
-  imagenes: ['banner_1200x628.jpg', 'cuadrado_1080.jpg'],
-  copies: ['Título: Oferta limitada', 'Descripción: Hasta 50% en...'],
-  landing: 'https://ejemplo.com/landing-campana',
-}
-
-function CampañaDetalle({ campaña, onCerrar, onImportarPiezas, onAsociarMaterial, onActivarPausar, onFinalizar }) {
-  const [material] = useState(materialEjemplo)
+function CampañaDetalle({ campaña, piezas = [], onCerrar, onAsociarMaterial, onActivarPausar, onFinalizar }) {
+  const [mostrarSelector, setMostrarSelector] = useState(false)
+  const [piezaSeleccionada, setPiezaSeleccionada] = useState('')
 
   if (!campaña) return null
 
   const puedeActivarPausar = campaña.estado === 'activa' || campaña.estado === 'pausada'
   const puedeFinalizar = campaña.estado !== 'finalizada'
+
+  const handleConfirmarAsociar = () => {
+    if (!piezaSeleccionada) return
+    onAsociarMaterial?.(campaña, piezaSeleccionada)
+    setMostrarSelector(false)
+    setPiezaSeleccionada('')
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -47,14 +48,7 @@ function CampañaDetalle({ campaña, onCerrar, onImportarPiezas, onAsociarMateri
           <div className="mt-4 flex flex-wrap gap-2">
             <button
               type="button"
-              onClick={() => onImportarPiezas?.(campaña)}
-              className="rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-card-foreground hover:bg-muted"
-            >
-              Importar piezas publicitarias
-            </button>
-            <button
-              type="button"
-              onClick={() => onAsociarMaterial?.(campaña)}
+              onClick={() => setMostrarSelector(true)}
               className="rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-card-foreground hover:bg-muted"
             >
               Asociar material audiovisual
@@ -80,36 +74,52 @@ function CampañaDetalle({ campaña, onCerrar, onImportarPiezas, onAsociarMateri
           </div>
         </div>
 
-        <div className="flex-1 p-6 space-y-4">
-          <h3 className="text-sm font-semibold text-card-foreground">Material requerido</h3>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <SectionCard title="Videos" className="!p-4">
-              <ul className="space-y-1 text-sm text-muted-foreground">
-                {material.videos.map((v, i) => (
-                  <li key={i}>{v}</li>
+        {mostrarSelector && (
+          <div className="border-b border-border bg-muted/30 p-6 space-y-3">
+            <p className="text-sm font-semibold text-card-foreground">Selecciona una pieza audiovisual</p>
+            {piezas.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No hay piezas disponibles en la biblioteca.</p>
+            ) : (
+              <select
+                value={piezaSeleccionada}
+                onChange={(e) => setPiezaSeleccionada(e.target.value)}
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-card-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              >
+                <option value="">Selecciona una pieza…</option>
+                {piezas.map((p) => (
+                  <option key={p.id} value={p.nombre}>{p.nombre}</option>
                 ))}
-              </ul>
-            </SectionCard>
-            <SectionCard title="Imágenes" className="!p-4">
-              <ul className="space-y-1 text-sm text-muted-foreground">
-                {material.imagenes.map((img, i) => (
-                  <li key={i}>{img}</li>
-                ))}
-              </ul>
-            </SectionCard>
-            <SectionCard title="Copies" className="!p-4 sm:col-span-2">
-              <ul className="space-y-1 text-sm text-muted-foreground">
-                {material.copies.map((c, i) => (
-                  <li key={i}>{c}</li>
-                ))}
-              </ul>
-            </SectionCard>
-            <SectionCard title="Landing page" className="!p-4 sm:col-span-2">
-              <a href={material.landing} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">
-                {material.landing}
-              </a>
-            </SectionCard>
+              </select>
+            )}
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={handleConfirmarAsociar}
+                disabled={!piezaSeleccionada}
+                className="rounded-lg bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+              >
+                Asociar
+              </button>
+              <button
+                type="button"
+                onClick={() => { setMostrarSelector(false); setPiezaSeleccionada('') }}
+                className="rounded-lg border border-border px-4 py-1.5 text-sm text-muted-foreground hover:bg-muted"
+              >
+                Cancelar
+              </button>
+            </div>
           </div>
+        )}
+
+        <div className="flex-1 p-6 space-y-4">
+          <h3 className="text-sm font-semibold text-card-foreground">Material asociado</h3>
+          {campaña.piezaCreativo ? (
+            <SectionCard title="Pieza creativo" className="!p-4">
+              <p className="text-sm text-muted-foreground">{campaña.piezaCreativo}</p>
+            </SectionCard>
+          ) : (
+            <p className="text-sm text-muted-foreground">Sin material asociado. Usa el botón de arriba para vincular una pieza audiovisual.</p>
+          )}
         </div>
       </div>
     </div>
