@@ -48,6 +48,7 @@ export default function VistaCampañas() {
 
   const handleGuardarCampaña = (payload) => {
     const body = {
+      nombre: payload.nombre ?? '',
       producto: payload.producto ?? '',
       piezaCreativo: payload.piezaCreativo ?? '',
       plataforma: payload.plataforma ?? '',

@@ -6,6 +6,7 @@ const ESTADOS = ['borrador', 'activa', 'pausada', 'finalizada']
 function CampañaForm({ campaña, productos = [], piezas = [], onGuardar, onCancelar }) {
   const esEdicion = !!campaña
   const [form, setForm] = useState({
+    nombre: '',
     producto: '',
     piezaCreativo: '',
     plataforma: 'Google Ads',
@@ -20,6 +21,7 @@ function CampañaForm({ campaña, productos = [], piezas = [], onGuardar, onCanc
         (p) => (p.nombre && p.nombre === campaña.piezaCreativo) || (p.id && p.id === campaña.piezaCreativo)
       )
       setForm({
+        nombre: campaña.nombre ?? '',
         producto: productMatch?.id ?? campaña.producto ?? '',
         piezaCreativo: piezaMatch?.id ?? piezaMatch?.nombre ?? campaña.piezaCreativo ?? '',
         plataforma: campaña.plataforma ?? 'Google Ads',
@@ -28,6 +30,7 @@ function CampañaForm({ campaña, productos = [], piezas = [], onGuardar, onCanc
       })
     } else {
       setForm({
+        nombre: '',
         producto: productos[0]?.id ?? '',
         piezaCreativo: piezas[0]?.id ?? piezas[0]?.nombre ?? '',
         plataforma: 'Google Ads',
@@ -59,6 +62,19 @@ function CampañaForm({ campaña, productos = [], piezas = [], onGuardar, onCanc
           {esEdicion ? 'Editar campaña' : 'Crear campaña'}
         </h2>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div>
+            <label className="mb-1 block text-sm font-medium text-muted-foreground">
+              Nombre de la campaña
+            </label>
+            <input
+              type="text"
+              value={form.nombre}
+              onChange={(e) => setForm((f) => ({ ...f, nombre: e.target.value }))}
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
+              placeholder="Ej. Campaña verano 2025"
+              required
+            />
+          </div>
           <div>
             <label className="mb-1 block text-sm font-medium text-muted-foreground">
               Producto
