@@ -9,6 +9,18 @@ export const BASE_URL = (() => {
   return BACKEND_FALLBACK
 })()
 
+const TOKEN_KEY = 'miracle_auth_token'
+
+export function storeToken(token) {
+  try { sessionStorage.setItem(TOKEN_KEY, token) } catch { /* noop */ }
+}
+export function clearToken() {
+  try { sessionStorage.removeItem(TOKEN_KEY) } catch { /* noop */ }
+}
+function getStoredToken() {
+  try { return sessionStorage.getItem(TOKEN_KEY) } catch { return null }
+}
+
 function handleUnauthorized() {
   if (typeof window === 'undefined') return
   // Solo redirigir si el usuario estaba en una ruta protegida
@@ -19,7 +31,12 @@ function handleUnauthorized() {
 
 async function request(path, options = {}) {
   const url = `${BASE_URL.replace(/\/$/, '')}/${path.replace(/^\//, '')}`
-  const headers = { 'Content-Type': 'application/json', ...options.headers }
+  const token = getStoredToken()
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...options.headers,
+  }
   const res = await fetch(url, { ...options, headers, credentials: 'include' })
   const data = await res.json().catch(() => ({}))
   if (res.status === 401) {

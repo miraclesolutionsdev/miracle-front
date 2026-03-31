@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-import { authApi } from '../utils/api'
+import { authApi, storeToken, clearToken } from '../utils/api'
 
 const AuthContext = createContext(null)
 
@@ -16,10 +16,12 @@ export function AuthProvider({ children }) {
   }, [])
 
   const login = (data) => {
+    if (data.token) storeToken(data.token)
     setUser(data.user ?? null)
   }
 
   const logout = async () => {
+    clearToken()
     setUser(null)
     await authApi.logout().catch(() => {})
   }
