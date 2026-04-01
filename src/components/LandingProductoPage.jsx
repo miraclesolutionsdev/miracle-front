@@ -164,6 +164,23 @@ function Gallery({ producto }) {
   )
 }
 
+/* ── Campo del modal (fuera de PagoModal para evitar re-mount en cada keystroke) ── */
+function ModalInput({ name, type = 'text', placeholder, half = false, value, error, onChange }) {
+  return (
+    <div style={{ flex: half ? '1 1 44%' : '1 1 100%', minWidth: half ? 120 : 'auto', display: 'flex', flexDirection: 'column', gap: 4 }}>
+      <input
+        type={type}
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(name, e.target.value)}
+        className="modal-input"
+        style={{ borderColor: error ? 'rgba(220,80,50,0.6)' : undefined }}
+      />
+      {error && <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 10, color: 'rgba(220,120,100,0.9)' }}>{error}</span>}
+    </div>
+  )
+}
+
 /* ── Payment Modal ── */
 function PagoModal({ producto, cantidad, loading, onClose, onSubmit }) {
   const [datos, setDatos] = useState({
@@ -188,18 +205,8 @@ function PagoModal({ producto, cantidad, loading, onClose, onSubmit }) {
     onSubmit(datos)
   }
 
-  const Input = ({ name, type = 'text', placeholder, half = false }) => (
-    <div style={{ flex: half ? '1 1 44%' : '1 1 100%', minWidth: half ? 120 : 'auto', display: 'flex', flexDirection: 'column', gap: 4 }}>
-      <input
-        type={type}
-        placeholder={placeholder}
-        value={datos[name]}
-        onChange={(e) => set(name, e.target.value)}
-        className="modal-input"
-        style={{ borderColor: errs[name] ? 'rgba(220,80,50,0.6)' : undefined }}
-      />
-      {errs[name] && <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 10, color: 'rgba(220,120,100,0.9)' }}>{errs[name]}</span>}
-    </div>
+  const inp = (name, props = {}) => (
+    <ModalInput name={name} value={datos[name]} error={errs[name]} onChange={set} {...props} />
   )
 
   return (
@@ -217,23 +224,23 @@ function PagoModal({ producto, cantidad, loading, onClose, onSubmit }) {
 
         <form onSubmit={handleSubmit} className="modal-form">
           <p className="modal-section">Datos personales</p>
-          <div className="modal-row"><Input name="clienteNombre" placeholder="Nombre completo *" /></div>
+          <div className="modal-row">{inp('clienteNombre', { placeholder: 'Nombre completo *' })}</div>
           <div className="modal-row">
-            <Input name="clienteCelular" type="tel" placeholder="Celular / WhatsApp *" half />
-            <Input name="clienteEmail" type="email" placeholder="Correo electrónico *" half />
+            {inp('clienteCelular', { type: 'tel', placeholder: 'Celular / WhatsApp *', half: true })}
+            {inp('clienteEmail', { type: 'email', placeholder: 'Correo electrónico *', half: true })}
           </div>
-          <div className="modal-row"><Input name="clienteCedula" placeholder="Cédula / NIT (opcional)" /></div>
+          <div className="modal-row">{inp('clienteCedula', { placeholder: 'Cédula / NIT (opcional)' })}</div>
 
           {producto?.tipo === 'producto' && (
             <>
               <div className="modal-divider" />
               <p className="modal-section">Datos de envío</p>
-              <div className="modal-row"><Input name="envioDireccion" placeholder="Dirección *" /></div>
-              <div className="modal-row"><Input name="envioBarrio" placeholder="Barrio / Ciudad *" /></div>
-              <div className="modal-row"><Input name="envioUnidad" placeholder="Unidad residencial (opcional)" /></div>
+              <div className="modal-row">{inp('envioDireccion', { placeholder: 'Dirección *' })}</div>
+              <div className="modal-row">{inp('envioBarrio', { placeholder: 'Barrio / Ciudad *' })}</div>
+              <div className="modal-row">{inp('envioUnidad', { placeholder: 'Unidad residencial (opcional)' })}</div>
               <div className="modal-row">
-                <Input name="envioTorre" placeholder="Torre / Bloque" half />
-                <Input name="envioApto" placeholder="Apto / Casa" half />
+                {inp('envioTorre', { placeholder: 'Torre / Bloque', half: true })}
+                {inp('envioApto', { placeholder: 'Apto / Casa', half: true })}
               </div>
             </>
           )}

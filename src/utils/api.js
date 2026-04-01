@@ -194,6 +194,16 @@ export const ordenesApi = {
       method: 'POST',
       body: JSON.stringify(ticket),
     }),
+  actualizarPreparacion: (id, estadoPreparacion) =>
+    request(`ordenes/${id}/preparacion`, {
+      method: 'PATCH',
+      body: JSON.stringify({ estadoPreparacion }),
+    }),
+  actualizarPago: (id, estadoPago) =>
+    request(`ordenes/${id}/pago`, {
+      method: 'PATCH',
+      body: JSON.stringify({ estadoPago }),
+    }),
 }
 
 export function getProductoImagenSrc(producto, index) {
