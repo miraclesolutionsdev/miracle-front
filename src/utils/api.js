@@ -171,6 +171,14 @@ export const authApi = {
     }),
 }
 
+export const whatsappApi = {
+  listarConversaciones: (params = {}) => {
+    const q = new URLSearchParams(params).toString()
+    return request(`whatsapp/conversaciones${q ? `?${q}` : ''}`)
+  },
+  obtenerConversacion: (id) => request(`whatsapp/conversaciones/${id}`),
+}
+
 export const ordenesApi = {
   listar: (params = {}) => {
     const query = new URLSearchParams(params).toString()

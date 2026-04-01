@@ -1,5 +1,7 @@
 import { useSearchParams, useNavigate } from 'react-router-dom'
-import { CheckCircle, XCircle, Clock, ArrowLeft, MessageCircle } from 'lucide-react'
+import { CheckCircle, XCircle, Clock, ArrowLeft, MessageCircle, RefreshCw } from 'lucide-react'
+
+const WA_BOT = '573243520379'
 
 const ESTADOS = {
   exitoso: {
@@ -87,6 +89,20 @@ function PagoResultado({ tipo }) {
 
         {/* Acciones */}
         <div className="flex w-full flex-col gap-3">
+          {tipo === 'pendiente' && (
+            <button
+              type="button"
+              onClick={() => {
+                const texto = `Hola, quiero consultar el estado de mi pago.${paymentId ? `\nID de pago: ${paymentId}` : ''}`
+                window.open(`https://wa.me/${WA_BOT}?text=${encodeURIComponent(texto)}`, '_blank', 'noopener,noreferrer')
+              }}
+              className="flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-sm font-bold text-white transition-all hover:opacity-90"
+              style={{ background: 'linear-gradient(135deg, #f5b342 0%, #e09500 100%)' }}
+            >
+              <RefreshCw className="h-4 w-4" />
+              Revisar estado del pago
+            </button>
+          )}
           {estado.mostrarWhatsapp && whatsappNumber && (
             <button
               type="button"

@@ -8,6 +8,7 @@ import {
   BarChart3,
   ShoppingCart,
   ShoppingBag,
+  MessageCircle,
 } from 'lucide-react'
 
 const NAV_ITEMS = [
@@ -19,6 +20,7 @@ const NAV_ITEMS = [
   { label: 'Audiovisual', icon: Film },
   { label: 'Métricas Ads', icon: BarChart3 },
   { label: 'Ventas', icon: ShoppingCart },
+  { label: 'Clips WhatsApp', icon: MessageCircle },
 ]
 
 const LABEL_TO_PATH = {
@@ -30,6 +32,7 @@ const LABEL_TO_PATH = {
   'Audiovisual': '/plataforma/audiovisual',
   'Métricas Ads': '/plataforma/metricas-ads',
   'Ventas': '/plataforma/ventas',
+  'Clips WhatsApp': '/plataforma/clips-whatsapp',
 }
 
 function Sidebar({ seleccionado }) {

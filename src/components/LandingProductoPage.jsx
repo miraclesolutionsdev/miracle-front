@@ -10,7 +10,7 @@ import ImageLightbox from './ImageLightbox.jsx'
 import { alertError } from '../utils/alerts'
 
 const fmt = (v) => `$${(Number(v) || 0).toLocaleString('es-CO')}`
-const WHATSAPP_NUMBER = '573243524983'
+const WHATSAPP_NUMBER = '573243520379'
 const GOLD = '#C9963A'
 const GOLD_L = '#E2B55A'
 const GOLD_RGB = '201,150,58'
