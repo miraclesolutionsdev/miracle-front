@@ -180,7 +180,7 @@ export default function VistaAdministradores() {
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-[13px] text-muted-foreground">
-          Acceso restringido a <span className="font-semibold text-foreground">{user?.tenantNombre || 'tu tienda'}</span>.
+          Administradores con acceso a la plataforma.
         </p>
         <div className="flex items-center gap-2 flex-wrap">
           <input

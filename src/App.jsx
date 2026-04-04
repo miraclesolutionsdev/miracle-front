@@ -23,7 +23,7 @@ function App() {
       <Route path="/" element={<ServiciosPage />} />
       <Route path="/servicios" element={<ServiciosPage />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/crear-tienda" element={<Navigate to="/login" replace />} />
+      <Route path="/crear-tienda" element={<CrearTienda />} />
       <Route path="/tienda" element={<TiendaPage />} />
       <Route path="/landing-producto/:id" element={<LandingProductoPage />} />
       <Route path="/pago/exitoso" element={<PagoResultado tipo="exitoso" />} />

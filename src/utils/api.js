@@ -146,24 +146,18 @@ export const pagosApi = {
     request('pagos/crear-preferencia', { method: 'POST', body: JSON.stringify(body) }),
 }
 
+export const registerApi = {
+  registrar: (body) =>
+    request('register', { method: 'POST', body: JSON.stringify(body) }),
+}
+
 export const authApi = {
   login: (email, password) =>
     request('auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
   logout: () => request('auth/logout', { method: 'POST' }),
-  crearTienda: (body) =>
-    request('auth/crear-tienda', { method: 'POST', body: JSON.stringify(body) }),
   obtenerPerfil: () => request('auth/me'),
   actualizarPerfil: (body) =>
     request('auth/me', { method: 'PATCH', body: JSON.stringify(body) }),
-  actualizarTenant: (payload) => {
-    const body = typeof payload === 'string' ? { nombre: payload } : payload
-    return request('auth/tenant', { method: 'PATCH', body: JSON.stringify(body) })
-  },
-  obtenerPresignedLogo: ({ filename, contentType }) =>
-    request('auth/tenant/logo/presigned', {
-      method: 'POST',
-      body: JSON.stringify({ filename, contentType }),
-    }),
   cambiarPassword: (contraseñaActual, nuevaContraseña) =>
     request('auth/cambiar-password', {
       method: 'POST',

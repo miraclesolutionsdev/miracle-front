@@ -4,7 +4,8 @@ import { MessageCircle, ChevronLeft, RefreshCw, User, Bot } from 'lucide-react'
 
 function formatFecha(ts) {
   if (!ts) return '—'
-  const d = new Date(typeof ts === 'number' ? ts * 1000 : ts)
+  // ElevenLabs devuelve start_time_unix_secs (segundos), convertir a ms
+  const d = new Date(ts * 1000)
   return d.toLocaleString('es-CO', { dateStyle: 'short', timeStyle: 'short' })
 }
 
@@ -78,7 +79,7 @@ export default function VistaClipsWhatsApp() {
           </button>
           <span className="text-xs text-muted-foreground/50">|</span>
           <span className="text-sm font-medium">
-            {formatFecha(seleccionada.start_time)} · {formatDuracion(seleccionada.call_duration_secs)}
+            {formatFecha(seleccionada.start_time_unix_secs)} · {formatDuracion(seleccionada.call_duration_secs)}
           </span>
           <span className={`ml-auto text-[11px] font-medium px-2 py-0.5 rounded-full ${ESTADO_STYLE[seleccionada.status] || ''}`}>
             {ESTADO_LABEL[seleccionada.status] || seleccionada.status}
@@ -174,7 +175,7 @@ export default function VistaClipsWhatsApp() {
             )}
             {conversaciones.map((conv) => (
               <tr key={conv.conversation_id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
-                <td className="px-4 py-3 text-foreground">{formatFecha(conv.start_time)}</td>
+                <td className="px-4 py-3 text-foreground">{formatFecha(conv.start_time_unix_secs)}</td>
                 <td className="px-4 py-3 text-muted-foreground">{formatDuracion(conv.call_duration_secs)}</td>
                 <td className="px-4 py-3 text-muted-foreground">{conv.message_count ?? '—'}</td>
                 <td className="px-4 py-3">

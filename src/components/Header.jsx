@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Bell, Search, LayoutDashboard, Users, Package, Megaphone, Film, BarChart3, ShoppingCart, ShoppingBag, Settings, LogOut, ShieldCheck, Sparkles } from 'lucide-react'
+import { Bell, Search, LayoutDashboard, Users, Package, Megaphone, Film, BarChart3, ShoppingCart, ShoppingBag, Settings, LogOut, ShieldCheck, Layers } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 
 const SEARCH_ITEMS = [
@@ -76,12 +76,12 @@ export function Header() {
       <header className="fixed top-0 left-0 right-0 z-30 flex h-14 items-center justify-between border-b border-border bg-card/90 backdrop-blur-xl px-6">
         {/* Logo + Brand */}
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600 shadow-lg shadow-violet-500/30">
-            <Sparkles className="h-4 w-4 text-white" strokeWidth={2.5} />
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-blue-600 shadow-md shadow-indigo-500/20">
+            <Layers className="h-4 w-4 text-white" strokeWidth={2} />
           </div>
           <div className="flex flex-col leading-none">
             <span className="text-[13px] font-bold tracking-tight text-foreground">
-              {user?.tenantNombre || 'Miracle Solutions'}
+              Miracle Solutions
             </span>
             <span className="text-[10px] font-medium text-muted-foreground/60 tracking-widest uppercase">
               Advertising
@@ -136,7 +136,7 @@ export function Header() {
             <button
               type="button"
               onClick={() => setUserMenuOpen((o) => !o)}
-              className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-violet-500/20 to-indigo-500/20 text-[11px] font-semibold text-primary ring-1 ring-primary/25 transition-all hover:ring-primary/50"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-[11px] font-semibold text-primary ring-1 ring-primary/20 transition-all hover:bg-primary/15 hover:ring-primary/40"
               aria-label="Menú de usuario"
               aria-expanded={userMenuOpen}
             >
@@ -146,8 +146,8 @@ export function Header() {
               <div className="absolute right-0 top-full z-50 mt-2 w-52 rounded-xl border border-border bg-popover shadow-xl shadow-black/10 overflow-hidden">
                 <div className="px-4 py-3 border-b border-border bg-muted/30">
                   <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
-                  {user?.tenantNombre && (
-                    <p className="text-[13px] font-semibold text-foreground mt-0.5 truncate">{user.tenantNombre}</p>
+                  {user?.nombre && (
+                    <p className="text-[13px] font-semibold text-foreground mt-0.5 truncate">{user.nombre}</p>
                   )}
                 </div>
                 <div className="py-1">

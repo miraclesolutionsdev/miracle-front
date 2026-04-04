@@ -20,7 +20,7 @@ const NAV_ITEMS = [
   { label: 'Audiovisual', icon: Film },
   { label: 'Métricas Ads', icon: BarChart3 },
   { label: 'Ventas', icon: ShoppingCart },
-  { label: 'Clips WhatsApp', icon: MessageCircle },
+  { label: 'Leads WhatsApp', icon: MessageCircle },
 ]
 
 const LABEL_TO_PATH = {
@@ -32,7 +32,7 @@ const LABEL_TO_PATH = {
   'Audiovisual': '/plataforma/audiovisual',
   'Métricas Ads': '/plataforma/metricas-ads',
   'Ventas': '/plataforma/ventas',
-  'Clips WhatsApp': '/plataforma/clips-whatsapp',
+  'Leads WhatsApp': '/plataforma/leads-whatsapp',
 }
 
 function Sidebar({ seleccionado }) {
@@ -55,14 +55,14 @@ function Sidebar({ seleccionado }) {
                 key={item.label}
                 type="button"
                 onClick={() => navigate(LABEL_TO_PATH[item.label])}
-                className={`relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all duration-150 ${
+                className={`relative flex items-center gap-3 rounded-md px-3 py-2.5 text-[13px] font-medium transition-all duration-150 ${
                   isActive
-                    ? 'bg-primary/10 text-primary border border-primary/20'
-                    : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground border border-transparent'
+                    ? 'bg-primary/10 text-primary'
+                    : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                 }`}
               >
                 {isActive && (
-                  <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-r-full bg-primary" />
+                  <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[22px] rounded-r-full bg-primary" />
                 )}
                 <item.icon className={`h-4 w-4 shrink-0 ${isActive ? 'opacity-100' : 'opacity-60'}`} />
                 {item.label}
@@ -75,8 +75,8 @@ function Sidebar({ seleccionado }) {
       {/* Footer del sidebar */}
       <div className="px-4 pb-4">
         <div className="h-px w-full bg-gradient-to-r from-transparent via-sidebar-border to-transparent mb-3" />
-        <p className="text-[10px] text-sidebar-foreground/30 text-center tracking-wide">
-          MIRACLE · Advertising Platform
+        <p className="text-[10px] text-sidebar-foreground/30 text-center tracking-widest uppercase font-medium">
+          Miracle Solutions
         </p>
       </div>
     </aside>

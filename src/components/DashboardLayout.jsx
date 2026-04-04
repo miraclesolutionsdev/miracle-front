@@ -24,7 +24,7 @@ const PATH_TO_LABEL = {
   '/plataforma/audiovisual': 'Audiovisual',
   '/plataforma/metricas-ads': 'Métricas Ads',
   '/plataforma/ventas': 'Ventas',
-  '/plataforma/clips-whatsapp': 'Clips WhatsApp',
+  '/plataforma/leads-whatsapp': 'Leads WhatsApp',
   '/plataforma/administradores': 'Administradores',
   '/plataforma/configuracion': 'Configuración',
 }
@@ -38,7 +38,7 @@ const PAGE_DESCRIPTIONS = {
   'Audiovisual': 'Biblioteca de piezas audiovisuales',
   'Métricas Ads': 'Análisis de rendimiento de anuncios',
   'Ventas': 'Seguimiento de ventas y conversiones',
-  'Clips WhatsApp': 'Contenido audiovisual para campañas de WhatsApp',
+  'Leads WhatsApp': 'Contenido audiovisual para campañas de WhatsApp',
   'Administradores': 'Gestión de accesos y usuarios',
   'Configuración': 'Preferencias de tu cuenta',
 }
@@ -59,7 +59,7 @@ function DashboardLayout() {
     if (seleccionado === 'Métricas Ads') return <MetricsAds />
     if (seleccionado === 'Ventas') return <VistaVentas />
     if (seleccionado === 'Campañas') return <VistaCampañas />
-    if (seleccionado === 'Clips WhatsApp') return <VistaClipsWhatsApp />
+    if (seleccionado === 'Leads WhatsApp') return <VistaClipsWhatsApp />
     if (seleccionado === 'Administradores') return <VistaAdministradores />
     if (seleccionado === 'Configuración') return <VistaConfiguracion />
     return (

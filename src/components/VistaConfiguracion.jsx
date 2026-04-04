@@ -12,7 +12,6 @@ export default function VistaConfiguracion() {
   const [perfil, setPerfil] = useState({
     email: '',
     nombre: '',
-    tenantNombre: '',
   })
   const [guardandoPerfil, setGuardandoPerfil] = useState(false)
 
@@ -36,7 +35,6 @@ export default function VistaConfiguracion() {
         setPerfil({
           email: data?.user?.email ?? '',
           nombre: data?.user?.nombre ?? '',
-          tenantNombre: data?.tenant?.nombre ?? data?.user?.tenantNombre ?? '',
         })
       })
       .catch((err) => {
@@ -58,13 +56,9 @@ export default function VistaConfiguracion() {
         email: perfil.email.trim() || undefined,
         nombre: perfil.nombre.trim() || undefined,
       })
-      if (perfil.tenantNombre.trim()) {
-        await authApi.actualizarTenant(perfil.tenantNombre.trim())
-      }
       updateUser({
         email: perfil.email.trim() || user?.email,
         nombre: perfil.nombre.trim() || user?.nombre,
-        tenantNombre: perfil.tenantNombre.trim() || user?.tenantNombre,
       })
       setSuccess('Datos guardados correctamente.')
     } catch (err) {
@@ -148,10 +142,6 @@ export default function VistaConfiguracion() {
             <div>
               <label className="mb-1.5 block text-[12px] font-semibold text-muted-foreground uppercase tracking-wide">Tu nombre</label>
               <input type="text" value={perfil.nombre} onChange={(e) => setPerfil((p) => ({ ...p, nombre: e.target.value }))} className={inputCls} placeholder="Nombre" />
-            </div>
-            <div>
-              <label className="mb-1.5 block text-[12px] font-semibold text-muted-foreground uppercase tracking-wide">Nombre de la tienda</label>
-              <input type="text" value={perfil.tenantNombre} onChange={(e) => setPerfil((p) => ({ ...p, tenantNombre: e.target.value }))} className={inputCls} placeholder="Ej. Miracle Solutions" />
             </div>
             <div className="pt-1">
               <button type="submit" disabled={guardandoPerfil} className="rounded-lg bg-gradient-to-r from-primary to-primary/80 px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50 transition-opacity shadow-md shadow-primary/20">

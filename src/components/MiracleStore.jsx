@@ -1,17 +1,13 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import { productosApi, getProductoImagenSrc } from '../utils/api'
 
-const GOLD = '#C9963A'
-const GOLD_L = '#E2B55A'
-const GOLD_RGB = '201,150,58'
-
 const fmt = (v) => `$${(Number(v) || 0).toLocaleString('es-CO')}`
 
 function getInitials(name = '') {
   return String(name).trim().split(/\s+/).map((w) => w[0]).join('').toUpperCase().slice(0, 2) || 'MS'
 }
 
-/* ── Skeleton card shown while loading ── */
+/* ── Skeleton card ── */
 function SkeletonCard() {
   return (
     <div className="sk-card">
@@ -57,37 +53,34 @@ function ProductCard({ p, index }) {
       className="pc"
       style={{
         animationDelay: `${Math.min(index * 70, 500)}ms`,
-        opacity: sinStock ? 0.65 : 1,
+        opacity: sinStock ? 0.6 : 1,
       }}
     >
-      {/* ── Image ── */}
+      {/* Image */}
       <div className="pc-img-wrap" onTouchStart={onTS} onTouchEnd={onTE}>
         {src ? (
           <img
             src={src}
             alt={p.nombre || 'Producto'}
             className="pc-img"
-            style={{ transform: hov ? 'scale(1.08)' : 'scale(1)' }}
+            style={{ transform: hov ? 'scale(1.07)' : 'scale(1)' }}
           />
         ) : (
           <div className="pc-placeholder">{getInitials(p.nombre)}</div>
         )}
 
-        {/* Dark overlay on hover */}
         <div className="pc-overlay" style={{ opacity: hov ? 1 : 0 }} />
 
-        {/* CTA pill */}
         <div
           className="pc-cta-wrap"
           style={{
-            transform: hov ? 'translateY(0)' : 'translateY(10px)',
+            transform: hov ? 'translateY(0)' : 'translateY(14px)',
             opacity: hov ? 1 : 0,
           }}
         >
-          <span className="pc-cta">Descubrir →</span>
+          <span className="pc-cta">Ver producto</span>
         </div>
 
-        {/* Carousel arrows */}
         {total > 1 && (
           <>
             <button type="button" onClick={goPrev} className="pc-arr pc-arr-l" aria-label="Anterior">‹</button>
@@ -95,7 +88,6 @@ function ProductCard({ p, index }) {
           </>
         )}
 
-        {/* Dots */}
         {total > 1 && (
           <div className="pc-dots">
             {Array.from({ length: total }).map((_, i) => (
@@ -105,29 +97,24 @@ function ProductCard({ p, index }) {
                 onClick={(e) => { e.stopPropagation(); setImgIdx(i) }}
                 className="pc-dot"
                 style={{
-                  width: i === imgIdx ? 20 : 5,
-                  background: i === imgIdx ? GOLD_L : 'rgba(255,255,255,0.3)',
+                  width: i === imgIdx ? 18 : 5,
+                  background: i === imgIdx ? '#fff' : 'rgba(255,255,255,0.45)',
                 }}
               />
             ))}
           </div>
         )}
 
-        {/* Badges */}
         <div className="pc-badges">
           <span className="pc-badge-cat">{p.tipo === 'servicio' ? 'Servicio' : 'Producto'}</span>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 3, alignItems: 'flex-end' }}>
-            {stockBajo && !sinStock && (
-              <span className="pc-badge-low">Últimas {p.stock}</span>
-            )}
-            {sinStock && (
-              <span className="pc-badge-out">Agotado</span>
-            )}
+            {stockBajo && !sinStock && <span className="pc-badge-low">Últimas {p.stock}</span>}
+            {sinStock && <span className="pc-badge-out">Agotado</span>}
           </div>
         </div>
       </div>
 
-      {/* ── Info ── */}
+      {/* Info */}
       <div className="pc-info">
         <p className="pc-name">{p.nombre || 'Sin nombre'}</p>
         <div className="pc-meta">
@@ -138,27 +125,20 @@ function ProductCard({ p, index }) {
           )}
           {isProducto && !sinStock && (
             <span className="pc-avail">
-              <span
-                className="pc-avail-dot"
-                style={{ background: stockBajo ? '#D4A017' : '#6FCF97' }}
-              />
+              <span className="pc-avail-dot" style={{ background: stockBajo ? '#E09020' : '#22C55E' }} />
               {stockBajo ? `${p.stock} disponibles` : 'En stock'}
             </span>
           )}
           {sinStock && (
-            <span className="pc-avail" style={{ color: 'rgba(255,150,120,0.7)' }}>
-              <span className="pc-avail-dot" style={{ background: 'rgba(255,120,100,0.7)' }} />
+            <span className="pc-avail" style={{ color: '#BDBDBD' }}>
+              <span className="pc-avail-dot" style={{ background: '#D0CBC4' }} />
               Agotado
             </span>
           )}
         </div>
       </div>
 
-      {/* Bottom gold line appears on hover */}
-      <div
-        className="pc-hover-line"
-        style={{ transform: hov ? 'scaleX(1)' : 'scaleX(0)' }}
-      />
+      <div className="pc-accent-line" style={{ transform: hov ? 'scaleX(1)' : 'scaleX(0)' }} />
     </article>
   )
 }
@@ -167,7 +147,6 @@ function ProductCard({ p, index }) {
 export default function MiracleStore() {
   const [productos, setProductos] = useState([])
   const [loading, setLoading] = useState(true)
-  const [filtro, setFiltro] = useState('todos')
   const [busqueda, setBusqueda] = useState('')
   const [searchOpen, setSearchOpen] = useState(false)
   const mobileInputRef = useRef(null)
@@ -185,9 +164,7 @@ export default function MiracleStore() {
   }, [searchOpen])
 
   const productosFiltrados = useMemo(() => {
-    let lista = productos
-    if (filtro === 'productos') lista = lista.filter((p) => p.tipo === 'producto')
-    if (filtro === 'servicios') lista = lista.filter((p) => p.tipo === 'servicio')
+    let lista = productos.filter((p) => p.tipo === 'producto')
     if (busqueda.trim()) {
       const q = busqueda.toLowerCase()
       lista = lista.filter((p) =>
@@ -196,790 +173,59 @@ export default function MiracleStore() {
       )
     }
     return lista
-  }, [productos, filtro, busqueda])
+  }, [productos, busqueda])
 
-  const counts = {
-    todos: productos.length,
-    productos: productos.filter((p) => p.tipo === 'producto').length,
-    servicios: productos.filter((p) => p.tipo === 'servicio').length,
-  }
+  const totalProductos = productos.filter((p) => p.tipo === 'producto').length
   const enStock = productos.filter((p) => p.tipo === 'producto' && p.stock > 0).length
 
   return (
     <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,600;1,700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        /* ─── ROOT ─── */
-        .ms-root {
-          min-height: 100vh;
-          background: #0A0805;
-          color: #F2EBD9;
-          font-family: 'DM Sans', sans-serif;
-          -webkit-font-smoothing: antialiased;
-          overflow-x: hidden;
-        }
-
-        /* Noise texture overlay */
-        .ms-root::before {
-          content: '';
-          position: fixed;
-          inset: 0;
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
-          opacity: 0.025;
-          pointer-events: none;
-          z-index: 0;
-        }
-
-        /* Ambient glow */
-        .ms-root::after {
-          content: '';
-          position: fixed;
-          top: -10%;
-          right: -5%;
-          width: 50vw;
-          height: 50vh;
-          background: radial-gradient(ellipse, rgba(${GOLD_RGB},0.05) 0%, transparent 65%);
-          pointer-events: none;
-          z-index: 0;
-        }
-
-        /* ─── NAV ─── */
-        .ms-nav {
-          position: sticky;
-          top: 0;
-          z-index: 50;
-          background: rgba(10,8,5,0.92);
-          backdrop-filter: blur(24px);
-          -webkit-backdrop-filter: blur(24px);
-          border-bottom: 1px solid rgba(${GOLD_RGB},0.15);
-        }
-        .ms-nav-inner {
-          max-width: 1440px;
-          margin: 0 auto;
-          padding: 0 40px;
-          height: 64px;
-          display: flex;
-          align-items: center;
-          gap: 0;
-        }
-
-        /* Logo */
-        .ms-logo {
-          display: flex;
-          align-items: center;
-          gap: 11px;
-          flex-shrink: 0;
-          margin-right: 40px;
-        }
-        .ms-logo-img {
-          height: 48px;
-          width: auto;
-          object-fit: contain;
-          display: block;
-        }
-        .ms-logo-text {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: 20px;
-          font-weight: 600;
-          font-style: italic;
-          color: #F2EBD9;
-          letter-spacing: 0.02em;
-          line-height: 1;
-        }
-        .ms-logo-text em {
-          font-style: italic;
-          color: ${GOLD};
-        }
-
-        /* Nav center: categories */
-        .ms-nav-cats {
-          display: flex;
-          align-items: center;
-          gap: 2px;
-          flex: 1;
-        }
-        .ms-cat {
-          font-family: 'DM Sans', sans-serif;
-          font-size: 11px;
-          font-weight: 500;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          padding: 8px 16px;
-          background: none;
-          border: none;
-          cursor: pointer;
-          color: rgba(242,235,217,0.38);
-          transition: color 0.2s;
-          position: relative;
-          white-space: nowrap;
-        }
-        .ms-cat::after {
-          content: '';
-          position: absolute;
-          bottom: 0;
-          left: 16px;
-          right: 16px;
-          height: 1px;
-          background: ${GOLD};
-          transform: scaleX(0);
-          transition: transform 0.22s ease;
-        }
-        .ms-cat.on {
-          color: ${GOLD_L};
-        }
-        .ms-cat.on::after {
-          transform: scaleX(1);
-        }
-        .ms-cat:not(.on):hover {
-          color: rgba(242,235,217,0.65);
-        }
-        .ms-cat-cnt {
-          font-size: 9px;
-          vertical-align: super;
-          margin-left: 2px;
-          opacity: 0.55;
-        }
-
-        /* Nav right: search */
-        .ms-nav-right {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          flex-shrink: 0;
-        }
-        .ms-search-wrap { position: relative; }
-        .ms-search-input {
-          background: rgba(242,235,217,0.04);
-          border: 1px solid rgba(${GOLD_RGB},0.18);
-          padding: 8px 14px 8px 34px;
-          font-family: 'DM Sans', sans-serif;
-          font-size: 12px;
-          color: rgba(242,235,217,0.85);
-          outline: none;
-          width: 175px;
-          transition: all 0.22s;
-          letter-spacing: 0.02em;
-        }
-        .ms-search-input::placeholder { color: rgba(242,235,217,0.2); }
-        .ms-search-input:focus {
-          border-color: rgba(${GOLD_RGB},0.45);
-          background: rgba(${GOLD_RGB},0.05);
-          width: 220px;
-        }
-        .ms-search-icon {
-          position: absolute;
-          left: 10px;
-          top: 50%;
-          transform: translateY(-50%);
-          color: rgba(242,235,217,0.2);
-          pointer-events: none;
-        }
-        .ms-search-clear {
-          position: absolute;
-          right: 9px;
-          top: 50%;
-          transform: translateY(-50%);
-          background: none;
-          border: none;
-          color: rgba(242,235,217,0.3);
-          cursor: pointer;
-          padding: 2px;
-          display: flex;
-          transition: color 0.15s;
-        }
-        .ms-search-clear:hover { color: rgba(242,235,217,0.7); }
-
-        /* Mobile search toggle */
-        .ms-search-toggle {
-          display: none;
-          align-items: center;
-          justify-content: center;
-          width: 38px;
-          height: 38px;
-          border: 1px solid rgba(${GOLD_RGB},0.2);
-          background: rgba(${GOLD_RGB},0.05);
-          color: rgba(242,235,217,0.45);
-          cursor: pointer;
-          transition: all 0.18s;
-        }
-        .ms-search-toggle:hover {
-          background: rgba(${GOLD_RGB},0.1);
-          color: ${GOLD_L};
-          border-color: rgba(${GOLD_RGB},0.4);
-        }
-
-        /* Mobile search bar */
-        .ms-mobile-search {
-          display: none;
-          padding: 10px 20px 14px;
-          border-top: 1px solid rgba(${GOLD_RGB},0.1);
-          animation: fadeDown 0.18s ease;
-        }
-        @keyframes fadeDown { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
-        .ms-mobile-search.open { display: block; }
-        .ms-mobile-search-rel { position: relative; }
-        .ms-mobile-search input {
-          width: 100%;
-          background: rgba(242,235,217,0.04);
-          border: 1px solid rgba(${GOLD_RGB},0.35);
-          padding: 11px 36px;
-          font-family: 'DM Sans', sans-serif;
-          font-size: 13px;
-          color: rgba(242,235,217,0.9);
-          outline: none;
-          letter-spacing: 0.02em;
-          transition: border-color 0.18s;
-        }
-        .ms-mobile-search input::placeholder { color: rgba(242,235,217,0.2); }
-        .ms-mobile-search input:focus { border-color: rgba(${GOLD_RGB},0.55); }
-        .ms-mob-search-icon {
-          position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
-          color: rgba(242,235,217,0.22); pointer-events: none;
-        }
-        .ms-mob-search-clear {
-          position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-          background: none; border: none; color: rgba(242,235,217,0.3); cursor: pointer;
-          display: flex; padding: 2px;
-        }
-
-        /* ─── MOBILE CAT BAR ─── */
-        .ms-mobile-cats {
-          display: none;
-          overflow-x: auto;
-          gap: 0;
-          border-bottom: 1px solid rgba(${GOLD_RGB},0.1);
-          scrollbar-width: none;
-          background: rgba(10,8,5,0.92);
-        }
-        .ms-mobile-cats::-webkit-scrollbar { display: none; }
-        .ms-mobile-cats .ms-cat { padding: 12px 18px; }
-
-        /* ─── HERO ─── */
-        .ms-hero {
-          max-width: 1440px;
-          margin: 0 auto;
-          padding: 56px 40px 0;
-          position: relative;
-          z-index: 1;
-        }
-        .ms-hero-inner {
-          display: flex;
-          align-items: flex-end;
-          justify-content: space-between;
-          gap: 32px;
-          flex-wrap: wrap;
-          padding-bottom: 32px;
-          border-bottom: 1px solid rgba(${GOLD_RGB},0.12);
-        }
-        .ms-hero-left {}
-        .ms-hero-sup {
-          font-family: 'DM Sans', sans-serif;
-          font-size: 9px;
-          font-weight: 600;
-          letter-spacing: 0.3em;
-          text-transform: uppercase;
-          color: ${GOLD};
-          opacity: 0.7;
-          margin-bottom: 14px;
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-        .ms-hero-sup::before, .ms-hero-sup::after {
-          content: '';
-          height: 1px;
-          width: 24px;
-          background: ${GOLD};
-          opacity: 0.5;
-          display: block;
-        }
-        .ms-hero-title {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: clamp(48px, 6vw, 88px);
-          font-weight: 600;
-          font-style: italic;
-          letter-spacing: -0.02em;
-          line-height: 0.9;
-          color: #F2EBD9;
-        }
-        .ms-hero-title em {
-          font-style: italic;
-          color: ${GOLD};
-        }
-        .ms-hero-sub {
-          margin-top: 18px;
-          font-size: 13px;
-          font-weight: 300;
-          color: rgba(242,235,217,0.35);
-          max-width: 360px;
-          line-height: 1.75;
-          letter-spacing: 0.01em;
-        }
-
-        /* Stats */
-        .ms-hero-stats {
-          display: flex;
-          gap: 0;
-          flex-shrink: 0;
-          align-items: flex-end;
-        }
-        .ms-stat {
-          padding: 0 32px;
-          display: flex;
-          flex-direction: column;
-          align-items: flex-end;
-          gap: 4px;
-          border-left: 1px solid rgba(${GOLD_RGB},0.15);
-        }
-        .ms-stat:first-child { border-left: none; padding-left: 0; }
-        .ms-stat-num {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: 44px;
-          font-weight: 500;
-          font-style: italic;
-          color: ${GOLD};
-          line-height: 1;
-          letter-spacing: -0.02em;
-        }
-        .ms-stat-lbl {
-          font-family: 'DM Sans', sans-serif;
-          font-size: 9px;
-          font-weight: 500;
-          letter-spacing: 0.22em;
-          text-transform: uppercase;
-          color: rgba(242,235,217,0.2);
-          text-align: right;
-        }
-
-        /* ─── CATALOG ─── */
-        .ms-catalog {
-          max-width: 1440px;
-          margin: 0 auto;
-          padding: 36px 40px 96px;
-          position: relative;
-          z-index: 1;
-        }
-        .ms-catalog-bar {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          margin-bottom: 28px;
-          padding-bottom: 16px;
-          border-bottom: 1px solid rgba(${GOLD_RGB},0.07);
-        }
-        .ms-count {
-          font-family: 'DM Sans', sans-serif;
-          font-size: 11px;
-          font-weight: 400;
-          letter-spacing: 0.06em;
-          color: rgba(242,235,217,0.2);
-        }
-        .ms-count strong { color: rgba(242,235,217,0.4); font-weight: 500; }
-
-        .ms-grid {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 20px;
-        }
-
-        /* ─── PRODUCT CARD ─── */
-        .pc {
-          display: flex;
-          flex-direction: column;
-          background: #100D08;
-          cursor: pointer;
-          outline: none;
-          user-select: none;
-          -webkit-user-select: none;
-          text-align: left;
-          position: relative;
-          border: 1px solid rgba(${GOLD_RGB},0.06);
-          transition: border-color 0.3s ease;
-          animation: cardIn 0.55s ease both;
-        }
-        .pc:hover {
-          border-color: rgba(${GOLD_RGB},0.25);
-        }
-        .pc:focus-visible {
-          outline: 1px solid rgba(${GOLD_RGB},0.55);
-          outline-offset: 2px;
-        }
-        @keyframes cardIn {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
-        .pc-hover-line {
-          position: absolute;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          height: 2px;
-          background: linear-gradient(90deg, transparent, ${GOLD}, transparent);
-          transform-origin: center;
-          transition: transform 0.3s ease;
-          z-index: 2;
-        }
-
-        .pc-img-wrap {
-          position: relative;
-          padding-bottom: 133%;
-          overflow: hidden;
-          background: #0D0A06;
-          flex-shrink: 0;
-        }
-        .pc-img {
-          position: absolute;
-          inset: 0;
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          display: block;
-          transition: transform 0.7s cubic-bezier(.25,.8,.25,1);
-        }
-        .pc-placeholder {
-          position: absolute;
-          inset: 0;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-family: 'Cormorant Garamond', serif;
-          font-size: 32px;
-          font-style: italic;
-          color: rgba(${GOLD_RGB},0.2);
-          background: linear-gradient(135deg, #100D08 0%, rgba(${GOLD_RGB},0.03) 100%);
-        }
-        .pc-overlay {
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(
-            to top,
-            rgba(10,8,5,0.75) 0%,
-            rgba(10,8,5,0.2) 50%,
-            transparent 100%
-          );
-          transition: opacity 0.3s;
-          pointer-events: none;
-        }
-
-        .pc-cta-wrap {
-          position: absolute;
-          bottom: 18px;
-          left: 0;
-          right: 0;
-          display: flex;
-          justify-content: center;
-          transition: all 0.28s cubic-bezier(.25,.8,.25,1);
-          z-index: 3;
-        }
-        .pc-cta {
-          font-family: 'DM Sans', sans-serif;
-          font-size: 10px;
-          font-weight: 600;
-          letter-spacing: 0.18em;
-          text-transform: uppercase;
-          color: #0A0805;
-          background: ${GOLD_L};
-          padding: 8px 20px;
-          border: none;
-          box-shadow: 0 4px 20px rgba(${GOLD_RGB},0.35);
-        }
-
-        .pc-arr {
-          position: absolute;
-          top: 50%;
-          transform: translateY(-50%);
-          width: 32px;
-          height: 32px;
-          background: rgba(10,8,5,0.8);
-          backdrop-filter: blur(8px);
-          border: 1px solid rgba(${GOLD_RGB},0.25);
-          color: ${GOLD_L};
-          font-size: 22px;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 5;
-          transition: background 0.15s;
-          line-height: 1;
-          padding: 0;
-        }
-        .pc-arr:hover { background: rgba(10,8,5,0.95); }
-        .pc-arr-l { left: 8px; }
-        .pc-arr-r { right: 8px; }
-
-        .pc-dots {
-          position: absolute;
-          bottom: 8px;
-          left: 50%;
-          transform: translateX(-50%);
-          display: flex;
-          gap: 4px;
-          z-index: 5;
-        }
-        .pc-dot {
-          height: 4px;
-          border-radius: 0;
-          border: none;
-          padding: 0;
-          cursor: pointer;
-          transition: all 0.25s;
-        }
-
-        .pc-badges {
-          position: absolute;
-          top: 10px;
-          left: 10px;
-          right: 10px;
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          z-index: 5;
-          pointer-events: none;
-        }
-        .pc-badge-cat {
-          font-family: 'DM Sans', sans-serif;
-          font-size: 8px;
-          font-weight: 600;
-          letter-spacing: 0.18em;
-          text-transform: uppercase;
-          color: ${GOLD};
-          background: rgba(10,8,5,0.88);
-          backdrop-filter: blur(8px);
-          border: 1px solid rgba(${GOLD_RGB},0.3);
-          padding: 3px 8px;
-        }
-        .pc-badge-low {
-          font-family: 'DM Sans', sans-serif;
-          font-size: 8px;
-          font-weight: 600;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-          padding: 3px 8px;
-          background: rgba(220,80,50,0.88);
-          color: #F2EBD9;
-        }
-        .pc-badge-out {
-          font-family: 'DM Sans', sans-serif;
-          font-size: 8px;
-          font-weight: 600;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          padding: 3px 8px;
-          background: rgba(10,8,5,0.8);
-          color: rgba(242,235,217,0.4);
-          border: 1px solid rgba(242,235,217,0.12);
-        }
-
-        .pc-info {
-          padding: 14px 16px 16px;
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-          border-top: 1px solid rgba(${GOLD_RGB},0.07);
-        }
-        .pc-name {
-          font-family: 'DM Sans', sans-serif;
-          font-size: 13px;
-          font-weight: 400;
-          color: rgba(242,235,217,0.82);
-          line-height: 1.45;
-          letter-spacing: 0.01em;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-        .pc-meta {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 8px;
-        }
-        .pc-price {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: 18px;
-          font-style: italic;
-          font-weight: 600;
-          color: ${GOLD_L};
-          letter-spacing: -0.01em;
-          line-height: 1;
-        }
-        .pc-price-na {
-          font-family: 'DM Sans', sans-serif;
-          font-size: 11px;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          color: rgba(242,235,217,0.3);
-        }
-        .pc-avail {
-          display: flex;
-          align-items: center;
-          gap: 5px;
-          font-family: 'DM Sans', sans-serif;
-          font-size: 10px;
-          font-weight: 400;
-          color: rgba(242,235,217,0.32);
-          letter-spacing: 0.02em;
-          white-space: nowrap;
-        }
-        .pc-avail-dot {
-          width: 5px;
-          height: 5px;
-          border-radius: 50%;
-          flex-shrink: 0;
-        }
-
-        /* ─── SKELETON ─── */
-        .sk-card {
-          background: #100D08;
-          border: 1px solid rgba(${GOLD_RGB},0.06);
-          display: flex;
-          flex-direction: column;
-          animation: cardIn 0.4s ease both;
-        }
-        .sk-img {
-          padding-bottom: 133%;
-          width: 100%;
-        }
-        .sk-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
-        .sk-line { height: 12px; }
-        .sk-line-lg { width: 75%; }
-        .sk-line-sm { width: 45%; }
-        .shimmer {
-          background: linear-gradient(90deg,
-            rgba(${GOLD_RGB},0.03) 0%,
-            rgba(${GOLD_RGB},0.08) 50%,
-            rgba(${GOLD_RGB},0.03) 100%
-          );
-          background-size: 200% 100%;
-          animation: shimmer 1.6s ease infinite;
-        }
-        @keyframes shimmer { to { background-position: -200% 0; } }
-
-        /* ─── EMPTY ─── */
-        .ms-empty {
-          grid-column: 1 / -1;
-          padding: 80px 24px;
-          text-align: center;
-          border: 1px solid rgba(${GOLD_RGB},0.08);
-        }
-        .ms-empty-symbol {
-          font-family: 'Cormorant Garamond', serif;
-          font-style: italic;
-          font-size: 36px;
-          color: rgba(${GOLD_RGB},0.2);
-          display: block;
-          margin-bottom: 12px;
-        }
-        .ms-empty-text {
-          font-family: 'DM Sans', sans-serif;
-          font-size: 13px;
-          font-weight: 300;
-          letter-spacing: 0.08em;
-          color: rgba(242,235,217,0.18);
-        }
-
-        /* ─── FOOTER ─── */
-        .ms-footer {
-          border-top: 1px solid rgba(${GOLD_RGB},0.12);
-          position: relative;
-          z-index: 1;
-        }
-        .ms-footer-inner {
-          max-width: 1440px;
-          margin: 0 auto;
-          padding: 22px 40px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          flex-wrap: wrap;
-          gap: 12px;
-        }
-        .ms-footer-copy {
-          font-family: 'DM Sans', sans-serif;
-          font-size: 10px;
-          letter-spacing: 0.08em;
-          color: rgba(242,235,217,0.15);
-        }
-        .ms-footer-tag {
-          font-family: 'DM Sans', sans-serif;
-          font-size: 8px;
-          font-weight: 600;
-          letter-spacing: 0.28em;
-          text-transform: uppercase;
-          color: rgba(${GOLD_RGB},0.4);
-          border: 1px solid rgba(${GOLD_RGB},0.18);
-          padding: 4px 12px;
-        }
-
-        /* ─── RESPONSIVE ─── */
-        @media (max-width: 1280px) { .ms-grid { grid-template-columns: repeat(3, 1fr); } }
-        @media (max-width: 960px) {
-          .ms-nav-inner { padding: 0 20px; }
-          .ms-nav-cats { display: none; }
-          .ms-search-wrap { display: none; }
-          .ms-search-toggle { display: flex; }
-          .ms-mobile-cats { display: flex; }
-          .ms-logo { margin-right: auto; }
-          .ms-hero { padding: 32px 20px 0; }
-          .ms-catalog { padding: 24px 20px 72px; }
-          .ms-hero-inner { flex-direction: column; align-items: flex-start; gap: 24px; }
-          .ms-hero-stats { width: 100%; justify-content: flex-start; }
-          .ms-stat { align-items: flex-start; padding: 0 24px 0 0; }
-          .ms-stat:first-child { padding-left: 0; }
-          .ms-stat-lbl { text-align: left; }
-          .ms-footer-inner { padding: 18px 20px; }
-          .ms-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-          .ms-catalog-bar { display: none; }
-        }
-        @media (max-width: 480px) {
-          .ms-hero-title { font-size: 46px; }
-          .ms-stat-num { font-size: 36px; }
-          .ms-grid { gap: 10px; }
-        }
-      `}</style>
+      <style>{CSS_STORE}</style>
 
       <div className="ms-root">
+        {/* ── TOPBAR ── */}
+        <div className="ms-topbar">
+          <span>Envíos disponibles&nbsp;&nbsp;·&nbsp;&nbsp;Calidad garantizada&nbsp;&nbsp;·&nbsp;&nbsp;Compra segura</span>
+        </div>
+
         {/* ── NAV ── */}
         <nav className="ms-nav">
           <div className="ms-nav-inner">
-            {/* Logo */}
-            <div className="ms-logo">
-              <img src="https://miracle-store.s3.us-east-2.amazonaws.com/logo/logo+miracle.png" alt="Miracle" className="ms-logo-img" />
+
+            {/* Logo zone */}
+            <div className="ms-logo-zone">
+              <img
+                src="https://miracle-store.s3.us-east-2.amazonaws.com/logo/logo+miracle.png"
+                alt="Miracle"
+                className="ms-logo-img"
+              />
+              <div className="ms-logo-text">
+                <span className="ms-logo-name">MIRACLE</span>
+                <span className="ms-logo-tag">Store oficial</span>
+              </div>
             </div>
 
-            {/* Categories (desktop) */}
-            <div className="ms-nav-cats">
-              {['todos', 'productos', 'servicios'].map((key) => {
-                const label = key.charAt(0).toUpperCase() + key.slice(1)
-                return (
-                  <button
-                    key={key}
-                    type="button"
-                    className={`ms-cat${filtro === key ? ' on' : ''}`}
-                    onClick={() => setFiltro(key)}
-                  >
-                    {label}
-                    <span className="ms-cat-cnt">{counts[key]}</span>
-                  </button>
-                )
-              })}
+            {/* Nav center: simple text links */}
+            <div className="ms-nav-links">
+              <button type="button" className="ms-nav-link on">
+                Colección
+              </button>
+              <button type="button" className="ms-nav-link ms-nav-link-new" disabled>
+                Novedades
+                <span className="ms-nav-soon">Pronto</span>
+              </button>
             </div>
 
             {/* Right: search */}
             <div className="ms-nav-right">
               <div className="ms-search-wrap">
-                <svg className="ms-search-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg className="ms-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
                 </svg>
                 <input
                   type="text"
                   className="ms-search-input"
-                  placeholder="Buscar..."
+                  placeholder="Buscar producto..."
                   value={busqueda}
                   onChange={(e) => setBusqueda(e.target.value)}
                 />
@@ -1034,50 +280,32 @@ export default function MiracleStore() {
           </div>
         </nav>
 
-        {/* Mobile categories */}
-        <div className="ms-mobile-cats">
-          {['todos', 'productos', 'servicios'].map((key) => (
-            <button
-              key={key}
-              type="button"
-              className={`ms-cat${filtro === key ? ' on' : ''}`}
-              onClick={() => setFiltro(key)}
-            >
-              {key.charAt(0).toUpperCase() + key.slice(1)}
-              <span className="ms-cat-cnt">{counts[key]}</span>
-            </button>
-          ))}
-        </div>
-
         {/* ── HERO ── */}
         <section className="ms-hero">
           <div className="ms-hero-inner">
             <div className="ms-hero-left">
-              <p className="ms-hero-sup">Tienda Oficial</p>
+              <span className="ms-hero-sup">Tienda Oficial</span>
               <h1 className="ms-hero-title">
                 Miracle <em>Store</em>
               </h1>
               <p className="ms-hero-sub">
-                Servicios y productos de marketing digital para escalar tu negocio.
+                Diseñado para quienes no negocian ni comodidad ni estilo.
               </p>
             </div>
             {!loading && (
               <div className="ms-hero-stats">
                 <div className="ms-stat">
-                  <span className="ms-stat-num">{productos.length}</span>
-                  <span className="ms-stat-lbl">Ítems</span>
+                  <span className="ms-stat-num">{totalProductos}</span>
+                  <span className="ms-stat-lbl">Productos</span>
                 </div>
                 <div className="ms-stat">
                   <span className="ms-stat-num">{enStock}</span>
                   <span className="ms-stat-lbl">En stock</span>
                 </div>
-                <div className="ms-stat">
-                  <span className="ms-stat-num">{counts.servicios}</span>
-                  <span className="ms-stat-lbl">Servicios</span>
-                </div>
               </div>
             )}
           </div>
+          <div className="ms-hero-strip" />
         </section>
 
         {/* ── CATALOG ── */}
@@ -1095,7 +323,7 @@ export default function MiracleStore() {
               Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
             ) : productosFiltrados.length === 0 ? (
               <div className="ms-empty">
-                <span className="ms-empty-symbol">∅</span>
+                <span className="ms-empty-symbol">—</span>
                 <p className="ms-empty-text">
                   {busqueda ? `Sin resultados para "${busqueda}"` : 'Sin productos disponibles.'}
                 </p>
@@ -1111,14 +339,707 @@ export default function MiracleStore() {
         {/* ── FOOTER ── */}
         <footer className="ms-footer">
           <div className="ms-footer-inner">
-            <div className="ms-logo">
-              <img src="https://miracle-store.s3.us-east-2.amazonaws.com/logo/logo+miracle.png" alt="Miracle" className="ms-logo-img" style={{ opacity: 0.45 }} />
-            </div>
+            <img
+              src="https://miracle-store.s3.us-east-2.amazonaws.com/logo/logo+miracle.png"
+              alt="Miracle"
+              className="ms-logo-img"
+              style={{ opacity: 0.55, height: 36 }}
+            />
             <p className="ms-footer-copy">© {new Date().getFullYear()} Miracle Solutions · Todos los derechos reservados</p>
-            <span className="ms-footer-tag">Tienda oficial</span>
+            <span className="ms-footer-tag">Tienda Oficial</span>
           </div>
         </footer>
       </div>
     </>
   )
 }
+
+/* ─────────────────────────────────────────
+   STYLES
+───────────────────────────────────────── */
+const CSS_STORE = `
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ─── ROOT ─── */
+  .ms-root {
+    min-height: 100vh;
+    background: #F8F5F1;
+    color: #0D0D0D;
+    font-family: 'Outfit', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* ─── TOPBAR ─── */
+  .ms-topbar {
+    background: #0D0D0D;
+    color: rgba(255,255,255,0.55);
+    text-align: center;
+    font-family: 'Outfit', sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    padding: 8px 20px;
+  }
+
+  /* ─── NAV ─── */
+  .ms-nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(248,245,241,0.98);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid #E8E4DF;
+    box-shadow: 0 1px 0 #E8E4DF;
+  }
+  .ms-nav-inner {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 0 0 0;
+    height: 78px;
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  /* Logo zone */
+  .ms-logo-zone {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 0 32px 0 28px;
+    border-left: 4px solid #C8352B;
+    border-right: 1px solid #E8E4DF;
+    margin-right: 16px;
+    flex-shrink: 0;
+  }
+  .ms-logo-img {
+    height: 62px;
+    width: 62px;
+    object-fit: cover;
+    display: block;
+    border-radius: 50%;
+    border: 2px solid #E8E4DF;
+  }
+  .ms-logo-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .ms-logo-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 0.1em;
+    color: #0D0D0D;
+    line-height: 1;
+  }
+  .ms-logo-tag {
+    font-family: 'Outfit', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #C8352B;
+  }
+
+  /* Nav center: text links */
+  .ms-nav-links {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+    padding: 0 32px;
+  }
+  .ms-nav-link {
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    padding: 6px 14px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #8A8480;
+    transition: color 0.18s ease;
+    position: relative;
+    white-space: nowrap;
+  }
+  .ms-nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 14px;
+    right: 14px;
+    height: 2px;
+    background: #C8352B;
+    transform: scaleX(0);
+    transition: transform 0.2s ease;
+  }
+  .ms-nav-link.on { color: #0D0D0D; font-weight: 600; }
+  .ms-nav-link.on::after { transform: scaleX(1); }
+  .ms-nav-link:not(.on):hover { color: #0D0D0D; }
+  .ms-nav-link-new { opacity: 0.5; cursor: default; }
+  .ms-nav-soon {
+    font-family: 'Outfit', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #fff;
+    background: #C8352B;
+    padding: 2px 6px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  .ms-nav-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    padding: 0 32px;
+  }
+  .ms-search-wrap { position: relative; }
+  .ms-search-input {
+    background: #fff;
+    border: 1.5px solid #E8E4DF;
+    border-radius: 100px;
+    padding: 9px 16px 9px 38px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    color: #0D0D0D;
+    outline: none;
+    width: 195px;
+    transition: all 0.22s ease;
+  }
+  .ms-search-input::placeholder { color: #C0BAB3; }
+  .ms-search-input:focus {
+    border-color: #C8352B;
+    width: 235px;
+  }
+  .ms-search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #C0BAB3;
+    pointer-events: none;
+  }
+  .ms-search-clear {
+    position: absolute;
+    right: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #C0BAB3;
+    cursor: pointer;
+    padding: 2px;
+    display: flex;
+    transition: color 0.15s;
+  }
+  .ms-search-clear:hover { color: #0D0D0D; }
+  .ms-search-toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1.5px solid #E8E4DF;
+    border-radius: 100px;
+    background: #fff;
+    color: #757575;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .ms-search-toggle:hover {
+    background: #F0EDE9;
+    color: #0D0D0D;
+    border-color: #D0CBC4;
+  }
+  .ms-mobile-search {
+    display: none;
+    padding: 12px 20px 16px;
+    border-top: 1px solid #E8E4DF;
+    animation: fadeDown 0.18s ease;
+  }
+  @keyframes fadeDown { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+  .ms-mobile-search.open { display: block; }
+  .ms-mobile-search-rel { position: relative; }
+  .ms-mobile-search input {
+    width: 100%;
+    background: #fff;
+    border: 1.5px solid #E8E4DF;
+    border-radius: 100px;
+    padding: 12px 38px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    color: #0D0D0D;
+    outline: none;
+    transition: border-color 0.18s;
+  }
+  .ms-mobile-search input::placeholder { color: #C0BAB3; }
+  .ms-mobile-search input:focus { border-color: #C8352B; }
+  .ms-mob-search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #C0BAB3; pointer-events: none; }
+  .ms-mob-search-clear { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #C0BAB3; cursor: pointer; display: flex; padding: 2px; }
+
+  /* ─── HERO ─── */
+  .ms-hero {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 24px 40px 0;
+    position: relative;
+  }
+  .ms-hero-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+    padding-bottom: 22px;
+    border-bottom: 2.5px solid #0D0D0D;
+  }
+  .ms-hero-sup {
+    font-family: 'Outfit', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: #C8352B;
+    margin-bottom: 6px;
+    display: block;
+  }
+  .ms-hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(40px, 5vw, 64px);
+    font-weight: 400;
+    letter-spacing: 0.03em;
+    line-height: 1;
+    color: #0D0D0D;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .ms-hero-title em {
+    font-style: normal;
+    color: #C8352B;
+  }
+  .ms-hero-sub {
+    margin-top: 6px;
+    font-size: 13px;
+    font-weight: 300;
+    color: #8A8480;
+    max-width: 420px;
+    line-height: 1.6;
+  }
+  .ms-hero-stats {
+    display: flex;
+    gap: 0;
+    flex-shrink: 0;
+    align-items: center;
+  }
+  .ms-stat {
+    padding: 0 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    border-left: 1px solid #E8E4DF;
+  }
+  .ms-stat:first-child { border-left: none; padding-left: 0; }
+  .ms-stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    font-weight: 400;
+    color: #0D0D0D;
+    line-height: 1;
+    letter-spacing: 0.03em;
+  }
+  .ms-stat-lbl {
+    font-family: 'Outfit', sans-serif;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #C0BAB3;
+    text-align: right;
+  }
+  .ms-hero-strip {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 4px;
+    height: 100%;
+    background: #C8352B;
+  }
+
+  /* ─── CATALOG ─── */
+  .ms-catalog {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 24px 40px 80px;
+  }
+  .ms-catalog-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #E8E4DF;
+  }
+  .ms-count {
+    font-family: 'Outfit', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 0.03em;
+    color: #C0BAB3;
+  }
+  .ms-count strong { color: #8A8480; font-weight: 600; }
+
+  .ms-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+
+  /* ─── PRODUCT CARD ─── */
+  .pc {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    cursor: pointer;
+    outline: none;
+    user-select: none;
+    -webkit-user-select: none;
+    text-align: left;
+    position: relative;
+    border: 1px solid #E8E4DF;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+    animation: cardIn 0.5s ease both;
+    overflow: hidden;
+  }
+  .pc:hover {
+    border-color: #C8352B;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.09);
+    transform: translateY(-4px);
+  }
+  .pc:focus-visible {
+    outline: 2px solid #C8352B;
+    outline-offset: 2px;
+  }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .pc-accent-line {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #C8352B;
+    transform-origin: left;
+    transition: transform 0.28s ease;
+  }
+  .pc-img-wrap {
+    position: relative;
+    padding-bottom: 125%;
+    overflow: hidden;
+    background: #F0EDE9;
+    flex-shrink: 0;
+  }
+  .pc-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.7s cubic-bezier(.25,.8,.25,1);
+  }
+  .pc-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 44px;
+    letter-spacing: 0.05em;
+    color: rgba(13,13,13,0.1);
+    background: #F0EDE9;
+  }
+  .pc-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(13,13,13,0.28);
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+  .pc-cta-wrap {
+    position: absolute;
+    bottom: 18px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    transition: all 0.28s cubic-bezier(.25,.8,.25,1);
+    z-index: 3;
+  }
+  .pc-cta {
+    font-family: 'Outfit', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #0D0D0D;
+    background: #fff;
+    padding: 10px 24px;
+    border: none;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  }
+  .pc-arr {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 34px;
+    height: 34px;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(8px);
+    border: none;
+    color: #0D0D0D;
+    font-size: 22px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+    transition: background 0.15s;
+    line-height: 1;
+    padding: 0;
+  }
+  .pc-arr:hover { background: #fff; }
+  .pc-arr-l { left: 8px; }
+  .pc-arr-r { right: 8px; }
+  .pc-dots {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 4px;
+    z-index: 5;
+  }
+  .pc-dot {
+    height: 4px;
+    border-radius: 0;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+  .pc-badges {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    z-index: 5;
+    pointer-events: none;
+  }
+  .pc-badge-cat {
+    font-family: 'Outfit', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #0D0D0D;
+    background: #fff;
+    padding: 4px 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .pc-badge-low {
+    font-family: 'Outfit', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    background: #C8352B;
+    color: #fff;
+  }
+  .pc-badge-out {
+    font-family: 'Outfit', sans-serif;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    background: rgba(255,255,255,0.88);
+    color: #8A8480;
+  }
+  .pc-info {
+    padding: 16px 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    border-top: 1px solid #F0EDE9;
+  }
+  .pc-name {
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #0D0D0D;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .pc-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .pc-price {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    font-weight: 400;
+    color: #C8352B;
+    letter-spacing: 0.04em;
+    line-height: 1;
+  }
+  .pc-price-na {
+    font-family: 'Outfit', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #C0BAB3;
+  }
+  .pc-avail {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    color: #C0BAB3;
+    white-space: nowrap;
+  }
+  .pc-avail-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ─── SKELETON ─── */
+  .sk-card {
+    background: #fff;
+    border: 1px solid #E8E4DF;
+    display: flex;
+    flex-direction: column;
+    animation: cardIn 0.4s ease both;
+    overflow: hidden;
+  }
+  .sk-img { padding-bottom: 125%; width: 100%; }
+  .sk-body { padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
+  .sk-line { height: 14px; border-radius: 3px; }
+  .sk-line-lg { width: 72%; }
+  .sk-line-sm { width: 44%; }
+  .shimmer {
+    background: linear-gradient(90deg, #F0EDE9 0%, #E5E0DA 50%, #F0EDE9 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.6s ease infinite;
+  }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+
+  /* ─── EMPTY ─── */
+  .ms-empty {
+    grid-column: 1 / -1;
+    padding: 80px 24px;
+    text-align: center;
+    border: 1px dashed #E8E4DF;
+    background: #fff;
+  }
+  .ms-empty-symbol {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    color: #E8E4DF;
+    display: block;
+    margin-bottom: 14px;
+    letter-spacing: 0.1em;
+  }
+  .ms-empty-text {
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    color: #C0BAB3;
+  }
+
+  /* ─── FOOTER ─── */
+  .ms-footer {
+    border-top: 1px solid #0D0D0D;
+    background: #0D0D0D;
+  }
+  .ms-footer-inner {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 26px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .ms-footer-copy {
+    font-family: 'Outfit', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: rgba(255,255,255,0.28);
+  }
+  .ms-footer-tag {
+    font-family: 'Outfit', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: #C8352B;
+    border: 1px solid rgba(200,53,43,0.45);
+    padding: 5px 14px;
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 1280px) { .ms-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 960px) {
+    .ms-topbar { display: none; }
+    .ms-nav-links { display: none; }
+    .ms-search-wrap { display: none; }
+    .ms-search-toggle { display: flex; }
+    .ms-logo-zone { padding: 0 16px 0 14px; }
+    .ms-logo-text { display: none; }
+    .ms-nav-right { padding: 0 16px; margin-left: auto; }
+    .ms-hero { padding: 16px 20px 0; }
+    .ms-catalog { padding: 16px 20px 64px; }
+    .ms-hero-inner { flex-direction: column; align-items: flex-start; gap: 14px; padding-bottom: 16px; }
+    .ms-hero-stats { width: 100%; justify-content: flex-start; }
+    .ms-stat { align-items: flex-start; padding: 0 20px 0 0; }
+    .ms-stat:first-child { padding-left: 0; }
+    .ms-stat-lbl { text-align: left; }
+    .ms-footer-inner { padding: 20px 20px; }
+    .ms-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .ms-catalog-bar { display: none; }
+    .ms-mobile-search { background: #F8F5F1; }
+  }
+  @media (max-width: 480px) {
+    .ms-hero-title { font-size: 40px; }
+    .ms-stat-num { font-size: 30px; }
+    .ms-grid { gap: 10px; }
+    .ms-logo-img { height: 40px; }
+  }
+`
