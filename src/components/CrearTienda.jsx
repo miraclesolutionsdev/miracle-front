@@ -41,11 +41,27 @@ export default function CrearTienda() {
         password: form.password,
         nombre: form.nombre.trim() || undefined,
       })
-      login(data)
-      navigate('/plataforma', { replace: true })
+
+      const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname)
+      if (isLocal) {
+        // En desarrollo: quedarse en el mismo origen
+        login(data)
+        navigate('/plataforma', { replace: true })
+      } else {
+        // En producción: redirigir al subdominio propio del nuevo tenant.
+        // El token se pasa en el hash (#_t=) para que AuthContext lo lea
+        // en el nuevo origen antes de llamar a obtenerPerfil().
+        const accessUrl = data.tenant?.accessUrl
+        if (accessUrl) {
+          window.location.href = `${accessUrl}/plataforma#_t=${encodeURIComponent(data.token)}`
+        } else {
+          // Fallback: si el backend no retornó accessUrl, quedarse aquí
+          login(data)
+          navigate('/plataforma', { replace: true })
+        }
+      }
     } catch (err) {
       setError(err.message || 'Error al crear la empresa')
-    } finally {
       setSubmitting(false)
     }
   }

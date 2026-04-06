@@ -7,6 +7,17 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
+  // Handoff de registro cross-subdominio: si hay un token en el hash de la URL (#_t=TOKEN)
+  // lo guardamos en sessionStorage ANTES de llamar a obtenerPerfil, para que el usuario
+  // quede autenticado automáticamente al llegar a su nuevo subdominio.
+  if (typeof window !== 'undefined') {
+    const match = window.location.hash.match(/[#&]_t=([^&]+)/)
+    if (match) {
+      storeToken(decodeURIComponent(match[1]))
+      window.history.replaceState(null, '', window.location.pathname + window.location.search)
+    }
+  }
+
   // Al montar, verifica si la cookie de sesión sigue vigente
   useEffect(() => {
     authApi.obtenerPerfil()
