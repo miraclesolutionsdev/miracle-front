@@ -1,14 +1,17 @@
 import { ExternalLink } from 'lucide-react'
 import SectionCard from './SectionCard'
+import { useAuth } from '../context/AuthContext'
 
 export default function VistaTienda() {
+  const { user } = useAuth()
+  const tenantNombre = user?.tenantNombre || 'Mi Tienda'
   const abrirTienda = () =>
     window.open(`${window.location.origin}/tienda`, '_blank', 'noopener,noreferrer')
 
   return (
     <div className="flex flex-col gap-6">
       <SectionCard
-        title="Miracle Store"
+        title={`${tenantNombre} Store`}
         description="Tu tienda pública de productos y servicios."
       >
         <div className="flex flex-col gap-4">
@@ -25,7 +28,7 @@ export default function VistaTienda() {
               className="flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
             >
               <ExternalLink className="h-4 w-4" />
-              Abrir Miracle Store
+              Abrir tienda
             </button>
           </div>
         </div>

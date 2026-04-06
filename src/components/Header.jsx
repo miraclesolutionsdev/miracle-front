@@ -81,7 +81,7 @@ export function Header() {
           </div>
           <div className="flex flex-col leading-none">
             <span className="text-[13px] font-bold tracking-tight text-foreground">
-              Miracle Solutions
+              {user?.tenantNombre || 'Plataforma'}
             </span>
             <span className="text-[10px] font-medium text-muted-foreground/60 tracking-widest uppercase">
               Advertising

@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import {
   LayoutDashboard,
   Users,
@@ -37,6 +38,7 @@ const LABEL_TO_PATH = {
 
 function Sidebar({ seleccionado }) {
   const navigate = useNavigate()
+  const { user } = useAuth()
 
   return (
     <aside className="fixed left-0 top-14 bottom-0 z-20 flex w-56 flex-col border-r border-sidebar-border bg-sidebar-background">
@@ -76,7 +78,7 @@ function Sidebar({ seleccionado }) {
       <div className="px-4 pb-4">
         <div className="h-px w-full bg-gradient-to-r from-transparent via-sidebar-border to-transparent mb-3" />
         <p className="text-[10px] text-sidebar-foreground/30 text-center tracking-widest uppercase font-medium">
-          Miracle Solutions
+          {user?.tenantNombre || 'Plataforma'}
         </p>
       </div>
     </aside>
