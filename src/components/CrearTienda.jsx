@@ -7,7 +7,7 @@ import { registerApi } from '../utils/api'
 export default function CrearTienda() {
   const { login, isAuthenticated, loading } = useAuth()
   const navigate = useNavigate()
-  const [form, setForm] = useState({ nombreTienda: '', email: '', password: '', nombre: '' })
+  const [form, setForm] = useState({ nombreTienda: '', email: '', password: '', nombre: '', dominio: '' })
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -40,6 +40,7 @@ export default function CrearTienda() {
         email: form.email.trim(),
         password: form.password,
         nombre: form.nombre.trim() || undefined,
+        dominio: form.dominio.trim() || undefined,
       })
 
       const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname)
@@ -132,6 +133,21 @@ export default function CrearTienda() {
                   className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 transition-colors"
                   placeholder="Juan Pérez"
                 />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-[13px] font-medium text-foreground">
+                  Dominio propio <span className="text-muted-foreground font-normal">(opcional)</span>
+                </label>
+                <input
+                  type="text"
+                  autoComplete="off"
+                  value={form.dominio}
+                  onChange={set('dominio')}
+                  className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 transition-colors"
+                  placeholder="miempresa.com"
+                />
+                <p className="text-[11px] text-muted-foreground">Si ya tienes un dominio comprado, ingrésalo aquí. Si lo dejas vacío, se asigna un subdominio automático.</p>
               </div>
 
               <div className="space-y-1.5">
