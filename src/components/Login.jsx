@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { useNavigate, Navigate, Link } from 'react-router-dom'
+import { useNavigate, Navigate, Link, useParams } from 'react-router-dom'
 import { Eye, EyeOff, Sparkles } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { authApi } from '../utils/api'
 
 export default function Login() {
   const { login, isAuthenticated, loading } = useAuth()
+  const { slug } = useParams()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -23,7 +24,7 @@ export default function Login() {
       </div>
     )
   }
-  if (isAuthenticated) return <Navigate to="/plataforma" replace />
+  if (isAuthenticated) return <Navigate to={`/${slug}/plataforma`} replace />
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -32,7 +33,7 @@ export default function Login() {
     try {
       const data = await authApi.login(email, password)
       login(data)
-      navigate('/plataforma', { replace: true })
+      navigate(`/${slug}/plataforma`, { replace: true })
     } catch (err) {
       setError(err.message || 'Error al iniciar sesión')
     } finally {

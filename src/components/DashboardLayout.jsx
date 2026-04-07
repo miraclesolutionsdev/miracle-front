@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 import Header from './Header'
 import Sidebar from './Sidebar'
 import VistaDashboard from './VistaDashboard'
@@ -14,68 +14,64 @@ import VistaAdministradores from './VistaAdministradores'
 import VistaConfiguracion from './VistaConfiguracion'
 import VistaClipsWhatsApp from './VistaClipsWhatsApp'
 
-const PATH_TO_LABEL = {
-  '/plataforma': 'Dashboard',
-  '/plataforma/dashboard': 'Dashboard',
-  '/plataforma/clientes': 'Clientes',
-  '/plataforma/productos': 'Productos',
-  '/plataforma/configurar-tienda': 'Tienda',
-  '/plataforma/campanas': 'Campañas',
-  '/plataforma/audiovisual': 'Audiovisual',
-  '/plataforma/metricas-ads': 'Métricas Ads',
-  '/plataforma/ventas': 'Ventas',
-  '/plataforma/leads-whatsapp': 'Leads WhatsApp',
-  '/plataforma/administradores': 'Administradores',
-  '/plataforma/configuracion': 'Configuración',
-}
-
 const PAGE_DESCRIPTIONS = {
-  'Dashboard': 'Resumen general de tu negocio y campañas',
-  'Clientes': 'Gestiona tu base de clientes',
-  'Productos': 'Administra tu catálogo de productos',
-  'Tienda': 'Personaliza tu tienda online',
-  'Campañas': 'Crea y gestiona campañas publicitarias',
-  'Audiovisual': 'Biblioteca de piezas audiovisuales',
+  Dashboard: 'Resumen general de tu negocio y campañas',
+  Clientes: 'Gestiona tu base de clientes',
+  Productos: 'Administra tu catálogo de productos',
+  Tienda: 'Personaliza tu tienda online',
+  Campañas: 'Crea y gestiona campañas publicitarias',
+  Audiovisual: 'Biblioteca de piezas audiovisuales',
   'Métricas Ads': 'Análisis de rendimiento de anuncios',
-  'Ventas': 'Seguimiento de ventas y conversiones',
+  Ventas: 'Seguimiento de ventas y conversiones',
   'Leads WhatsApp': 'Contenido audiovisual para campañas de WhatsApp',
-  'Administradores': 'Gestión de accesos y usuarios',
-  'Configuración': 'Preferencias de tu cuenta',
+  Administradores: 'Gestión de accesos y usuarios',
+  Configuración: 'Preferencias de tu cuenta',
 }
 
 function DashboardLayout() {
+  const { slug } = useParams()
   const { pathname } = useLocation()
-  const seleccionado = useMemo(() => {
-    const path = pathname.replace(/\/$/, '') || '/plataforma'
-    return PATH_TO_LABEL[path] ?? 'Dashboard'
-  }, [pathname])
+
+  const pathToLabel = useMemo(() => ({
+    [`/${slug}/plataforma`]: 'Dashboard',
+    [`/${slug}/plataforma/dashboard`]: 'Dashboard',
+    [`/${slug}/plataforma/clientes`]: 'Clientes',
+    [`/${slug}/plataforma/productos`]: 'Productos',
+    [`/${slug}/plataforma/configurar-tienda`]: 'Tienda',
+    [`/${slug}/plataforma/campanas`]: 'Campañas',
+    [`/${slug}/plataforma/audiovisual`]: 'Audiovisual',
+    [`/${slug}/plataforma/metricas-ads`]: 'Métricas Ads',
+    [`/${slug}/plataforma/ventas`]: 'Ventas',
+    [`/${slug}/plataforma/leads-whatsapp`]: 'Leads WhatsApp',
+    [`/${slug}/plataforma/administradores`]: 'Administradores',
+    [`/${slug}/plataforma/configuracion`]: 'Configuración',
+  }), [slug])
+
+  const seleccionado = pathToLabel[pathname.replace(/\/$/, '')] ?? 'Dashboard'
 
   const renderContenido = () => {
-    if (seleccionado === 'Dashboard') return <VistaDashboard />
-    if (seleccionado === 'Clientes') return <VistaClientes />
-    if (seleccionado === 'Productos') return <VistaProductos />
-    if (seleccionado === 'Tienda') return <VistaTienda />
-    if (seleccionado === 'Audiovisual') return <VistaAudiovisual />
-    if (seleccionado === 'Métricas Ads') return <MetricsAds />
-    if (seleccionado === 'Ventas') return <VistaVentas />
-    if (seleccionado === 'Campañas') return <VistaCampañas />
-    if (seleccionado === 'Leads WhatsApp') return <VistaClipsWhatsApp />
-    if (seleccionado === 'Administradores') return <VistaAdministradores />
-    if (seleccionado === 'Configuración') return <VistaConfiguracion />
-    return (
-      <p className="text-sm text-muted-foreground">
-        Selecciona una opción del panel para continuar.
-      </p>
-    )
+    switch (seleccionado) {
+      case 'Dashboard':       return <VistaDashboard />
+      case 'Clientes':        return <VistaClientes />
+      case 'Productos':       return <VistaProductos />
+      case 'Tienda':          return <VistaTienda />
+      case 'Campañas':        return <VistaCampañas />
+      case 'Audiovisual':     return <VistaAudiovisual />
+      case 'Métricas Ads':    return <MetricsAds />
+      case 'Ventas':          return <VistaVentas />
+      case 'Leads WhatsApp':  return <VistaClipsWhatsApp />
+      case 'Administradores': return <VistaAdministradores />
+      case 'Configuración':   return <VistaConfiguracion />
+      default:                return null
+    }
   }
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
-      <Sidebar seleccionado={seleccionado} />
+      <Header slug={slug} />
+      <Sidebar seleccionado={seleccionado} slug={slug} />
       <main className="ml-56 pt-14 min-h-screen">
         <div className="flex flex-col gap-6 p-6">
-          {/* Page header */}
           <div>
             <div className="flex items-center gap-2.5">
               <span className="h-5 w-0.5 rounded-full bg-gradient-to-b from-primary to-primary/30" />

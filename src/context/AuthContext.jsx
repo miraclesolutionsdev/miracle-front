@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-import { authApi, storeToken, clearToken } from '../utils/api'
+import { authApi, storeToken, clearToken, getTenantSlug } from '../utils/api'
 
 const AuthContext = createContext(null)
 
@@ -7,19 +7,13 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
-  // Handoff de registro cross-subdominio: si hay un token en el hash de la URL (#_t=TOKEN)
-  // lo guardamos en sessionStorage ANTES de llamar a obtenerPerfil, para que el usuario
-  // quede autenticado automáticamente al llegar a su nuevo subdominio.
-  if (typeof window !== 'undefined') {
-    const match = window.location.hash.match(/[#&]_t=([^&]+)/)
-    if (match) {
-      storeToken(decodeURIComponent(match[1]))
-      window.history.replaceState(null, '', window.location.pathname + window.location.search)
-    }
-  }
-
-  // Al montar, verifica si la cookie de sesión sigue vigente
   useEffect(() => {
+    // Solo restaurar sesión si estamos en una ruta con slug (plataforma, tienda, etc.)
+    // En /login o /crear-tienda no hay slug, no intentamos restaurar ninguna sesión.
+    if (!getTenantSlug()) {
+      setLoading(false)
+      return
+    }
     authApi.obtenerPerfil()
       .then((data) => setUser(data?.user ?? null))
       .catch(() => setUser(null))
@@ -27,12 +21,12 @@ export function AuthProvider({ children }) {
   }, [])
 
   const login = (data) => {
-    if (data.token) storeToken(data.token)
+    if (data.token) storeToken(data.token, data.user?.tenantSlug)
     setUser(data.user ?? null)
   }
 
   const logout = async () => {
-    clearToken()
+    clearToken(user?.tenantSlug)
     setUser(null)
     await authApi.logout().catch(() => {})
   }
@@ -41,8 +35,11 @@ export function AuthProvider({ children }) {
     setUser((prev) => (prev ? { ...prev, ...partial } : prev))
   }
 
-  const value = { user, login, logout, updateUser, loading, isAuthenticated: !!user }
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider value={{ user, login, logout, updateUser, loading, isAuthenticated: !!user }}>
+      {children}
+    </AuthContext.Provider>
+  )
 }
 
 export function useAuth() {

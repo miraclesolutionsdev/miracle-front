@@ -1,48 +1,28 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import {
-  LayoutDashboard,
-  Users,
-  Package,
-  Megaphone,
-  Film,
-  BarChart3,
-  ShoppingCart,
-  ShoppingBag,
-  MessageCircle,
+  LayoutDashboard, Users, Package, Megaphone,
+  Film, BarChart3, ShoppingCart, ShoppingBag, MessageCircle,
 } from 'lucide-react'
 
 const NAV_ITEMS = [
-  { label: 'Dashboard', icon: LayoutDashboard },
-  { label: 'Clientes', icon: Users },
-  { label: 'Productos', icon: Package },
-  { label: 'Tienda', icon: ShoppingBag },
-  { label: 'Campañas', icon: Megaphone },
-  { label: 'Audiovisual', icon: Film },
-  { label: 'Métricas Ads', icon: BarChart3 },
-  { label: 'Ventas', icon: ShoppingCart },
-  { label: 'Leads WhatsApp', icon: MessageCircle },
+  { label: 'Dashboard',      icon: LayoutDashboard, path: '' },
+  { label: 'Clientes',       icon: Users,           path: '/clientes' },
+  { label: 'Productos',      icon: Package,         path: '/productos' },
+  { label: 'Tienda',         icon: ShoppingBag,     path: '/configurar-tienda' },
+  { label: 'Campañas',       icon: Megaphone,       path: '/campanas' },
+  { label: 'Audiovisual',    icon: Film,            path: '/audiovisual' },
+  { label: 'Métricas Ads',   icon: BarChart3,       path: '/metricas-ads' },
+  { label: 'Ventas',         icon: ShoppingCart,    path: '/ventas' },
+  { label: 'Leads WhatsApp', icon: MessageCircle,   path: '/leads-whatsapp' },
 ]
 
-const LABEL_TO_PATH = {
-  'Dashboard': '/plataforma',
-  'Clientes': '/plataforma/clientes',
-  'Productos': '/plataforma/productos',
-  'Tienda': '/plataforma/configurar-tienda',
-  'Campañas': '/plataforma/campanas',
-  'Audiovisual': '/plataforma/audiovisual',
-  'Métricas Ads': '/plataforma/metricas-ads',
-  'Ventas': '/plataforma/ventas',
-  'Leads WhatsApp': '/plataforma/leads-whatsapp',
-}
-
-function Sidebar({ seleccionado }) {
+function Sidebar({ seleccionado, slug }) {
   const navigate = useNavigate()
   const { user } = useAuth()
 
   return (
     <aside className="fixed left-0 top-14 bottom-0 z-20 flex w-56 flex-col border-r border-sidebar-border bg-sidebar-background">
-      {/* Línea decorativa superior */}
       <div className="h-px w-full bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
       <div className="flex flex-col gap-1 px-3 py-4 flex-1 overflow-y-auto">
@@ -56,7 +36,7 @@ function Sidebar({ seleccionado }) {
               <button
                 key={item.label}
                 type="button"
-                onClick={() => navigate(LABEL_TO_PATH[item.label])}
+                onClick={() => navigate(`/${slug}/plataforma${item.path}`)}
                 className={`relative flex items-center gap-3 rounded-md px-3 py-2.5 text-[13px] font-medium transition-all duration-150 ${
                   isActive
                     ? 'bg-primary/10 text-primary'
@@ -74,7 +54,6 @@ function Sidebar({ seleccionado }) {
         </nav>
       </div>
 
-      {/* Footer del sidebar */}
       <div className="px-4 pb-4">
         <div className="h-px w-full bg-gradient-to-r from-transparent via-sidebar-border to-transparent mb-3" />
         <p className="text-[10px] text-sidebar-foreground/30 text-center tracking-widest uppercase font-medium">

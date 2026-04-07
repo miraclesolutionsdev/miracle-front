@@ -247,7 +247,7 @@ function PagoModal({ producto, cantidad, loading, onClose, onSubmit }) {
 
 /* ── Main Page ── */
 function LandingProductoPage() {
-  const { id } = useParams()
+  const { productoId: id } = useParams()
   const navigate = useNavigate()
   const { findProductoById } = useProductos()
 

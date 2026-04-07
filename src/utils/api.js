@@ -9,37 +9,58 @@ export const BASE_URL = (() => {
   return BACKEND_FALLBACK
 })()
 
-const TOKEN_KEY = 'miracle_auth_token'
+const getTokenKey = (slug) => `miracle_auth_${slug || getTenantSlug()}`
 
-export function storeToken(token) {
-  try { sessionStorage.setItem(TOKEN_KEY, token) } catch { /* noop */ }
+export function storeToken(token, slug) {
+  try { sessionStorage.setItem(getTokenKey(slug), token) } catch { /* noop */ }
 }
-export function clearToken() {
-  try { sessionStorage.removeItem(TOKEN_KEY) } catch { /* noop */ }
+export function clearToken(slug) {
+  try { sessionStorage.removeItem(getTokenKey(slug)) } catch { /* noop */ }
 }
 function getStoredToken() {
-  try { return sessionStorage.getItem(TOKEN_KEY) } catch { return null }
+  try { return sessionStorage.getItem(getTokenKey()) } catch { return null }
+}
+
+/**
+ * Extrae el slug del tenant desde la URL actual.
+ * Patrón esperado: /{slug}/plataforma, /{slug}/tienda, /{slug}/login
+ * Retorna null si la URL no tiene slug (ej. /login, /crear-tienda).
+ */
+export function getTenantSlug() {
+  if (typeof window === 'undefined') return null
+  const match = window.location.pathname.match(/^\/([a-z0-9][a-z0-9-]*)\//)
+  return match?.[1] ?? null
 }
 
 function handleUnauthorized() {
   if (typeof window === 'undefined') return
-  // Solo redirigir si el usuario estaba en una ruta protegida
-  if (window.location.pathname.startsWith('/plataforma')) {
+  if (window.location.pathname.includes('/plataforma')) {
     window.location.href = '/login'
   }
 }
 
+function translateNetworkError(err) {
+  const msg = err?.message || ''
+  if (msg === 'Failed to fetch' || msg.includes('NetworkError') || msg.includes('network') || msg.includes('ERR_CONNECTION')) {
+    throw new Error('No se pudo conectar con el servidor. Verifica tu conexión a internet.')
+  }
+  throw err
+}
+
 async function request(path, options = {}) {
   const url = `${BASE_URL.replace(/\/$/, '')}/${path.replace(/^\//, '')}`
+  const slug = getTenantSlug()
   const token = getStoredToken()
   const headers = {
     'Content-Type': 'application/json',
+    ...(slug ? { 'X-Tenant-Slug': slug } : {}),
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...options.headers,
   }
-  const res = await fetch(url, { ...options, headers, credentials: 'include' })
+  const res = await fetch(url, { ...options, headers, credentials: 'include' }).catch(translateNetworkError)
   const data = await res.json().catch(() => ({}))
   if (res.status === 401) {
+    if (data.error) throw new Error(data.error)
     handleUnauthorized()
     throw new Error('Sesión expirada. Inicia sesión de nuevo.')
   }
@@ -49,9 +70,16 @@ async function request(path, options = {}) {
 
 async function requestFormData(path, method, formData) {
   const url = `${BASE_URL.replace(/\/$/, '')}/${path.replace(/^\//, '')}`
-  const res = await fetch(url, { method, body: formData, credentials: 'include' })
+  const slug = getTenantSlug()
+  const token = getStoredToken()
+  const headers = {
+    ...(slug ? { 'X-Tenant-Slug': slug } : {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  }
+  const res = await fetch(url, { method, body: formData, headers, credentials: 'include' }).catch(translateNetworkError)
   const data = await res.json().catch(() => ({}))
   if (res.status === 401) {
+    if (data.error) throw new Error(data.error)
     handleUnauthorized()
     throw new Error('Sesión expirada. Inicia sesión de nuevo.')
   }
@@ -73,6 +101,10 @@ export const productosApi = {
   listar: (params) => {
     const q = new URLSearchParams(params || {}).toString()
     return request(`productos${q ? `?${q}` : ''}`)
+  },
+  listarPublico: (params, slug) => {
+    const q = new URLSearchParams(params || {}).toString()
+    return request(`productos${q ? `?${q}` : ''}`, { headers: { 'X-Tenant-Slug': slug } })
   },
   obtener: (id) => request(`productos/${id}`),
   crear: (body) => request('productos', { method: 'POST', body: JSON.stringify(body) }),
@@ -151,7 +183,26 @@ export const registerApi = {
     request('register', { method: 'POST', body: JSON.stringify(body) }),
 }
 
+export const storeConfigApi = {
+  guardarDominio: (dominio) =>
+    request('store-config/dominio', { method: 'PATCH', body: JSON.stringify({ dominio }) }),
+}
+
 export const authApi = {
+  loginGlobal: (email, password) => {
+    const url = `${BASE_URL.replace(/\/$/, '')}/auth/login-global`
+    return fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ email, password }),
+    })
+      .then(async (res) => {
+        const data = await res.json().catch(() => ({}))
+        if (!res.ok) throw new Error(data.error || 'Error al iniciar sesión')
+        return data
+      })
+  },
   login: (email, password) =>
     request('auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
   logout: () => request('auth/logout', { method: 'POST' }),

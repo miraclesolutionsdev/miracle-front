@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
+import { useParams } from 'react-router-dom'
 import { productosApi, getProductoImagenSrc } from '../utils/api'
 
 const fmt = (v) => `$${(Number(v) || 0).toLocaleString('es-CO')}`
@@ -21,7 +22,7 @@ function SkeletonCard() {
 }
 
 /* ── Product card ── */
-function ProductCard({ p, index }) {
+function ProductCard({ p, index, slug }) {
   const [hov, setHov] = useState(false)
   const [imgIdx, setImgIdx] = useState(0)
   const touchX = useRef(null)
@@ -40,7 +41,9 @@ function ProductCard({ p, index }) {
     if (Math.abs(d) > 40) d < 0 ? goNext(e) : goPrev(e)
     touchX.current = null
   }
-  const ir = () => window.open(`${window.location.origin}/landing-producto/${p.id}`, '_blank', 'noopener,noreferrer')
+  const { slug: slugFromParams } = useParams()
+  const effectiveSlug = slug || slugFromParams
+  const ir = () => window.open(`${window.location.origin}/${effectiveSlug}/tienda/${p.id}`, '_blank', 'noopener,noreferrer')
 
   return (
     <article
@@ -144,20 +147,35 @@ function ProductCard({ p, index }) {
 }
 
 /* ── Main store ── */
-export default function MiracleStore() {
+export default function MiracleStore({ slug: slugProp } = {}) {
+  const { slug: slugFromParams } = useParams()
+  const slug = slugProp || slugFromParams
+
   const [productos, setProductos] = useState([])
+  const [tenantNombre, setTenantNombre] = useState('')
   const [loading, setLoading] = useState(true)
   const [busqueda, setBusqueda] = useState('')
   const [searchOpen, setSearchOpen] = useState(false)
   const mobileInputRef = useRef(null)
 
   useEffect(() => {
-    productosApi
-      .listar({ estado: 'activo' })
+    if (!slug) return
+    // Cargar nombre del tenant para el branding
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/store-config/info?slug=${slug}`)
+      .then((r) => r.json())
+      .then((d) => { if (d.nombre) setTenantNombre(d.nombre) })
+      .catch(() => {})
+  }, [slug])
+
+  useEffect(() => {
+    const fn = slug
+      ? productosApi.listarPublico({ estado: 'activo' }, slug)
+      : productosApi.listar({ estado: 'activo' })
+    fn
       .then((data) => setProductos(Array.isArray(data) ? data : []))
       .catch(() => setProductos([]))
       .finally(() => setLoading(false))
-  }, [])
+  }, [slug])
 
   useEffect(() => {
     if (searchOpen) mobileInputRef.current?.focus()
@@ -200,7 +218,7 @@ export default function MiracleStore() {
                 className="ms-logo-img"
               />
               <div className="ms-logo-text">
-                <span className="ms-logo-name">MIRACLE</span>
+                <span className="ms-logo-name">{tenantNombre || 'MIRACLE'}</span>
                 <span className="ms-logo-tag">Store oficial</span>
               </div>
             </div>
@@ -286,7 +304,7 @@ export default function MiracleStore() {
             <div className="ms-hero-left">
               <span className="ms-hero-sup">Tienda Oficial</span>
               <h1 className="ms-hero-title">
-                Miracle <em>Store</em>
+                {tenantNombre || 'Miracle'} <em>Store</em>
               </h1>
               <p className="ms-hero-sub">
                 Diseñado para quienes no negocian ni comodidad ni estilo.
@@ -330,7 +348,7 @@ export default function MiracleStore() {
               </div>
             ) : (
               productosFiltrados.map((p, i) => (
-                <ProductCard key={p.id} p={p} index={i} />
+                <ProductCard key={p.id} p={p} index={i} slug={slug} />
               ))
             )}
           </div>
@@ -345,7 +363,7 @@ export default function MiracleStore() {
               className="ms-logo-img"
               style={{ opacity: 0.55, height: 36 }}
             />
-            <p className="ms-footer-copy">© {new Date().getFullYear()} Miracle Solutions · Todos los derechos reservados</p>
+            <p className="ms-footer-copy">© {new Date().getFullYear()} {tenantNombre || 'Miracle Solutions'} · Todos los derechos reservados</p>
             <span className="ms-footer-tag">Tienda Oficial</span>
           </div>
         </footer>
