@@ -10,12 +10,25 @@ export default function VistaTienda() {
   const slug = getTenantSlug() || user?.tenantSlug
 
   const [dominio, setDominio] = useState('')
+  const [dominioActual, setDominioActual] = useState(null)
   const [guardando, setGuardando] = useState(false)
   const [mensaje, setMensaje] = useState(null)
   const [error, setError] = useState(null)
 
-  const abrirTienda = () =>
-    window.open(`${window.location.origin}/${slug}/tienda`, '_blank', 'noopener,noreferrer')
+  useEffect(() => {
+    if (!slug) return
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/store-config/info?slug=${slug}`)
+      .then((r) => r.json())
+      .then((d) => { if (d.dominio) setDominioActual(d.dominio) })
+      .catch(() => {})
+  }, [slug])
+
+  const abrirTienda = () => {
+    const url = dominioActual
+      ? `https://${dominioActual}`
+      : `${window.location.origin}/${slug}/tienda`
+    window.open(url, '_blank', 'noopener,noreferrer')
+  }
 
   const handleGuardar = async (e) => {
     e.preventDefault()
@@ -66,9 +79,13 @@ export default function VistaTienda() {
         description="Conecta tu propio dominio para que tus clientes accedan directamente a tu tienda."
       >
         <div className="flex flex-col gap-4">
+          {dominioActual && (
+            <p className="text-sm text-emerald-600">
+              Dominio activo: <span className="font-mono font-medium">{dominioActual}</span>
+            </p>
+          )}
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Si tienes un dominio propio (ej. <span className="font-mono">venompharmacol.com</span>),
-            ingrésalo aquí. Asegúrate de que el DNS esté apuntando a Vercel antes de guardarlo.
+            {dominioActual ? 'Puedes cambiarlo ingresando uno nuevo.' : `Si tienes un dominio propio (ej. venompharmacol.com), ingrésalo aquí. Asegúrate de que el DNS esté apuntando a Vercel antes de guardarlo.`}
           </p>
 
           <form onSubmit={handleGuardar} className="flex flex-col gap-3">
