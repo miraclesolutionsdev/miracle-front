@@ -39,7 +39,7 @@ export default function ImageLightbox({ imagenes, indiceActual, onClose, onIndex
         onClick={(e) => e.stopPropagation()}
       >
         {/* Imagen principal */}
-        <div className="flex items-center justify-center bg-black">
+        <div className="flex items-center justify-center">
           <img
             src={typeof imagenActual === 'string' ? imagenActual : imagenActual.url || imagenActual}
             alt="Imagen ampliada"

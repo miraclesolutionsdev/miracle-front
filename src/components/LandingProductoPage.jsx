@@ -729,7 +729,7 @@ const LP_CSS = `
     position: relative;
     aspect-ratio: 4/5;
     overflow: hidden;
-    background: #F0EDE9;
+    background: #FFFFFF;
     cursor: zoom-in;
     border: 1px solid #E8E4DF;
   }
@@ -740,7 +740,7 @@ const LP_CSS = `
   }
   .gal-slide { height: 100%; flex-shrink: 0; overflow: hidden; }
   .gal-img {
-    width: 100%; height: 100%; object-fit: cover; display: block;
+    width: 100%; height: 100%; object-fit: contain; display: block;
     transition: transform 0.7s cubic-bezier(.4,0,.2,1);
   }
   .gal-arr {
