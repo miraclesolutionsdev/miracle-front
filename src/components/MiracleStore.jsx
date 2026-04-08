@@ -48,8 +48,11 @@ function ProductCard({ p, index, slug }) {
   }
   const { slug: slugFromParams } = useParams()
   const effectiveSlug = slug || slugFromParams
+  // En dominio custom o cuando estamos en la raíz (sin segmento /slug/tienda en la URL),
+  // el producto vive en origin/{id}. Esto aplica a venompharmacol.com y a miraclesolutions.com.co/
+  const isRootStore = !window.location.pathname.includes('/tienda')
   const ir = () => {
-    const url = isCustomDomain()
+    const url = isCustomDomain() || isRootStore
       ? `${window.location.origin}/${p.id}`
       : `${window.location.origin}/${effectiveSlug}/tienda/${p.id}`
     window.open(url, '_blank', 'noopener,noreferrer')
@@ -392,7 +395,7 @@ const CSS_STORE = `
   /* ─── ROOT ─── */
   .ms-root {
     min-height: 100vh;
-    background: #F8F5F1;
+    background: #FFFFFF;
     color: #0D0D0D;
     font-family: 'Outfit', sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -416,7 +419,7 @@ const CSS_STORE = `
     position: sticky;
     top: 0;
     z-index: 50;
-    background: rgba(248,245,241,0.98);
+    background: rgba(255,255,255,0.98);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border-bottom: 1px solid #E8E4DF;
@@ -476,7 +479,8 @@ const CSS_STORE = `
   .ms-nav-links {
     display: flex;
     align-items: center;
-    gap: 4px;
+    justify-content: center;
+    gap: 8px;
     flex: 1;
     padding: 0 32px;
   }
@@ -617,7 +621,7 @@ const CSS_STORE = `
   .ms-hero {
     max-width: 1440px;
     margin: 0 auto;
-    padding: 24px 40px 0;
+    padding: 32px 40px 0;
     position: relative;
   }
   .ms-hero-inner {
@@ -626,17 +630,17 @@ const CSS_STORE = `
     justify-content: space-between;
     gap: 24px;
     flex-wrap: wrap;
-    padding-bottom: 22px;
+    padding-bottom: 28px;
     border-bottom: 2.5px solid #0D0D0D;
   }
   .ms-hero-sup {
     font-family: 'Outfit', sans-serif;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.28em;
     text-transform: uppercase;
     color: #C8352B;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
     display: block;
   }
   .ms-hero-title {
@@ -655,12 +659,13 @@ const CSS_STORE = `
     color: #C8352B;
   }
   .ms-hero-sub {
-    margin-top: 6px;
-    font-size: 13px;
-    font-weight: 300;
-    color: #8A8480;
-    max-width: 420px;
+    margin-top: 10px;
+    font-size: 16px;
+    font-weight: 400;
+    color: #5A5550;
+    max-width: 480px;
     line-height: 1.6;
+    letter-spacing: 0.01em;
   }
   .ms-hero-stats {
     display: flex;
@@ -736,7 +741,7 @@ const CSS_STORE = `
   .pc {
     display: flex;
     flex-direction: column;
-    background: #fff;
+    background: #F8F5F1;
     cursor: pointer;
     outline: none;
     user-select: none;
@@ -968,7 +973,7 @@ const CSS_STORE = `
 
   /* ─── SKELETON ─── */
   .sk-card {
-    background: #fff;
+    background: #F8F5F1;
     border: 1px solid #E8E4DF;
     display: flex;
     flex-direction: column;
@@ -993,7 +998,7 @@ const CSS_STORE = `
     padding: 80px 24px;
     text-align: center;
     border: 1px dashed #E8E4DF;
-    background: #fff;
+    background: #F8F5F1;
   }
   .ms-empty-symbol {
     font-family: 'Bebas Neue', sans-serif;
@@ -1062,7 +1067,7 @@ const CSS_STORE = `
     .ms-footer-inner { padding: 20px 20px; }
     .ms-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
     .ms-catalog-bar { display: none; }
-    .ms-mobile-search { background: #F8F5F1; }
+    .ms-mobile-search { background: #fff; }
   }
   @media (max-width: 480px) {
     .ms-hero-title { font-size: 40px; }

@@ -1,6 +1,5 @@
 import { Routes, Route, Navigate, useParams } from 'react-router-dom'
 import { useAuth } from './context/AuthContext'
-import { getTenantSlug } from './utils/api'
 import DashboardLayout from './components/DashboardLayout'
 import LandingProductoPage from './components/LandingProductoPage'
 import TiendaPage from './components/TiendaPage'
@@ -46,9 +45,14 @@ function App() {
 
   return (
     <Routes>
+      {/* Raíz = tienda de miraclesolutions */}
+      <Route path="/" element={<TiendaPage defaultSlug="miraclesolutions" />} />
+
+      {/* Página de información de la plataforma */}
+      <Route path="/info-plataforma" element={<ServiciosPage />} />
+      <Route path="/servicios" element={<Navigate to="/info-plataforma" replace />} />
+
       {/* Públicas globales */}
-      <Route path="/" element={<ServiciosPage />} />
-      <Route path="/servicios" element={<ServiciosPage />} />
       <Route path="/login" element={<GlobalLogin />} />
       <Route path="/crear-tienda" element={<CrearTienda />} />
       <Route path="/pago/exitoso" element={<PagoResultado tipo="exitoso" />} />
@@ -70,7 +74,10 @@ function App() {
 
       {/* Redirects de compatibilidad */}
       <Route path="/plataforma/*" element={<Navigate to="/miraclesolutions/plataforma" replace />} />
-      <Route path="/tienda" element={<Navigate to="/miraclesolutions/tienda" replace />} />
+      <Route path="/tienda" element={<Navigate to="/" replace />} />
+
+      {/* Landing de producto de miraclesolutions desde la raíz — debe ir al final */}
+      <Route path="/:productoId" element={<LandingProductoPage defaultSlug="miraclesolutions" />} />
     </Routes>
   )
 }

@@ -252,7 +252,7 @@ function isCustomDomain() {
 }
 
 /* ── Main Page ── */
-function LandingProductoPage() {
+function LandingProductoPage({ defaultSlug } = {}) {
   const { productoId: id, slug: slugFromParams } = useParams()
   const navigate = useNavigate()
   const { findProductoById } = useProductos()
@@ -263,19 +263,25 @@ function LandingProductoPage() {
   const [loadingPago, setLoadingPago] = useState(false)
   const [cantidad, setCantidad] = useState(1)
   const [showModal, setShowModal] = useState(false)
-  // Slug resuelto: viene de la URL (dominio principal) o del hostname (dominio custom)
-  const [tenantSlug, setTenantSlug] = useState(slugFromParams || null)
+  // Slug resuelto: viene de la URL, de la prop defaultSlug o del hostname (dominio custom)
+  const [tenantSlug, setTenantSlug] = useState(slugFromParams || defaultSlug || null)
 
-  // En dominio custom no hay slug en la URL — lo resolvemos por hostname
+  useEffect(() => {
+    document.title = 'Miracle Store'
+    return () => { document.title = 'Miracle Solutions - Dashboard' }
+  }, [])
+
+  // Resolver slug si no viene ni de la URL ni de prop
   useEffect(() => {
     if (slugFromParams) { setTenantSlug(slugFromParams); return }
+    if (defaultSlug) { setTenantSlug(defaultSlug); return }
     if (!isCustomDomain()) return
     const hostname = window.location.hostname.replace(/^www\./, '')
     fetch(`${BASE_URL}/store-config/dominio?hostname=${encodeURIComponent(hostname)}`)
       .then((r) => r.json())
       .then((d) => { if (d.slug) setTenantSlug(d.slug) })
       .catch(() => setError(new Error('No se pudo resolver la tienda.')))
-  }, [slugFromParams])
+  }, [slugFromParams, defaultSlug])
 
   useEffect(() => {
     if (!tenantSlug) return  // esperar a que se resuelva el slug
@@ -341,7 +347,7 @@ function LandingProductoPage() {
           <p style={{ fontFamily: "'Outfit',sans-serif", fontSize: 14, color: '#8A8480', marginBottom: 24 }}>
             {error ? 'No se pudo cargar el producto.' : 'Producto no disponible.'}
           </p>
-          <button type="button" onClick={() => navigate(isCustomDomain() ? '/' : (tenantSlug ? `/${tenantSlug}/tienda` : '/'))} className="lp-back-btn">
+          <button type="button" onClick={() => navigate(isCustomDomain() || defaultSlug ? '/' : (tenantSlug ? `/${tenantSlug}/tienda` : '/'))} className="lp-back-btn">
             <ArrowLeft style={{ width: 13, height: 13 }} />
             Volver a la tienda
           </button>
@@ -364,7 +370,7 @@ function LandingProductoPage() {
           <div className="lp-nav-inner">
             <button
               type="button"
-              onClick={() => (window.history.length > 1 ? navigate(-1) : navigate(isCustomDomain() ? '/' : (tenantSlug ? `/${tenantSlug}/tienda` : '/')))}
+              onClick={() => (window.history.length > 1 ? navigate(-1) : navigate(isCustomDomain() || defaultSlug ? '/' : (tenantSlug ? `/${tenantSlug}/tienda` : '/')))}
               className="lp-nav-back"
             >
               <ArrowLeft style={{ width: 12, height: 12 }} />

@@ -10,10 +10,10 @@ const MAIN_DOMAIN = import.meta.env.VITE_MAIN_DOMAIN || 'miraclesolutions.com.co
  * Si es así, consulta al backend qué tenant le corresponde y renderiza su tienda.
  * Si es un dominio propio (miraclesolutions.com.co), usa el slug de la URL.
  */
-export default function TiendaPage() {
+export default function TiendaPage({ defaultSlug } = {}) {
   const { slug: slugFromUrl } = useParams()
   const navigate = useNavigate()
-  const [slug, setSlug] = useState(slugFromUrl || null)
+  const [slug, setSlug] = useState(slugFromUrl || defaultSlug || null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
@@ -24,9 +24,9 @@ export default function TiendaPage() {
       hostname === MAIN_DOMAIN ||
       hostname === `www.${MAIN_DOMAIN}`
 
-    // Si el hostname es el dominio principal, el slug viene de la URL — ya está
+    // Si el hostname es el dominio principal, el slug viene de la URL o de la prop
     if (isMainDomain) {
-      setSlug(slugFromUrl)
+      setSlug(slugFromUrl || defaultSlug || null)
       return
     }
 
@@ -43,7 +43,7 @@ export default function TiendaPage() {
       })
       .catch(() => setError('No se pudo conectar con el servidor.'))
       .finally(() => setLoading(false))
-  }, [slugFromUrl])
+  }, [slugFromUrl, defaultSlug])
 
   if (loading) {
     return (
@@ -60,6 +60,11 @@ export default function TiendaPage() {
       </div>
     )
   }
+
+  useEffect(() => {
+    document.title = 'Miracle Store'
+    return () => { document.title = 'Miracle Solutions - Dashboard' }
+  }, [])
 
   if (!slug) return null
 
