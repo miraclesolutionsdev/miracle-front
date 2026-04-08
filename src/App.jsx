@@ -23,7 +23,24 @@ function ProtectedRoute({ children }) {
   return children
 }
 
+const MAIN_DOMAIN = import.meta.env.VITE_MAIN_DOMAIN || 'miraclesolutions.com.co'
+
+function isCustomDomain() {
+  const h = window.location.hostname
+  return h !== 'localhost' && h !== MAIN_DOMAIN && h !== `www.${MAIN_DOMAIN}`
+}
+
 function App() {
+  // Si el usuario entra desde un dominio custom (ej. venompharmacol.com),
+  // mostrar directamente la tienda de ese tenant en cualquier path.
+  if (isCustomDomain()) {
+    return (
+      <Routes>
+        <Route path="*" element={<TiendaPage />} />
+      </Routes>
+    )
+  }
+
   return (
     <Routes>
       {/* Públicas globales */}
