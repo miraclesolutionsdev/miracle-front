@@ -619,7 +619,7 @@ const LP_CSS = `
 
   .lp-root {
     min-height: 100vh;
-    background: #F8F5F1;
+    background: #FFFFFF;
     color: #0D0D0D;
     font-family: 'Outfit', sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -643,7 +643,7 @@ const LP_CSS = `
     position: sticky;
     top: 0;
     z-index: 50;
-    background: rgba(248,245,241,0.97);
+    background: rgba(255,255,255,0.97);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border-bottom: 1px solid #E8E4DF;
@@ -842,7 +842,7 @@ const LP_CSS = `
     display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
     padding: 18px 20px;
     border: 1.5px solid #E8E4DF;
-    background: #fff;
+    background: #F8F5F1;
   }
   .lp-price {
     font-family: 'Bebas Neue', sans-serif;
@@ -862,7 +862,7 @@ const LP_CSS = `
     display: flex; align-items: center; flex-wrap: wrap; gap: 14px;
     padding: 14px 18px;
     border: 1.5px solid #E8E4DF;
-    background: #fff;
+    background: #F8F5F1;
   }
   .lp-qty-lbl {
     font-family: 'Outfit', sans-serif;
@@ -912,7 +912,7 @@ const LP_CSS = `
   .lp-trust-item {
     display: flex; flex-direction: column; align-items: center; gap: 7px;
     padding: 14px 10px;
-    background: #fff;
+    background: #F8F5F1;
   }
   .lp-trust-lbl {
     font-family: 'Outfit', sans-serif;
@@ -978,8 +978,8 @@ const LP_CSS = `
   .lp-pay-note {
     display: flex; align-items: flex-start; gap: 9px;
     padding: 11px 14px;
-    border: 1px solid #F0EDE9;
-    background: #fff;
+    border: 1px solid #E8E4DF;
+    background: #F8F5F1;
   }
   .lp-pay-note p { font-family: 'Outfit',sans-serif; font-size: 12px; color: #8A8480; line-height: 1.6; }
   .lp-pay-note strong { color: #0D0D0D; font-weight: 600; }
