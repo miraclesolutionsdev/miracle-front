@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ExternalLink, Globe } from 'lucide-react'
 import SectionCard from './SectionCard'
 import { useAuth } from '../context/AuthContext'
