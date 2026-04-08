@@ -3,6 +3,11 @@ import { useParams } from 'react-router-dom'
 import { productosApi, getProductoImagenSrc } from '../utils/api'
 
 const fmt = (v) => `$${(Number(v) || 0).toLocaleString('es-CO')}`
+const MAIN_DOMAIN = import.meta.env.VITE_MAIN_DOMAIN || 'miraclesolutions.com.co'
+function isCustomDomain() {
+  const h = window.location.hostname
+  return h !== 'localhost' && h !== MAIN_DOMAIN && h !== `www.${MAIN_DOMAIN}`
+}
 
 function getInitials(name = '') {
   return String(name).trim().split(/\s+/).map((w) => w[0]).join('').toUpperCase().slice(0, 2) || 'MS'
@@ -43,7 +48,12 @@ function ProductCard({ p, index, slug }) {
   }
   const { slug: slugFromParams } = useParams()
   const effectiveSlug = slug || slugFromParams
-  const ir = () => window.open(`${window.location.origin}/${effectiveSlug}/tienda/${p.id}`, '_blank', 'noopener,noreferrer')
+  const ir = () => {
+    const url = isCustomDomain()
+      ? `${window.location.origin}/${p.id}`
+      : `${window.location.origin}/${effectiveSlug}/tienda/${p.id}`
+    window.open(url, '_blank', 'noopener,noreferrer')
+  }
 
   return (
     <article

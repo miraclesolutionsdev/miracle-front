@@ -36,6 +36,9 @@ function App() {
   if (isCustomDomain()) {
     return (
       <Routes>
+        {/* En dominio custom el tenant ya está implícito en el hostname.
+            La tienda vive en / y cada producto en /{productoId} */}
+        <Route path="/:productoId" element={<LandingProductoPage />} />
         <Route path="*" element={<TiendaPage />} />
       </Routes>
     )

@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import SectionCard from './SectionCard'
 import { getProductoImagenSrc } from '../utils/api'
+import { useAuth } from '../context/AuthContext'
 
 const COLUMNAS = [
   'Stock',
@@ -23,6 +24,8 @@ function ProductosList({
   onImportExcel,
 }) {
   const inputFileRef = useRef(null)
+  const { user } = useAuth()
+  const slug = user?.tenantSlug
 
   const handleImportClick = () => inputFileRef.current?.click()
   const handleFileChange = (e) => {
@@ -125,7 +128,7 @@ function ProductosList({
                     </button>
                     <button
                       type="button"
-                      onClick={() => window.open(`${window.location.origin}/landing-producto/${p.id}`, '_blank', 'noopener,noreferrer')}
+                      onClick={() => window.open(`${window.location.origin}/${slug}/tienda/${p.id}`, '_blank', 'noopener,noreferrer')}
                       className="text-primary hover:underline"
                     >
                       Ver landing

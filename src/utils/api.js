@@ -107,6 +107,7 @@ export const productosApi = {
     return request(`productos${q ? `?${q}` : ''}`, { headers: { 'X-Tenant-Slug': slug } })
   },
   obtener: (id) => request(`productos/${id}`),
+  obtenerPublico: (id, slug) => request(`productos/${id}`, slug ? { headers: { 'X-Tenant-Slug': slug } } : {}),
   crear: (body) => request('productos', { method: 'POST', body: JSON.stringify(body) }),
   crearConArchivos: (formData) => requestFormData('productos', 'POST', formData),
   actualizar: (id, body) => request(`productos/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
