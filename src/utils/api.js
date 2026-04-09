@@ -187,6 +187,9 @@ export const registerApi = {
 export const storeConfigApi = {
   guardarDominio: (dominio) =>
     request('store-config/dominio', { method: 'PATCH', body: JSON.stringify({ dominio }) }),
+  guardarPlantilla: (plantilla) =>
+    request('store-config/plantilla', { method: 'PATCH', body: JSON.stringify({ plantilla }) }),
+  obtenerInfo: () => request('store-config/info'),
 }
 
 export const authApi = {

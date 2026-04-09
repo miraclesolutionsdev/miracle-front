@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
-import { authApi } from '../utils/api'
+import { authApi, storeConfigApi } from '../utils/api'
 import { useAuth } from '../context/AuthContext'
-import { Eye, EyeOff, User, Lock, CheckCircle2, AlertCircle } from 'lucide-react'
+import { TEMPLATE_LIST } from '../templates'
+import { Eye, EyeOff, User, Lock, CheckCircle2, AlertCircle, Palette } from 'lucide-react'
 
 export default function VistaConfiguracion() {
   const { user, updateUser } = useAuth()
@@ -25,17 +26,27 @@ export default function VistaConfiguracion() {
   const [showPassRepetir, setShowPassRepetir] = useState(false)
   const [guardandoPassword, setGuardandoPassword] = useState(false)
 
+  const [plantillaActual, setPlantillaActual] = useState('luxury')
+  const [plantillaSeleccionada, setPlantillaSeleccionada] = useState('luxury')
+  const [guardandoPlantilla, setGuardandoPlantilla] = useState(false)
+
   useEffect(() => {
     let cancelled = false
     setError(null)
-    authApi
-      .obtenerPerfil()
-      .then((data) => {
+    Promise.all([
+      authApi.obtenerPerfil(),
+      storeConfigApi.obtenerInfo().catch(() => null),
+    ])
+      .then(([perfilData, infoData]) => {
         if (cancelled) return
         setPerfil({
-          email: data?.user?.email ?? '',
-          nombre: data?.user?.nombre ?? '',
+          email: perfilData?.user?.email ?? '',
+          nombre: perfilData?.user?.nombre ?? '',
         })
+        if (infoData?.plantilla) {
+          setPlantillaActual(infoData.plantilla)
+          setPlantillaSeleccionada(infoData.plantilla)
+        }
       })
       .catch((err) => {
         if (!cancelled) setError(err.message)
@@ -65,6 +76,21 @@ export default function VistaConfiguracion() {
       setError(err.message || 'No se pudo guardar.')
     } finally {
       setGuardandoPerfil(false)
+    }
+  }
+
+  const handleGuardarPlantilla = async () => {
+    setError(null)
+    setSuccess(null)
+    setGuardandoPlantilla(true)
+    try {
+      await storeConfigApi.guardarPlantilla(plantillaSeleccionada)
+      setPlantillaActual(plantillaSeleccionada)
+      setSuccess('Plantilla actualizada correctamente.')
+    } catch (err) {
+      setError(err.message || 'No se pudo guardar la plantilla.')
+    } finally {
+      setGuardandoPlantilla(false)
     }
   }
 
@@ -205,6 +231,77 @@ export default function VistaConfiguracion() {
               </button>
             </div>
           </form>
+        </div>
+      </section>
+
+      {/* Plantilla de tienda */}
+      <section className="relative rounded-xl border border-border bg-card overflow-hidden">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent" />
+        <div className="p-6">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 border border-amber-500/20">
+              <Palette className="h-4 w-4 text-amber-500" strokeWidth={1.8} />
+            </div>
+            <div>
+              <h2 className="text-[15px] font-bold text-foreground">Plantilla de tienda</h2>
+              <p className="text-[12px] text-muted-foreground">Elige el diseño visual de tu tienda</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {TEMPLATE_LIST.map((t) => {
+              const isSelected = plantillaSeleccionada === t.id
+              const isCurrent = plantillaActual === t.id
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => setPlantillaSeleccionada(t.id)}
+                  className={`relative text-left rounded-xl border-2 p-4 transition-all cursor-pointer ${
+                    isSelected
+                      ? 'border-primary bg-primary/5 ring-1 ring-primary/20'
+                      : 'border-border hover:border-muted-foreground/30 bg-background'
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <span className="text-2xl leading-none">{t.preview}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-foreground">{t.nombre}</span>
+                        {isCurrent && (
+                          <span className="text-[10px] font-semibold uppercase tracking-wide text-primary bg-primary/10 px-1.5 py-0.5 rounded">Actual</span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">{t.descripcion}</p>
+                    </div>
+                  </div>
+                  {isSelected && (
+                    <div className="absolute top-3 right-3">
+                      <CheckCircle2 className="h-4 w-4 text-primary" />
+                    </div>
+                  )}
+                </button>
+              )
+            })}
+          </div>
+
+          {plantillaSeleccionada !== plantillaActual && (
+            <div className="pt-4">
+              <button
+                type="button"
+                onClick={handleGuardarPlantilla}
+                disabled={guardandoPlantilla}
+                className="rounded-lg bg-gradient-to-r from-primary to-primary/80 px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50 transition-opacity shadow-md shadow-primary/20"
+              >
+                {guardandoPlantilla ? (
+                  <span className="flex items-center gap-2">
+                    <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    Guardando...
+                  </span>
+                ) : 'Aplicar plantilla'}
+              </button>
+            </div>
+          )}
         </div>
       </section>
     </div>

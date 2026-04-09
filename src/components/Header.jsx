@@ -114,7 +114,7 @@ export function Header({ slug }) {
   }, [searchOpen])
 
   const handleSearchSelect = (path) => {
-    navigate(path)
+    navigate(`/${slug}${path}`)
     setSearchOpen(false)
     setSearchQuery('')
   }
@@ -215,7 +215,7 @@ export function Header({ slug }) {
                             onClick={() => {
                               markOneRead(notif.id)
                               setNotifOpen(false)
-                              navigate(cfg.ruta)
+                              navigate(`/${slug}${cfg.ruta}`)
                             }}
                             className={`flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-accent ${!notif.leida ? 'bg-primary/[0.03]' : ''}`}
                           >
@@ -281,7 +281,7 @@ export function Header({ slug }) {
                 <div className="py-1">
                   <button
                     type="button"
-                    onClick={() => { setUserMenuOpen(false); navigate('/plataforma/configuracion') }}
+                    onClick={() => { setUserMenuOpen(false); navigate(`/${slug}/plataforma/configuracion`) }}
                     className="flex w-full items-center gap-2.5 px-4 py-2.5 text-[13px] text-foreground hover:bg-accent transition-colors"
                   >
                     <Settings className="h-3.5 w-3.5 text-muted-foreground" />
@@ -289,7 +289,7 @@ export function Header({ slug }) {
                   </button>
                   <button
                     type="button"
-                    onClick={() => { setUserMenuOpen(false); navigate('/plataforma/administradores') }}
+                    onClick={() => { setUserMenuOpen(false); navigate(`/${slug}/plataforma/administradores`) }}
                     className="flex w-full items-center gap-2.5 px-4 py-2.5 text-[13px] text-foreground hover:bg-accent transition-colors"
                   >
                     <ShieldCheck className="h-3.5 w-3.5 text-muted-foreground" />
