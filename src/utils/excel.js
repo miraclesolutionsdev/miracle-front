@@ -266,6 +266,8 @@ export const PRODUCTOS_HEADERS = [
   'Tipo',
   'Estado',
   'Stock',
+  'Categoría',
+  'Subcategoría',
   'Imágenes',
   'Usos',
   'Características',
@@ -343,6 +345,8 @@ export function productosToRows(productos) {
     p.tipo ?? 'servicio',
     p.estado ?? 'activo',
     p.stock ?? '',
+    p.categoria ?? '',
+    p.subcategoria ?? '',
     Array.isArray(p.imagenes) ? p.imagenes.join(SEP) : '',
     Array.isArray(p.usos) ? p.usos.join(SEP) : '',
     Array.isArray(p.caracteristicas) ? p.caracteristicas.join(SEP) : '',
@@ -355,9 +359,9 @@ export function rowsToProductos(rows) {
   return dataRows
     .filter((row) => row && row[1] != null && String(row[1]).trim() !== '')
     .map((row) => {
-      const imagenes = String(row[7] ?? '').trim()
-      const usos = String(row[8] ?? '').trim()
-      const caracteristicas = String(row[9] ?? '').trim()
+      const imagenes = String(row[9] ?? '').trim()
+      const usos = String(row[10] ?? '').trim()
+      const caracteristicas = String(row[11] ?? '').trim()
       return {
         id: row[0] ? String(row[0]).trim() : undefined,
         nombre: String(row[1] ?? '').trim(),
@@ -366,6 +370,8 @@ export function rowsToProductos(rows) {
         tipo: String(row[4] ?? 'servicio').trim() || 'servicio',
         estado: String(row[5] ?? 'activo').trim() || 'activo',
         stock: parseInt(String(row[6] ?? '0').replace(/\D/g, ''), 10) || 0,
+        categoria: String(row[7] ?? '').trim(),
+        subcategoria: String(row[8] ?? '').trim(),
         imagenes: imagenes ? imagenes.split(SEP).map((s) => s.trim()).filter(Boolean) : [],
         usos: usos ? usos.split(SEP).map((s) => s.trim()).filter(Boolean) : [],
         caracteristicas: caracteristicas ? caracteristicas.split(SEP).map((s) => s.trim()).filter(Boolean) : [],

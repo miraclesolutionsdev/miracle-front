@@ -40,8 +40,9 @@ export default function VistaClipsWhatsApp() {
     setCargando(true)
     setError(null)
     try {
-      const data = await whatsappApi.listarConversaciones({ page_size: 50 })
-      setConversaciones(data.conversations || [])
+      // NUEVO: Leer desde BD local en lugar de ElevenLabs API
+      const data = await whatsappApi.listarLeads({ limit: 50, page: 1 })
+      setConversaciones(data.leads || [])
     } catch (err) {
       setError(err.message)
     } finally {
@@ -56,7 +57,8 @@ export default function VistaClipsWhatsApp() {
     setTranscripcion(null)
     setCargandoTranscripcion(true)
     try {
-      const data = await whatsappApi.obtenerConversacion(conv.conversation_id)
+      // NUEVO: Leer desde BD local
+      const data = await whatsappApi.obtenerLead(conv._id)
       setTranscripcion(data)
     } catch (err) {
       setTranscripcion({ error: err.message })
@@ -79,7 +81,7 @@ export default function VistaClipsWhatsApp() {
           </button>
           <span className="text-xs text-muted-foreground/50">|</span>
           <span className="text-sm font-medium">
-            {formatFecha(seleccionada.start_time_unix_secs)} · {formatDuracion(seleccionada.call_duration_secs)}
+            {formatFecha(seleccionada.startTimeUnixSecs)} · {formatDuracion(seleccionada.callDurationSecs)}
           </span>
           <span className={`ml-auto text-[11px] font-medium px-2 py-0.5 rounded-full ${ESTADO_STYLE[seleccionada.status] || ''}`}>
             {ESTADO_LABEL[seleccionada.status] || seleccionada.status}
@@ -174,10 +176,10 @@ export default function VistaClipsWhatsApp() {
               </tr>
             )}
             {conversaciones.map((conv) => (
-              <tr key={conv.conversation_id} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
-                <td className="px-4 py-3 text-foreground">{formatFecha(conv.start_time_unix_secs)}</td>
-                <td className="px-4 py-3 text-muted-foreground">{formatDuracion(conv.call_duration_secs)}</td>
-                <td className="px-4 py-3 text-muted-foreground">{conv.message_count ?? '—'}</td>
+              <tr key={conv._id || conv.conversationId} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
+                <td className="px-4 py-3 text-foreground">{formatFecha(conv.startTimeUnixSecs)}</td>
+                <td className="px-4 py-3 text-muted-foreground">{formatDuracion(conv.callDurationSecs)}</td>
+                <td className="px-4 py-3 text-muted-foreground">{conv.messageCount ?? '—'}</td>
                 <td className="px-4 py-3">
                   <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${ESTADO_STYLE[conv.status] || 'bg-muted text-muted-foreground'}`}>
                     {ESTADO_LABEL[conv.status] || conv.status}

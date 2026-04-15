@@ -1,12 +1,14 @@
-import { useState, useEffect, useMemo } from 'react'
-import { alertError } from '../utils/alerts'
+import { useState, useEffect, useMemo, useRef } from 'react'
+import { alertError, alertSuccess } from '../utils/alerts'
 import { productosApi } from '../utils/api'
+import { useProductos } from '../context/ProductosContext'
 
 const TIPOS = ['servicio', 'producto']
 const ESTADOS = ['activo', 'inactivo']
 
 function ProductoForm({ producto, onGuardar, onCancelar }) {
   const esEdicion = !!producto
+  const { productos } = useProductos()
   const [form, setForm] = useState({
     nombre: '',
     descripcion: '',
@@ -18,8 +20,38 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
     caracteristicasTexto: '',
     stock: '',
     whatsapp: '',
+    categoria: '',
+    subcategoria: '',
   })
   const [eliminandoImagen, setEliminandoImagen] = useState(null)
+  const [showCatSuggestions, setShowCatSuggestions] = useState(false)
+  const [showSubcatSuggestions, setShowSubcatSuggestions] = useState(false)
+  const catRef = useRef(null)
+  const subcatRef = useRef(null)
+
+  const categoriasExistentes = useMemo(() => {
+    const cats = new Set()
+    ;(productos || []).forEach(p => { if (p.categoria) cats.add(p.categoria) })
+    return [...cats].sort()
+  }, [productos])
+
+  const subcategoriasExistentes = useMemo(() => {
+    const subs = new Set()
+    ;(productos || []).forEach(p => { if (p.subcategoria) subs.add(p.subcategoria) })
+    return [...subs].sort()
+  }, [productos])
+
+  const catSuggestions = useMemo(() => {
+    if (!form.categoria) return categoriasExistentes
+    const lower = form.categoria.toLowerCase()
+    return categoriasExistentes.filter(c => c.toLowerCase().includes(lower))
+  }, [form.categoria, categoriasExistentes])
+
+  const subcatSuggestions = useMemo(() => {
+    if (!form.subcategoria) return subcategoriasExistentes
+    const lower = form.subcategoria.toLowerCase()
+    return subcategoriasExistentes.filter(c => c.toLowerCase().includes(lower))
+  }, [form.subcategoria, subcategoriasExistentes])
 
   const archivoUrls = useMemo(
     () => (form.archivosImagen || []).map(f => URL.createObjectURL(f)),
@@ -41,6 +73,8 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
           : '',
         stock: producto.stock != null ? String(producto.stock) : '',
         whatsapp: producto.whatsapp ?? '',
+        categoria: producto.categoria ?? '',
+        subcategoria: producto.subcategoria ?? '',
       })
     } else {
       setForm({
@@ -53,6 +87,8 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
         usosTexto: '',
         caracteristicasTexto: '',
         stock: '',
+        categoria: '',
+        subcategoria: '',
       })
     }
   }, [producto])
@@ -74,6 +110,8 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
       formData.append('estado', form.estado)
       formData.append('stock', form.tipo === 'producto' ? String(Number(form.stock) || 0) : '0')
       formData.append('whatsapp', form.whatsapp || '')
+      formData.append('categoria', form.categoria || '')
+      formData.append('subcategoria', form.subcategoria || '')
       formData.append('usos', JSON.stringify(usos))
       formData.append('caracteristicas', JSON.stringify(caracteristicas))
       form.archivosImagen.forEach((file) => formData.append('imagenes', file))
@@ -104,8 +142,11 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
     if (!producto?.id) return
     try {
       setEliminandoImagen(i)
-      const productoActualizado = await productosApi.eliminarImagen(producto.id, i)
-      onGuardar({ id: producto.id, data: productoActualizado })
+      await productosApi.eliminarImagen(producto.id, i)
+      // Actualizar las imágenes en el producto local sin re-enviar todo el form
+      producto.imagenes = producto.imagenes.filter((_, j) => j !== i)
+      setForm((f) => ({ ...f }))
+      alertSuccess('Imagen eliminada')
     } catch (err) {
       alertError('Error al eliminar la imagen: ' + err.message)
     } finally {
@@ -133,6 +174,86 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
               required
             />
+          </div>
+          <div className="relative" ref={catRef}>
+            <label className="mb-1 block text-sm font-medium text-muted-foreground">
+              Categoría <span className="text-muted-foreground/50 font-normal">(opcional)</span>
+            </label>
+            <input
+              type="text"
+              value={form.categoria}
+              onChange={(e) => {
+                setForm((f) => ({ ...f, categoria: e.target.value }))
+                setShowCatSuggestions(true)
+              }}
+              onFocus={() => setShowCatSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowCatSuggestions(false), 150)}
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
+              placeholder="Ej. Orales, Inyectables, Camisetas..."
+            />
+            {showCatSuggestions && catSuggestions.length > 0 && (
+              <div className="absolute z-10 mt-1 w-full rounded-lg border border-border bg-card shadow-lg max-h-40 overflow-auto">
+                {catSuggestions.map((cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault()
+                      setForm((f) => ({ ...f, categoria: cat }))
+                      setShowCatSuggestions(false)
+                    }}
+                    className="w-full text-left px-3 py-2 text-sm text-card-foreground hover:bg-primary/10 transition-colors"
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            )}
+            {categoriasExistentes.length > 0 && !form.categoria && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                Categorías existentes: {categoriasExistentes.join(', ')}
+              </p>
+            )}
+          </div>
+          <div className="relative" ref={subcatRef}>
+            <label className="mb-1 block text-sm font-medium text-muted-foreground">
+              Subcategoría <span className="text-muted-foreground/50 font-normal">(opcional)</span>
+            </label>
+            <input
+              type="text"
+              value={form.subcategoria}
+              onChange={(e) => {
+                setForm((f) => ({ ...f, subcategoria: e.target.value }))
+                setShowSubcatSuggestions(true)
+              }}
+              onFocus={() => setShowSubcatSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowSubcatSuggestions(false), 150)}
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
+              placeholder="Ej. 100mg, 250mg, 10ml..."
+            />
+            {showSubcatSuggestions && subcatSuggestions.length > 0 && (
+              <div className="absolute z-10 mt-1 w-full rounded-lg border border-border bg-card shadow-lg max-h-40 overflow-auto">
+                {subcatSuggestions.map((sub) => (
+                  <button
+                    key={sub}
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault()
+                      setForm((f) => ({ ...f, subcategoria: sub }))
+                      setShowSubcatSuggestions(false)
+                    }}
+                    className="w-full text-left px-3 py-2 text-sm text-card-foreground hover:bg-primary/10 transition-colors"
+                  >
+                    {sub}
+                  </button>
+                ))}
+              </div>
+            )}
+            {subcategoriasExistentes.length > 0 && !form.subcategoria && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                Subcategorías existentes: {subcategoriasExistentes.join(', ')}
+              </p>
+            )}
           </div>
           <div>
             <label className="mb-1 block text-sm font-medium text-muted-foreground">

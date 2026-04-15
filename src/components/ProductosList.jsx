@@ -6,6 +6,8 @@ import { useAuth } from '../context/AuthContext'
 const COLUMNAS = [
   'Stock',
   'Nombre',
+  'Categoría',
+  'Subcategoría',
   'Tipo',
   'Precio (COP)',
   'Estado',
@@ -99,6 +101,12 @@ function ProductosList({
                     )}
                     <span>{p.nombre}</span>
                   </div>
+                </td>
+                <td className="py-3 pr-4 text-muted-foreground">
+                  {p.categoria || '—'}
+                </td>
+                <td className="py-3 pr-4 text-muted-foreground">
+                  {p.subcategoria || '—'}
                 </td>
                 <td className="py-3 pr-4 text-muted-foreground">
                   {p.tipo === 'servicio' ? 'Servicio' : 'Producto'}

@@ -221,11 +221,20 @@ export const authApi = {
 }
 
 export const whatsappApi = {
+  // LEGACY: Consulta directa a API de ElevenLabs (mantener por compatibilidad)
   listarConversaciones: (params = {}) => {
     const q = new URLSearchParams(params).toString()
     return request(`whatsapp/conversaciones${q ? `?${q}` : ''}`)
   },
   obtenerConversacion: (id) => request(`whatsapp/conversaciones/${id}`),
+
+  // NUEVO: Consulta desde BD local (recomendado)
+  listarLeads: (params = {}) => {
+    const q = new URLSearchParams(params).toString()
+    return request(`whatsapp/leads${q ? `?${q}` : ''}`)
+  },
+  obtenerLead: (id) => request(`whatsapp/leads/${id}`),
+  actualizarLead: (id, body) => request(`whatsapp/leads/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
 }
 
 export const ordenesApi = {
