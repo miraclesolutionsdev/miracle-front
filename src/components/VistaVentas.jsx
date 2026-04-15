@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { ordenesApi } from '../utils/api'
 import { alertConfirm, alertSuccess, alertError } from '../utils/alerts'
 import SectionCard from './SectionCard'
+import { RefreshCw } from 'lucide-react'
 import {
   ESTADO_ORDEN_STYLE,
   ESTADO_PAGO_STYLE,
@@ -28,7 +29,7 @@ function TabOrdenes({
   ordenes, loading, error, onSeleccionar,
   filtroPago, filtroPreparacion, filtroOrigen,
   onCambiarFiltros, desde, hasta, onCambiarFechas,
-  total, skip, limit, onCambiarPagina,
+  total, skip, limit, onCambiarPagina, onActualizar,
 }) {
   const [busqueda, setBusqueda] = useState('')
 
@@ -125,7 +126,18 @@ function TabOrdenes({
       </SectionCard>
 
       {/* Tabla */}
-      <SectionCard title={`Órdenes (${ordenesFiltradas.length})`}>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-sm font-semibold text-foreground">Órdenes ({ordenesFiltradas.length})</h3>
+        <button
+          onClick={onActualizar}
+          disabled={loading}
+          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground border border-border rounded-lg px-3 py-1.5 transition-colors disabled:opacity-50"
+        >
+          <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+          Actualizar
+        </button>
+      </div>
+      <SectionCard>
         {loading ? (
           <p className="py-8 text-center text-sm text-muted-foreground">Cargando órdenes...</p>
         ) : error ? (
@@ -632,6 +644,7 @@ export default function VistaVentas() {
           onCambiarFechas={(d, h) => { setDesde(d); setHasta(h); setSkip(0) }}
           total={total} skip={skip} limit={limit}
           onCambiarPagina={(s) => setSkip(s)}
+          onActualizar={cargarOrdenes}
         />
       ) : (
         <TabDetalles
