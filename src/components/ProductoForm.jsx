@@ -26,18 +26,24 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
   const [eliminandoImagen, setEliminandoImagen] = useState(null)
   const [showCatSuggestions, setShowCatSuggestions] = useState(false)
   const [showSubcatSuggestions, setShowSubcatSuggestions] = useState(false)
+  const [showPrecioModal, setShowPrecioModal] = useState(false)
+  const [precioConfig, setPrecioConfig] = useState({
+    precioDistribuidor: '',
+    aumentoPrecio: '',
+    utilidad: '30',
+  })
   const catRef = useRef(null)
   const subcatRef = useRef(null)
 
   const categoriasExistentes = useMemo(() => {
     const cats = new Set()
-    ;(productos || []).forEach(p => { if (p.categoria) cats.add(p.categoria) })
+      ; (productos || []).forEach(p => { if (p.categoria) cats.add(p.categoria) })
     return [...cats].sort()
   }, [productos])
 
   const subcategoriasExistentes = useMemo(() => {
     const subs = new Set()
-    ;(productos || []).forEach(p => { if (p.subcategoria) subs.add(p.subcategoria) })
+      ; (productos || []).forEach(p => { if (p.subcategoria) subs.add(p.subcategoria) })
     return [...subs].sort()
   }, [productos])
 
@@ -76,6 +82,11 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
         categoria: producto.categoria ?? '',
         subcategoria: producto.subcategoria ?? '',
       })
+      setPrecioConfig({
+        precioDistribuidor: producto.precioDistribuidor != null ? String(producto.precioDistribuidor) : '',
+        aumentoPrecio: producto.aumentoPrecio != null ? String(producto.aumentoPrecio) : '',
+        utilidad: producto.utilidad != null ? String(producto.utilidad) : '30',
+      })
     } else {
       setForm({
         nombre: '',
@@ -89,6 +100,11 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
         stock: '',
         categoria: '',
         subcategoria: '',
+      })
+      setPrecioConfig({
+        precioDistribuidor: '',
+        aumentoPrecio: '',
+        utilidad: '30',
       })
     }
   }, [producto])
@@ -106,6 +122,9 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
       formData.append('nombre', form.nombre)
       formData.append('descripcion', form.descripcion)
       formData.append('precio', String(form.precio).replace(/\D/g, '') || '0')
+      formData.append('precioDistribuidor', String(Number(precioConfig.precioDistribuidor) || 0))
+      formData.append('aumentoPrecio', String(Number(precioConfig.aumentoPrecio) || 0))
+      formData.append('utilidad', String(Number(precioConfig.utilidad) || 30))
       formData.append('tipo', form.tipo)
       formData.append('estado', form.estado)
       formData.append('stock', form.tipo === 'producto' ? String(Number(form.stock) || 0) : '0')
@@ -121,6 +140,9 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
     } else {
       const payload = {
         ...form,
+        precioDistribuidor: Number(precioConfig.precioDistribuidor) || 0,
+        aumentoPrecio: Number(precioConfig.aumentoPrecio) || 0,
+        utilidad: Number(precioConfig.utilidad) || 30,
         stock: form.tipo === 'producto' ? (Number(form.stock) || 0) : 0,
         usos,
         caracteristicas,
@@ -298,17 +320,18 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
           </div>
           <div>
             <label className="mb-1 block text-sm font-medium text-muted-foreground">
-              Precio (COP)
+              Precio del distribuidor (COP)
             </label>
-            <input
-              type="text"
-              value={form.precio}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, precio: e.target.value }))
-              }
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
-              placeholder="Ej. $50.000 o 50000"
-            />
+            <button
+              type="button"
+              onClick={() => setShowPrecioModal(true)}
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-left text-card-foreground hover:bg-muted/50 transition-colors flex items-center justify-between"
+            >
+              <span>
+                {form.precio ? `$${Number(form.precio).toLocaleString('es-CO')}` : 'Configurar precio'}
+              </span>
+              <span className="text-muted-foreground text-sm">⚙️ Configurar</span>
+            </button>
           </div>
           {form.tipo === 'producto' && (
             <div>
@@ -326,20 +349,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
                 placeholder="Ej. 10"
               />
             </div>
-          )}
-          <div>
-            <label className="mb-1 block text-sm font-medium text-muted-foreground">
-              WhatsApp de contacto (con código de país)
-            </label>
-            <input
-              type="text"
-              value={form.whatsapp}
-              onChange={(e) => setForm((f) => ({ ...f, whatsapp: e.target.value }))}
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
-              placeholder="Ej. 573001234567"
-            />
-            <p className="mt-1 text-xs text-muted-foreground">Se usa para redirigir al cliente por WhatsApp después del pago.</p>
-          </div>
+          )} 
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="mb-1 block text-sm font-medium text-muted-foreground">
@@ -405,9 +415,8 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
                   <img
                     src={typeof img === 'string' ? img : productosApi.urlImagen(producto.id, i)}
                     alt={`Imagen ${i + 1}`}
-                    className={`h-20 w-20 rounded object-cover transition-opacity ${
-                      eliminandoImagen === i ? 'opacity-50' : ''
-                    }`}
+                    className={`h-20 w-20 rounded object-cover transition-opacity ${eliminandoImagen === i ? 'opacity-50' : ''
+                      }`}
                   />
                   <button
                     type="button"
@@ -456,6 +465,147 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
           </div>
         </form>
       </div>
+
+      {/* Modal de Configurar Precio */}
+      {showPrecioModal && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-lg">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-card-foreground">
+                Configurar precio
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowPrecioModal(false)}
+                className="text-muted-foreground hover:text-card-foreground transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-4">
+              {/* Precio Distribuidor */}
+              <div>
+                <label className="mb-1 block text-sm font-medium text-muted-foreground">
+                  Precio distribuidor (COP)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={precioConfig.precioDistribuidor}
+                  onChange={(e) =>
+                    setPrecioConfig((p) => ({ ...p, precioDistribuidor: e.target.value }))
+                  }
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
+                  placeholder="Ej. 50000"
+                />
+              </div>
+
+              {/* Aumento Precio */}
+              <div>
+                <label className="mb-1 block text-sm font-medium text-muted-foreground">
+                  Aumento de precio (COP)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={precioConfig.aumentoPrecio}
+                  onChange={(e) =>
+                    setPrecioConfig((p) => ({ ...p, aumentoPrecio: e.target.value }))
+                  }
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
+                  placeholder="Ej. 65000"
+                />
+              </div>
+
+              {/* Utilidad (%) */}
+              <div>
+                <label className="mb-1 block text-sm font-medium text-muted-foreground">
+                  Utilidad (%)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.1"
+                  value={precioConfig.utilidad}
+                  onChange={(e) =>
+                    setPrecioConfig((p) => ({ ...p, utilidad: e.target.value }))
+                  }
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
+                  placeholder="Ej. 30"
+                />
+              </div>
+
+              {/* Cálculos */}
+              {precioConfig.precioDistribuidor && precioConfig.aumentoPrecio && (
+                <div className="rounded-lg border border-border bg-muted/20 p-4 space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Precio cliente (público):</span>
+                    <span className="font-semibold text-card-foreground">
+                      ${(
+                        Number(precioConfig.precioDistribuidor) +
+                        Number(precioConfig.aumentoPrecio)
+                      ).toLocaleString('es-CO')}
+                    </span>
+                  </div>
+                  {precioConfig.utilidad && (
+                    <>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">
+                          Utilidad para el dueño ({precioConfig.utilidad}%):
+                        </span>
+                        <span className="font-semibold text-primary">
+                          ${(
+                            Number(precioConfig.aumentoPrecio) *
+                            (Number(precioConfig.utilidad) / 100)
+                          ).toLocaleString('es-CO')}
+                        </span>
+                      </div>
+                      <div className="pt-2 border-t border-border flex justify-between text-sm">
+                        <span className="text-muted-foreground font-medium">
+                          Ganancia neta (ustedes):
+                        </span>
+                        <span className="font-bold text-green-600">
+                          ${(
+                            Number(precioConfig.aumentoPrecio) -
+                            Number(precioConfig.aumentoPrecio) *
+                            (Number(precioConfig.utilidad) / 100)
+                          ).toLocaleString('es-CO')}
+                        </span>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="mt-4 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setShowPrecioModal(false)}
+                className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-card-foreground"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const precioCliente =
+                    Number(precioConfig.precioDistribuidor) +
+                    Number(precioConfig.aumentoPrecio)
+                  setForm((f) => ({ ...f, precio: String(precioCliente) }))
+                  setShowPrecioModal(false)
+                }}
+                disabled={!precioConfig.precioDistribuidor || !precioConfig.aumentoPrecio}
+                className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Guardar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

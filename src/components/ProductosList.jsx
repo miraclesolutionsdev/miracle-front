@@ -77,44 +77,47 @@ function ProductosList({
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-border text-muted-foreground">
-              {COLUMNAS.map((c) => (
-                <th key={c} className="pb-3 pr-4 font-medium">
-                  {c}
-                </th>
-              ))}
+              <th className="w-16 pb-3 pr-4 font-medium">Stock</th>
+              <th className="w-64 pb-3 pr-4 font-medium">Nombre</th>
+              <th className="w-32 pb-3 pr-4 font-medium">Categoría</th>
+              <th className="w-32 pb-3 pr-4 font-medium">Subcategoría</th>
+              <th className="w-24 pb-3 pr-4 font-medium">Tipo</th>
+              <th className="w-28 pb-3 pr-4 font-medium">Precio (COP)</th>
+              <th className="w-20 pb-3 pr-4 font-medium">Estado</th>
+              <th className="w-80 pb-3 pr-4 font-medium">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {productos.map((p) => (
               <tr key={p.id} className="border-b border-border">
-                <td className="py-3 pr-4 text-card-foreground">
+                <td className="w-16 py-3 pr-4 text-card-foreground">
                   {p.tipo === 'servicio' ? '—' : (p.stock ?? '—')}
                 </td>
-                <td className="py-3 pr-4 text-card-foreground">
+                <td className="w-64 py-3 pr-4 text-card-foreground">
                   <div className="flex items-center gap-2">
                     {getProductoImagenSrc(p, 0) && (
                       <img
                         src={getProductoImagenSrc(p, 0)}
                         alt={p.nombre}
-                        className="h-8 w-8 rounded object-cover"
+                        className="h-8 w-8 flex-shrink-0 rounded object-cover"
                       />
                     )}
-                    <span>{p.nombre}</span>
+                    <span className="truncate">{p.nombre}</span>
                   </div>
                 </td>
-                <td className="py-3 pr-4 text-muted-foreground">
-                  {p.categoria || '—'}
+                <td className="w-32 py-3 pr-4 text-muted-foreground">
+                  <span className="truncate block">{p.categoria || '—'}</span>
                 </td>
-                <td className="py-3 pr-4 text-muted-foreground">
-                  {p.subcategoria || '—'}
+                <td className="w-32 py-3 pr-4 text-muted-foreground">
+                  <span className="truncate block">{p.subcategoria || '—'}</span>
                 </td>
-                <td className="py-3 pr-4 text-muted-foreground">
+                <td className="w-24 py-3 pr-4 text-muted-foreground">
                   {p.tipo === 'servicio' ? 'Servicio' : 'Producto'}
                 </td>
-                <td className="py-3 pr-4 text-card-foreground">
+                <td className="w-28 py-3 pr-4 text-card-foreground whitespace-nowrap">
                   {formatPrecio(p.precio)}
                 </td>
-                <td className="py-3 pr-4">
+                <td className="w-20 py-3 pr-4">
                   <span
                     className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
                       p.estado === 'activo'
@@ -125,8 +128,8 @@ function ProductosList({
                     {p.estado === 'activo' ? 'Activo' : 'Inactivo'}
                   </span>
                 </td>
-                <td className="py-3 pr-4">
-                  <div className="flex flex-wrap gap-6">
+                <td className="w-80 py-3 pr-4">
+                  <div className="flex items-center gap-6 whitespace-nowrap">
                     <button
                       type="button"
                       onClick={() => onEditar(p)}
