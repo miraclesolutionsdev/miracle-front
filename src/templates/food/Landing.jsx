@@ -136,10 +136,11 @@ const CSS = `
   .fdl-back { width: 36px; height: 36px; border-radius: 50%; border: none; background: #FFF5ED; color: #FF6B00; cursor: pointer; display: flex; align-items: center; justify-content: center; }
   .fdl-nav-title { font-family: 'Quicksand', sans-serif; font-size: 14px; font-weight: 700; color: #2D2218; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px; }
 
-  .fdl-content { max-width: 1100px; margin: 0 auto; padding: 24px 24px 60px; }
-  .fdl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
+  .fdl-content { max-width: 1200px; margin: 0 auto; padding: 24px 24px 60px; }
+  .fdl-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; align-items: start; }
 
   /* GALLERY */
+  .fdl-gal { position: sticky; top: 72px; }
   .fdl-gal-empty { aspect-ratio: 1; background: #FFF5ED; border-radius: 20px; display: flex; align-items: center; justify-content: center; }
   .fdl-gal-main { position: relative; overflow: hidden; cursor: pointer; border-radius: 20px; background: #fff; box-shadow: 0 4px 24px rgba(0,0,0,0.06); }
   .fdl-gal-img { width: 100%; aspect-ratio: 1; object-fit: contain; display: block; }
@@ -189,8 +190,9 @@ const CSS = `
   .fdl-footer { text-align: center; padding: 24px; }
   .fdl-footer p { font-size: 11px; color: #D0C0B0; }
 
-  @media (max-width: 768px) {
-    .fdl-grid { grid-template-columns: 1fr; }
+  @media (max-width: 1023px) {
+    .fdl-grid { grid-template-columns: 1fr; gap: 24px; }
+    .fdl-gal { position: static; }
     .fdl-details { grid-template-columns: 1fr; }
     .fdl-content { padding: 16px 16px 48px; }
   }

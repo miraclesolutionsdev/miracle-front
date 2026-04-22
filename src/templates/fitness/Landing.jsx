@@ -29,35 +29,36 @@ function Gallery({ producto }) {
   }
 
   return (
-    <div className="ftl-gal">
+    <>
       {lightbox !== null && <ImageLightbox imagenes={images} indiceActual={lightbox} onClose={() => setLightbox(null)} onIndexChange={(i) => { setLightbox(i); setSel(i) }} getNombreProducto={() => producto.nombre} />}
-      <div className="ftl-gal-main" onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)} onClick={() => setLightbox(sel)}>
-        <div className="ftl-gal-strip" style={{ width: `${images.length * 100}%`, transform: `translateX(-${(100 / images.length) * sel}%)` }}>
-          {images.map((src, i) => (
-            <div key={i} style={{ width: `${100 / images.length}%`, flexShrink: 0 }}>
-              <img src={src} alt={`${producto.nombre} ${i + 1}`} className="ftl-gal-img" />
-            </div>
-          ))}
-        </div>
-        {images.length > 1 && (
-          <>
-            <button type="button" onClick={(e) => { e.stopPropagation(); setSel((p) => (p - 1 + images.length) % images.length) }} className="ftl-gal-arr ftl-gal-arr-l"><ChevronLeft size={18} /></button>
-            <button type="button" onClick={(e) => { e.stopPropagation(); setSel((p) => (p + 1) % images.length) }} className="ftl-gal-arr ftl-gal-arr-r"><ChevronRight size={18} /></button>
-          </>
-        )}
-        {/* Counter overlay */}
-        {images.length > 1 && (
-          <div className="ftl-gal-counter">{sel + 1} / {images.length}</div>
-        )}
-      </div>
       {images.length > 1 && (
-        <div className="ftl-gal-thumbs">{images.map((src, i) => (
-          <button key={i} type="button" onClick={() => setSel(i)} className="ftl-gal-thumb" style={{ borderColor: i === sel ? '#39FF14' : 'transparent', opacity: i === sel ? 1 : 0.5 }}>
-            <img src={src} alt="" />
+        <div className="ftl-gal-thumbs-wrapper">{images.map((src, i) => (
+          <button key={i} type="button" onClick={() => setSel(i)} className={`ftl-gal-thumb ${i === sel ? 'active' : ''}`}>
+            <img src={src} alt={`Vista ${i + 1}`} />
           </button>
         ))}</div>
       )}
-    </div>
+      <div className="ftl-gal-main-wrapper">
+        <div className="ftl-gal-main" onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)} onClick={() => setLightbox(sel)}>
+          <div className="ftl-gal-strip" style={{ width: `${images.length * 100}%`, transform: `translateX(-${(100 / images.length) * sel}%)` }}>
+            {images.map((src, i) => (
+              <div key={i} style={{ width: `${100 / images.length}%`, flexShrink: 0 }}>
+                <img src={src} alt={`${producto.nombre} ${i + 1}`} className="ftl-gal-img" />
+              </div>
+            ))}
+          </div>
+          {images.length > 1 && (
+            <>
+              <button type="button" onClick={(e) => { e.stopPropagation(); setSel((p) => (p - 1 + images.length) % images.length) }} className="ftl-gal-arr ftl-gal-arr-l"><ChevronLeft size={20} /></button>
+              <button type="button" onClick={(e) => { e.stopPropagation(); setSel((p) => (p + 1) % images.length) }} className="ftl-gal-arr ftl-gal-arr-r"><ChevronRight size={20} /></button>
+            </>
+          )}
+          {images.length > 1 && (
+            <div className="ftl-gal-counter">{sel + 1} / {images.length}</div>
+          )}
+        </div>
+      </div>
+    </>
   )
 }
 
@@ -127,12 +128,13 @@ export default function FitnessLanding({ producto, cantidad, setCantidad, maxCan
                 )}
                 <div className="ftl-cmd-btns">
                   <button type="button" onClick={onComprar} disabled={sinStock} className="ftl-btn-buy">
-                    <CreditCard size={16} /> COMPRAR
-                  </button>
-                  <button type="button" onClick={onWhatsApp} className="ftl-btn-wa">
-                    <WhatsAppIcon size={22} />
+                    <CreditCard size={16} /> COMPRAR AHORA
                   </button>
                 </div>
+                <button type="button" onClick={onWhatsApp} className="ftl-btn-wa-full">
+                  <WhatsAppIcon size={20} />
+                  <span>Conversa con nosotros</span>
+                </button>
                 {cantidad > 1 && producto.precio != null && (
                   <span className="ftl-cmd-total">Total: <strong>{fmt(producto.precio * cantidad)}</strong></span>
                 )}
@@ -252,92 +254,135 @@ const CSS = `
 
   /* ═══════════ SHOWCASE ═══════════ */
   .ftl-showcase {
-    max-width: 1200px; margin: 0 auto;
-    padding: 40px 32px 0;
+    max-width: 1400px; margin: 0 auto;
+    padding: 32px 40px 80px;
+    display: grid;
+    grid-template-columns: 1.3fr 0.95fr;
+    gap: 56px;
+    align-items: start;
   }
 
   .ftl-showcase-gallery {
-    max-width: 620px;
-    margin: 0 auto;
+    width: 100%;
+    display: flex;
+    gap: 16px;
   }
 
-  /* Gallery */
+  /* Gallery - Thumbnails left, main image right */
+  .ftl-gal-thumbs-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 72px;
+    flex-shrink: 0;
+  }
+  .ftl-gal-thumb {
+    width: 72px; height: 72px; cursor: pointer;
+    border: 2px solid transparent; padding: 0;
+    background: #111; transition: all 0.2s; flex-shrink: 0;
+    position: relative;
+  }
+  .ftl-gal-thumb::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    opacity: 1;
+    transition: opacity 0.2s;
+  }
+  .ftl-gal-thumb.active::after { opacity: 0; }
+  .ftl-gal-thumb.active { border-color: #39FF14; }
+  .ftl-gal-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .ftl-gal-main-wrapper {
+    flex: 1;
+    min-width: 0;
+    position: sticky;
+    top: 76px;
+    max-height: calc(100vh - 96px);
+    display: flex;
+    align-items: flex-start;
+  }
   .ftl-gal-empty {
-    aspect-ratio: 4/3; background: #111;
+    aspect-ratio: 4/3;
+    max-height: 480px;
+    width: 100%;
+    background: #111;
     display: flex; align-items: center; justify-content: center;
-    border: 1px solid rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
   }
   .ftl-gal-main {
-    position: relative; overflow: hidden; cursor: pointer;
-    background: #0D0D0D; aspect-ratio: 4/3;
-    border: 1px solid rgba(255,255,255,0.06);
+    position: relative; overflow: hidden; cursor: zoom-in;
+    background: #0D0D0D;
+    aspect-ratio: 4/3;
+    max-height: 500px;
+    width: 100%;
+    border: 1px solid rgba(255,255,255,0.08);
   }
   .ftl-gal-strip { display: flex; transition: transform 0.5s cubic-bezier(.4,0,.2,1); height: 100%; }
   .ftl-gal-img { width: 100%; height: 100%; object-fit: contain; display: block; }
   .ftl-gal-arr {
     position: absolute; top: 50%; transform: translateY(-50%);
-    width: 40px; height: 40px;
-    background: rgba(0,0,0,0.75); border: 1px solid rgba(57,255,20,0.25);
+    width: 42px; height: 42px;
+    background: rgba(0,0,0,0.85); border: 1px solid rgba(57,255,20,0.3);
     color: #39FF14; cursor: pointer;
     display: flex; align-items: center; justify-content: center; z-index: 5;
     transition: all 0.15s;
+    opacity: 0;
   }
-  .ftl-gal-arr:hover { background: rgba(57,255,20,0.12); border-color: #39FF14; }
-  .ftl-gal-arr-l { left: 12px; }
-  .ftl-gal-arr-r { right: 12px; }
+  .ftl-gal-main:hover .ftl-gal-arr { opacity: 1; }
+  .ftl-gal-arr:hover { background: rgba(57,255,20,0.15); border-color: #39FF14; }
+  .ftl-gal-arr-l { left: 16px; }
+  .ftl-gal-arr-r { right: 16px; }
   .ftl-gal-counter {
-    position: absolute; bottom: 12px; right: 12px;
+    position: absolute; bottom: 16px; right: 16px;
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 11px; font-weight: 600; letter-spacing: 0.12em;
-    color: #39FF14; background: rgba(0,0,0,0.7);
-    padding: 4px 10px; z-index: 5;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+    color: #39FF14; background: rgba(0,0,0,0.85);
+    padding: 6px 12px; z-index: 5;
+    border: 1px solid rgba(57,255,20,0.2);
   }
-  .ftl-gal-thumbs {
-    display: flex; gap: 8px; padding: 12px 0; overflow-x: auto;
-    justify-content: center;
-  }
-  .ftl-gal-thumb {
-    width: 60px; height: 60px; cursor: pointer;
-    border: 2px solid transparent; padding: 0;
-    background: #111; transition: all 0.2s; flex-shrink: 0;
-  }
-  .ftl-gal-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-  /* ═══════════ COMMAND STRIP ═══════════ */
+  /* ═══════════ COMMAND PANEL ═══════════ */
   .ftl-command {
-    margin-top: 32px;
-    background: #111;
-    border: 1px solid rgba(57,255,20,0.1);
-    position: relative;
+    background: linear-gradient(135deg, #0D0D0D 0%, #111 100%);
+    border: 1px solid rgba(57,255,20,0.12);
+    position: sticky;
+    top: 76px;
+    border-radius: 2px;
     overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+    max-height: calc(100vh - 96px);
+    overflow-y: auto;
   }
   .ftl-command::before {
     content: '';
-    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    position: absolute; top: 0; left: 0; right: 0; height: 1px;
     background: linear-gradient(90deg, transparent 5%, #39FF14 30%, #39FF14 70%, transparent 95%);
   }
   .ftl-command-inner {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    align-items: center;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
     padding: 0;
   }
 
-  /* Identity — left */
+  /* Identity */
   .ftl-cmd-identity {
-    padding: 20px 24px;
+    padding: 22px 24px 18px;
     display: flex; flex-direction: column; justify-content: center;
   }
-  .ftl-cmd-badges { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .ftl-cmd-badges { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
   .ftl-cmd-type {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 10px; font-weight: 700; letter-spacing: 0.2em;
-    padding: 3px 10px; border: 1px solid rgba(255,255,255,0.12);
-    color: #777;
+    font-size: 9px; font-weight: 700; letter-spacing: 0.2em;
+    padding: 3px 10px; border: 1px solid rgba(255,255,255,0.15);
+    color: #888;
+    background: rgba(255,255,255,0.02);
   }
   .ftl-cmd-status {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 10px; font-weight: 700; letter-spacing: 0.15em;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
     display: flex; align-items: center; gap: 6px;
   }
   .ftl-cmd-ok { color: #39FF14; }
@@ -346,103 +391,132 @@ const CSS = `
     display: inline-block; width: 6px; height: 6px;
     background: #39FF14; border-radius: 50%;
     animation: ftlPulse 2s ease infinite;
+    box-shadow: 0 0 8px rgba(57,255,20,0.5);
   }
-  @keyframes ftlPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+  @keyframes ftlPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
   .ftl-cmd-title {
     font-family: 'Oswald', sans-serif;
     font-size: 20px; font-weight: 600;
-    text-transform: uppercase; letter-spacing: 0.03em;
-    color: #fff; line-height: 1.2;
+    text-transform: uppercase; letter-spacing: 0.02em;
+    color: #fff; line-height: 1.3;
   }
 
-  /* Price — center */
+  /* Price */
   .ftl-cmd-price-block {
     display: flex; flex-direction: column; align-items: center;
     justify-content: center;
-    padding: 20px 16px;
-    border-left: 1px solid rgba(255,255,255,0.06);
-    border-right: 1px solid rgba(255,255,255,0.06);
-    align-self: stretch;
-    background: rgba(57,255,20,0.02);
+    padding: 20px 24px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    background: rgba(57,255,20,0.03);
+    position: relative;
+  }
+  .ftl-cmd-price-block::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(180deg, transparent, #39FF14, transparent);
   }
   .ftl-cmd-price-label {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 10px; font-weight: 600; letter-spacing: 0.25em;
-    color: #555; margin-bottom: 3px;
+    font-size: 10px; font-weight: 600; letter-spacing: 0.2em;
+    color: #666; margin-bottom: 5px;
   }
   .ftl-cmd-price {
     font-family: 'Oswald', sans-serif;
-    font-size: 30px; font-weight: 500;
+    font-size: 34px; font-weight: 600;
     color: #39FF14; line-height: 1;
     white-space: nowrap;
+    text-shadow: 0 0 20px rgba(57,255,20,0.3);
   }
   .ftl-cmd-urgency {
     display: flex; align-items: center; gap: 4px;
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
-    color: #FF3D00; margin-top: 5px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+    color: #FF3D00; margin-top: 6px;
   }
   .ftl-cmd-consult {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 14px; font-weight: 700; letter-spacing: 0.15em;
-    color: #555;
+    font-size: 14px; font-weight: 700; letter-spacing: 0.12em;
+    color: #666;
   }
 
-  /* Actions — right */
+  /* Actions */
   .ftl-cmd-actions {
-    display: flex; align-items: center; gap: 10px;
-    padding: 20px 24px;
-    justify-content: flex-end;
+    display: flex; flex-direction: column; align-items: stretch; gap: 12px;
+    padding: 20px 24px 24px;
   }
   .ftl-cmd-qty {
-    display: inline-flex;
-    border: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    border: 1px solid rgba(255,255,255,0.15);
+    justify-content: center;
+    background: rgba(0,0,0,0.3);
   }
   .ftl-qty-btn {
-    width: 40px; height: 44px;
-    background: rgba(255,255,255,0.03); border: none;
-    color: #fff; font-size: 16px; cursor: pointer;
+    width: 42px; height: 42px;
+    background: transparent; border: none;
+    color: #999; font-size: 20px; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
-    transition: background 0.15s;
+    transition: all 0.2s;
+    font-family: 'Oswald', sans-serif;
   }
-  .ftl-qty-btn:hover:not(:disabled) { background: rgba(57,255,20,0.08); }
+  .ftl-qty-btn:hover:not(:disabled) { background: rgba(57,255,20,0.12); color: #39FF14; }
   .ftl-qty-btn:disabled { color: #333; cursor: default; }
   .ftl-qty-val {
-    width: 42px; text-align: center;
-    font-family: 'Oswald', sans-serif; font-size: 16px;
+    width: 54px; text-align: center;
+    font-family: 'Oswald', sans-serif; font-size: 18px; font-weight: 600;
     color: #fff;
-    border-left: 1px solid rgba(255,255,255,0.1);
-    border-right: 1px solid rgba(255,255,255,0.1);
+    border-left: 1px solid rgba(255,255,255,0.15);
+    border-right: 1px solid rgba(255,255,255,0.15);
     display: flex; align-items: center; justify-content: center;
   }
   .ftl-cmd-btns { display: flex; gap: 0; align-items: stretch; }
   .ftl-btn-buy {
-    display: flex; align-items: center; gap: 8px;
-    padding: 0 24px; height: 44px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 0 24px; height: 48px; flex: 1;
     background: #39FF14; color: #0A0A0A; border: none;
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 14px; font-weight: 700; letter-spacing: 0.12em;
+    font-size: 14px; font-weight: 700; letter-spacing: 0.1em;
     cursor: pointer; transition: all 0.2s;
     white-space: nowrap;
+    text-transform: uppercase;
   }
-  .ftl-btn-buy:hover { background: #2DE80F; box-shadow: 0 0 20px rgba(57,255,20,0.25); }
-  .ftl-btn-buy:disabled { background: #222; color: #555; cursor: default; box-shadow: none; }
-  .ftl-btn-wa {
-    display: flex; align-items: center; justify-content: center;
-    width: 54px; height: 44px;
-    background: rgba(37,211,102,0.08); color: #25D366;
-    border: 1px solid rgba(37,211,102,0.45);
+  .ftl-btn-buy:hover { background: #2DE80F; box-shadow: 0 4px 24px rgba(57,255,20,0.35); transform: translateY(-1px); }
+  .ftl-btn-buy:disabled { background: #222; color: #555; cursor: default; box-shadow: none; transform: none; }
+
+  .ftl-btn-wa-full {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; height: 46px;
+    background: rgba(37,211,102,0.08);
+    color: #25D366;
+    border: 1.5px solid rgba(37,211,102,0.35);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px; font-weight: 600; letter-spacing: 0.08em;
     cursor: pointer; transition: all 0.2s;
-    flex-shrink: 0;
-    margin-left: -1px;
+    text-transform: uppercase;
   }
-  .ftl-btn-wa:hover { background: rgba(37,211,102,0.18); }
+  .ftl-btn-wa-full:hover {
+    background: rgba(37,211,102,0.15);
+    border-color: #25D366;
+    box-shadow: 0 4px 16px rgba(37,211,102,0.2);
+  }
+  .ftl-btn-wa-full svg { flex-shrink: 0; }
   .ftl-cmd-total {
-    font-size: 13px; color: #666;
-    white-space: nowrap;
+    font-size: 13px; color: #777;
+    text-align: center;
+    padding-top: 2px;
   }
   .ftl-cmd-total strong {
-    color: #39FF14; font-family: 'Oswald', sans-serif; font-size: 16px;
+    color: #39FF14; font-family: 'Oswald', sans-serif; font-size: 16px; font-weight: 600;
+  }
+
+  .ftl-cmd-qty {
+    display: inline-flex;
+    border: 1px solid rgba(255,255,255,0.1);
+    justify-content: center;
   }
 
   /* Trust strip */
@@ -552,46 +626,65 @@ const CSS = `
   .ftl-footer p { font-size: 12px; color: #333; }
 
   /* ═══════════ MOBILE ═══════════ */
-  @media (max-width: 768px) {
+  @media (max-width: 1023px) {
     .ftl-nav { padding: 0 16px; height: 52px; }
     .ftl-nav-line { display: none; }
 
-    .ftl-showcase { padding: 0; }
-    .ftl-showcase-gallery { max-width: 100%; }
+    .ftl-showcase {
+      padding: 0;
+      display: block;
+    }
+    .ftl-showcase-gallery {
+      max-width: 100%;
+      flex-direction: column-reverse;
+      gap: 12px;
+    }
+    .ftl-gal-thumbs-wrapper {
+      flex-direction: row;
+      width: 100%;
+      overflow-x: auto;
+      gap: 8px;
+      padding: 0 16px;
+    }
+    .ftl-gal-thumb { width: 60px; height: 60px; }
+    .ftl-gal-main-wrapper { position: static; }
     .ftl-gal-main { aspect-ratio: 4/3; border: none; }
     .ftl-gal-empty { aspect-ratio: 4/3; }
     .ftl-gal-thumbs { padding: 10px 16px; justify-content: flex-start; }
 
-    .ftl-command { margin-top: 0; border-left: none; border-right: none; }
+    .ftl-command {
+      margin-top: 0;
+      border-left: none;
+      border-right: none;
+      position: static;
+    }
     .ftl-command-inner {
-      display: flex; flex-direction: column; align-items: stretch;
-      padding: 0; gap: 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      align-items: center;
+      padding: 0;
+      gap: 0;
     }
     .ftl-cmd-identity { padding: 20px 16px 16px; }
     .ftl-cmd-title { font-size: 22px; }
     .ftl-cmd-price-block {
-      flex-direction: row; align-items: center; gap: 12px;
-      padding: 14px 16px; border-left: 3px solid #39FF14;
-      border-right: none; border-top: none; border-bottom: none;
-      margin: 0 16px; align-self: stretch;
+      border-left: 1px solid rgba(255,255,255,0.06);
+      border-right: 1px solid rgba(255,255,255,0.06);
+      border-top: none;
+      border-bottom: none;
+      align-self: stretch;
     }
-    .ftl-cmd-price-label { margin-bottom: 0; }
-    .ftl-cmd-price { font-size: 28px; }
+    .ftl-cmd-price { font-size: 26px; }
     .ftl-cmd-actions {
-      padding: 16px; gap: 12px;
-      flex-wrap: wrap;
+      padding: 20px 16px;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
     }
-    .ftl-cmd-qty { align-self: flex-start; }
-    .ftl-cmd-btns { flex-direction: column; flex: 1; min-width: 0; }
-    .ftl-btn-buy {
-      padding: 16px 24px; font-size: 14px; height: auto;
-      justify-content: center; width: 100%;
-    }
-    .ftl-btn-wa {
-      width: 100%; height: 48px;
-      flex-direction: row; gap: 8px;
-    }
-    .ftl-cmd-total { text-align: left; width: 100%; }
+    .ftl-cmd-btns { gap: 0; }
+    .ftl-btn-buy { height: 44px; padding: 0 20px; font-size: 13px; }
+    .ftl-btn-wa-full { height: 44px; font-size: 12px; }
+    .ftl-cmd-total { white-space: nowrap; text-align: center; }
     .ftl-trust-strip { padding: 12px 16px; }
 
     .ftl-specs { padding: 24px 16px 40px; }

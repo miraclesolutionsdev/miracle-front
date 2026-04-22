@@ -190,7 +190,7 @@ const CSS = `
   .mnl-footer { text-align: center; padding: 32px 24px; }
   .mnl-footer p { font-size: 11px; font-weight: 300; color: #D0D0D0; }
 
-  @media (max-width: 600px) {
+  @media (max-width: 1023px) {
     .mnl-content { padding: 0 16px 60px; }
     .mnl-gal-main { border-radius: 16px; }
     .mnl-ctas { flex-direction: column; align-items: center; }

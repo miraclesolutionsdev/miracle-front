@@ -27,7 +27,7 @@ export function buildProductUrl(productId, slug) {
 }
 
 export function navigateToProduct(productId, slug) {
-  window.open(buildProductUrl(productId, slug), '_blank', 'noopener,noreferrer')
+  window.location.href = buildProductUrl(productId, slug)
 }
 
 export { getProductoImagenSrc }

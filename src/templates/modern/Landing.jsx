@@ -31,6 +31,13 @@ function Gallery({ producto }) {
   return (
     <div className="mdl-gal" onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}>
       {lightbox !== null && <ImageLightbox imagenes={images} indiceActual={lightbox} onClose={() => setLightbox(null)} onIndexChange={(i) => { setLightbox(i); setSel(i) }} getNombreProducto={() => producto.nombre} />}
+      {images.length > 1 && (
+        <div className="mdl-gal-thumbs">{images.map((src, i) => (
+          <button key={i} type="button" onClick={() => setSel(i)} className="mdl-gal-thumb" style={{ borderColor: i === sel ? '#4F46E5' : '#E4E4E7', opacity: i === sel ? 1 : 0.5 }}>
+            <img src={src} alt="" />
+          </button>
+        ))}</div>
+      )}
       <div className="mdl-gal-main" onClick={() => setLightbox(sel)}>
         <img src={images[sel]} alt={producto.nombre} className="mdl-gal-img" />
         {images.length > 1 && (
@@ -40,13 +47,6 @@ function Gallery({ producto }) {
           </>
         )}
       </div>
-      {images.length > 1 && (
-        <div className="mdl-gal-thumbs">{images.map((src, i) => (
-          <button key={i} type="button" onClick={() => setSel(i)} className="mdl-gal-thumb" style={{ borderColor: i === sel ? '#4F46E5' : '#E4E4E7', opacity: i === sel ? 1 : 0.5 }}>
-            <img src={src} alt="" />
-          </button>
-        ))}</div>
-      )}
     </div>
   )
 }
@@ -170,20 +170,20 @@ const CSS = `
   .mdl-bc-active { color: #18181B; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px; }
   .mdl-bc svg { color: #D4D4D8; flex-shrink: 0; }
 
-  .mdl-content { max-width: 1200px; margin: 0 auto; padding: 32px 24px 60px; }
-  .mdl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+  .mdl-content { max-width: 1280px; margin: 0 auto; padding: 32px 24px 60px; }
+  .mdl-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px; align-items: start; }
 
-  /* GALLERY */
-  .mdl-gal { position: sticky; top: 72px; }
-  .mdl-gal-empty { aspect-ratio: 1; background: #fff; border-radius: 16px; border: 1px solid #E4E4E7; display: flex; align-items: center; justify-content: center; }
-  .mdl-gal-main { position: relative; overflow: hidden; cursor: pointer; border-radius: 16px; background: #fff; border: 1px solid #E4E4E7; }
+  /* GALLERY - Desktop horizontal layout with left thumbnails */
+  .mdl-gal { display: flex; gap: 10px; position: sticky; top: 72px; }
+  .mdl-gal-empty { aspect-ratio: 1; background: #fff; border-radius: 16px; border: 1px solid #E4E4E7; display: flex; align-items: center; justify-content: center; width: 100%; }
+  .mdl-gal-main { position: relative; overflow: hidden; cursor: pointer; border-radius: 16px; background: #fff; border: 1px solid #E4E4E7; flex: 1; }
   .mdl-gal-img { width: 100%; aspect-ratio: 1; object-fit: contain; display: block; }
   .mdl-gal-arr { position: absolute; top: 50%; transform: translateY(-50%); width: 34px; height: 34px; background: #fff; border: 1px solid #E4E4E7; border-radius: 8px; color: #18181B; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 5; transition: all 0.15s; }
   .mdl-gal-arr:hover { border-color: #4F46E5; color: #4F46E5; }
   .mdl-gal-arr-l { left: 12px; }
   .mdl-gal-arr-r { right: 12px; }
-  .mdl-gal-thumbs { display: flex; gap: 8px; margin-top: 10px; }
-  .mdl-gal-thumb { width: 60px; height: 60px; cursor: pointer; border: 2px solid #E4E4E7; border-radius: 10px; padding: 0; background: #fff; transition: all 0.2s; overflow: hidden; flex-shrink: 0; }
+  .mdl-gal-thumbs { display: flex; flex-direction: column; gap: 8px; max-width: 72px; }
+  .mdl-gal-thumb { width: 72px; height: 72px; cursor: pointer; border: 2px solid #E4E4E7; border-radius: 10px; padding: 0; background: #fff; transition: all 0.2s; overflow: hidden; flex-shrink: 0; }
   .mdl-gal-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
   /* INFO */
@@ -236,9 +236,13 @@ const CSS = `
   .mdl-footer { text-align: center; padding: 28px 24px; border-top: 1px solid #E4E4E7; }
   .mdl-footer p { font-size: 11px; color: #A1A1AA; }
 
-  @media (max-width: 900px) {
+  @media (max-width: 1023px) {
     .mdl-grid { grid-template-columns: 1fr; gap: 24px; }
-    .mdl-gal { position: static; }
+    .mdl-gal { position: static; flex-direction: column-reverse; }
+    .mdl-gal-thumbs { flex-direction: row; max-width: 100%; overflow-x: auto; padding-bottom: 4px; }
+    .mdl-gal-thumbs::-webkit-scrollbar { height: 4px; }
+    .mdl-gal-thumbs::-webkit-scrollbar-thumb { background: #E4E4E7; border-radius: 2px; }
+    .mdl-gal-thumb { width: 60px; height: 60px; }
     .mdl-content { padding: 20px 16px 48px; }
     .mdl-ctas { flex-direction: column; }
   }

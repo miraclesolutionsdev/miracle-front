@@ -31,6 +31,13 @@ function Gallery({ producto }) {
   return (
     <div className="lxl-gal">
       {lightbox !== null && <ImageLightbox imagenes={images} indiceActual={lightbox} onClose={() => setLightbox(null)} onIndexChange={(i) => { setLightbox(i); setSel(i) }} getNombreProducto={() => producto.nombre} />}
+      {images.length > 1 && (
+        <div className="lxl-gal-thumbs">{images.map((src, i) => (
+          <button key={i} type="button" onClick={() => setSel(i)} className="lxl-gal-thumb" style={{ outline: i === sel ? '2px solid #C8352B' : '2px solid transparent', outlineOffset: 2, opacity: i === sel ? 1 : 0.45 }}>
+            <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          </button>
+        ))}</div>
+      )}
       <div className="lxl-gal-main" onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)} onClick={() => setLightbox(sel)}>
         <div className="lxl-gal-strip" style={{ width: `${images.length * 100}%`, transform: `translateX(-${(100 / images.length) * sel}%)` }}>
           {images.map((src, i) => (
@@ -49,13 +56,6 @@ function Gallery({ producto }) {
           <div className="lxl-gal-dots">{images.map((_, i) => <button key={i} type="button" onClick={(e) => { e.stopPropagation(); setSel(i) }} className="lxl-gal-dot" style={{ width: i === sel ? 22 : 6, background: i === sel ? '#C8352B' : '#D0CBC4' }} />)}</div>
         )}
       </div>
-      {images.length > 1 && (
-        <div className="lxl-gal-thumbs">{images.map((src, i) => (
-          <button key={i} type="button" onClick={() => setSel(i)} className="lxl-gal-thumb" style={{ outline: i === sel ? '2px solid #C8352B' : '2px solid transparent', outlineOffset: 2, opacity: i === sel ? 1 : 0.45 }}>
-            <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          </button>
-        ))}</div>
-      )}
     </div>
   )
 }
@@ -162,14 +162,14 @@ const CSS = `
   .lxl-nav-crumb { font-size: 12px; color: #8A8480; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px; }
 
   /* CONTENT */
-  .lxl-content { max-width: 1300px; margin: 0 auto; padding: 40px 40px 60px; }
-  .lxl-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 52px; align-items: start; }
+  .lxl-content { max-width: 1360px; margin: 0 auto; padding: 40px 40px 60px; }
+  .lxl-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 60px; align-items: start; }
 
-  /* GALLERY */
-  .lxl-gal { position: sticky; top: 76px; }
-  .lxl-gal-empty { aspect-ratio: 4/5; background: #F8F5F1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+  /* GALLERY - Desktop horizontal layout with left thumbnails */
+  .lxl-gal { display: flex; flex-direction: row; gap: 12px; position: sticky; top: 76px; }
+  .lxl-gal-empty { aspect-ratio: 4/5; background: #F8F5F1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; width: 100%; }
   .lxl-gal-empty span { font-size: 12px; color: #C0BAB3; letter-spacing: 0.08em; }
-  .lxl-gal-main { position: relative; overflow: hidden; cursor: pointer; background: #FFFFFF; aspect-ratio: 4/5; }
+  .lxl-gal-main { position: relative; overflow: hidden; cursor: pointer; background: #FFFFFF; aspect-ratio: 4/5; flex: 1; min-width: 0; }
   .lxl-gal-strip { display: flex; transition: transform 0.5s cubic-bezier(.4,0,.2,1); height: 100%; }
   .lxl-gal-img { width: 100%; height: 100%; object-fit: contain; display: block; transition: transform 0.6s ease; }
   .lxl-gal-arr { position: absolute; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; background: rgba(255,255,255,0.9); border: 1px solid #E8E4DF; color: #0D0D0D; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 5; transition: all 0.15s; }
@@ -178,8 +178,8 @@ const CSS = `
   .lxl-gal-arr-r { right: 12px; }
   .lxl-gal-dots { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 4px; z-index: 5; }
   .lxl-gal-dot { height: 4px; border: none; padding: 0; cursor: pointer; transition: all 0.25s; }
-  .lxl-gal-thumbs { display: flex; gap: 8px; margin-top: 12px; }
-  .lxl-gal-thumb { width: 64px; height: 64px; cursor: pointer; border: none; padding: 0; background: #F8F5F1; transition: opacity 0.2s; overflow: hidden; flex-shrink: 0; }
+  .lxl-gal-thumbs { display: flex; flex-direction: column; gap: 8px; max-width: 80px; flex-shrink: 0; order: -1; }
+  .lxl-gal-thumb { width: 80px; height: 80px; cursor: pointer; border: none; padding: 0; background: #F8F5F1; transition: opacity 0.2s; overflow: hidden; flex-shrink: 0; }
 
   /* INFO */
   .lxl-tags { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
@@ -235,9 +235,13 @@ const CSS = `
   .lxl-footer p { font-size: 11px; color: #C0BAB3; }
 
   /* RESPONSIVE */
-  @media (max-width: 900px) {
+  @media (max-width: 1023px) {
     .lxl-grid { grid-template-columns: 1fr; gap: 28px; }
-    .lxl-gal { position: static; }
+    .lxl-gal { position: static; flex-direction: column-reverse; }
+    .lxl-gal-thumbs { flex-direction: row; max-width: 100%; overflow-x: auto; padding-bottom: 4px; }
+    .lxl-gal-thumbs::-webkit-scrollbar { height: 4px; }
+    .lxl-gal-thumbs::-webkit-scrollbar-thumb { background: #E8E4DF; border-radius: 2px; }
+    .lxl-gal-thumb { width: 64px; height: 64px; }
     .lxl-content { padding: 20px 16px 40px; }
     .lxl-nav-inner { padding: 0 16px; }
   }
