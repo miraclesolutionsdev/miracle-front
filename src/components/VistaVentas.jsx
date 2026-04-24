@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import { ordenesApi } from '../utils/api'
 import { alertConfirm, alertSuccess, alertError } from '../utils/alerts'
 import SectionCard from './SectionCard'
@@ -576,6 +577,8 @@ function TabDetalles({ ordenId, onVolver, onActualizar }) {
 
 // ===== COMPONENTE PRINCIPAL =====
 export default function VistaVentas() {
+  const navigate = useNavigate()
+  const { slug } = useParams()
   const [tab, setTab] = useState('ordenes')
   const [selectedOrdenId, setSelectedOrdenId] = useState(null)
   const [ordenes, setOrdenes] = useState([])
@@ -620,6 +623,17 @@ export default function VistaVentas() {
 
   return (
     <div className="space-y-4">
+      {/* Botón Ganancias */}
+      <div className="flex justify-end">
+        <button
+          onClick={() => navigate(`/${slug}/plataforma/ganancias`)}
+          className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 transition-colors"
+        >
+          <span>📊</span>
+          Ver Ganancias
+        </button>
+      </div>
+
       <div className="flex gap-2 border-b border-border">
         <button
           onClick={() => { setTab('ordenes'); setSkip(0) }}

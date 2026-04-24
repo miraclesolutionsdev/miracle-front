@@ -590,12 +590,43 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  const precioCliente =
-                    Number(precioConfig.precioDistribuidor) +
-                    Number(precioConfig.aumentoPrecio)
-                  setForm((f) => ({ ...f, precio: String(precioCliente) }))
-                  setShowPrecioModal(false)
+                onClick={async () => {
+                  if (!esEdicion) {
+                    // Si es creación, solo actualiza el estado local
+                    const precioCliente =
+                      Number(precioConfig.precioDistribuidor) +
+                      Number(precioConfig.aumentoPrecio)
+                    setForm((f) => ({ ...f, precio: String(precioCliente) }))
+                    setShowPrecioModal(false)
+                    alertSuccess('Configuración de precio guardada temporalmente. Recuerda guardar el producto.')
+                    return
+                  }
+
+                  // Si es edición, guardar inmediatamente en BD
+                  try {
+                    const payload = {
+                      precioDistribuidor: Number(precioConfig.precioDistribuidor) || 0,
+                      aumentoPrecio: Number(precioConfig.aumentoPrecio) || 0,
+                      utilidad: Number(precioConfig.utilidad) || 30,
+                    }
+                    const productoActualizado = await productosApi.actualizarPrecio(producto.id, payload)
+
+                    // Actualizar el precio en el formulario con el precio calculado del backend
+                    setForm((f) => ({ ...f, precio: String(productoActualizado.precio) }))
+
+                    // Actualizar el producto en memoria para que si vuelve a abrir el modal vea los valores correctos
+                    Object.assign(producto, {
+                      precioDistribuidor: productoActualizado.precioDistribuidor,
+                      aumentoPrecio: productoActualizado.aumentoPrecio,
+                      utilidad: productoActualizado.utilidad,
+                      precio: productoActualizado.precio,
+                    })
+
+                    setShowPrecioModal(false)
+                    alertSuccess('Configuración de precio guardada exitosamente')
+                  } catch (error) {
+                    alertError(error.message || 'Error al guardar la configuración de precio')
+                  }
                 }}
                 disabled={!precioConfig.precioDistribuidor || !precioConfig.aumentoPrecio}
                 className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"

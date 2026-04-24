@@ -112,6 +112,7 @@ export const productosApi = {
   crearConArchivos: (formData) => requestFormData('productos', 'POST', formData),
   actualizar: (id, body) => request(`productos/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
   actualizarConArchivos: (id, formData) => requestFormData(`productos/${id}`, 'PUT', formData),
+  actualizarPrecio: (id, body) => request(`productos/${id}/precio`, { method: 'PATCH', body: JSON.stringify(body) }),
   inactivar: (id) => request(`productos/${id}/inactivar`, { method: 'PATCH' }),
   eliminarImagen: (id, index) => request(`productos/${id}/imagenes/${index}`, { method: 'DELETE' }),
   urlImagen: (productoId, index) =>
@@ -243,6 +244,10 @@ export const ordenesApi = {
     return request(`ordenes${query ? `?${query}` : ''}`)
   },
   obtener: (id) => request(`ordenes/${id}`),
+  obtenerGanancias: (params = {}) => {
+    const query = new URLSearchParams(params).toString()
+    return request(`ordenes/ganancias/resumen${query ? `?${query}` : ''}`)
+  },
   crear: (body) =>
     request('ordenes', { method: 'POST', body: JSON.stringify(body) }),
   actualizarEstado: (id, nuevoEstado, notas) =>

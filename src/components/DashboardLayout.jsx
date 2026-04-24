@@ -10,6 +10,7 @@ import VistaCampañas from './VistaCampañas'
 import VistaAudiovisual from './VistaAudiovisual'
 import MetricsAds from './MetricsAds'
 import VistaVentas from './VistaVentas'
+import VistaGanancias from './VistaGanancias'
 import VistaAdministradores from './VistaAdministradores'
 import VistaConfiguracion from './VistaConfiguracion'
 import VistaClipsWhatsApp from './VistaClipsWhatsApp'
@@ -23,6 +24,7 @@ const PAGE_DESCRIPTIONS = {
   Audiovisual: 'Biblioteca de piezas audiovisuales',
   'Métricas Ads': 'Análisis de rendimiento de anuncios',
   Ventas: 'Seguimiento de ventas y conversiones',
+  Ganancias: 'Resumen de ingresos, utilidad y ganancias netas',
   'Leads WhatsApp': 'Contenido audiovisual para campañas de WhatsApp',
   Administradores: 'Gestión de accesos y usuarios',
   Configuración: 'Preferencias de tu cuenta',
@@ -42,6 +44,7 @@ function DashboardLayout() {
     [`/${slug}/plataforma/audiovisual`]: 'Audiovisual',
     [`/${slug}/plataforma/metricas-ads`]: 'Métricas Ads',
     [`/${slug}/plataforma/ventas`]: 'Ventas',
+    [`/${slug}/plataforma/ganancias`]: 'Ganancias',
     [`/${slug}/plataforma/leads-whatsapp`]: 'Leads WhatsApp',
     [`/${slug}/plataforma/administradores`]: 'Administradores',
     [`/${slug}/plataforma/configuracion`]: 'Configuración',
@@ -59,6 +62,7 @@ function DashboardLayout() {
       case 'Audiovisual':     return <VistaAudiovisual />
       case 'Métricas Ads':    return <MetricsAds />
       case 'Ventas':          return <VistaVentas />
+      case 'Ganancias':       return <VistaGanancias />
       case 'Leads WhatsApp':  return <VistaClipsWhatsApp />
       case 'Administradores': return <VistaAdministradores />
       case 'Configuración':   return <VistaConfiguracion />
