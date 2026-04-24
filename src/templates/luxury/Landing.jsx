@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { ArrowLeft, Check, ShieldCheck, Zap, Star, ChevronLeft, ChevronRight, CreditCard, Package } from 'lucide-react'
+import { ArrowLeft, Check, ShieldCheck, Zap, Star, ChevronLeft, ChevronRight, CreditCard, Package, ShoppingCart } from 'lucide-react'
 import ImageLightbox from '../../components/ImageLightbox.jsx'
 import { getProductoImagenSrc } from '../../utils/api'
 
@@ -60,7 +60,7 @@ function Gallery({ producto }) {
   )
 }
 
-export default function LuxuryLanding({ producto, cantidad, setCantidad, maxCantidad, sinStock, stockBajo, onWhatsApp, onComprar, navigateBack }) {
+export default function LuxuryLanding({ producto, cantidad, setCantidad, maxCantidad, sinStock, stockBajo, onWhatsApp, onAddToCart, onComprar, isInCart, navigateBack }) {
   return (
     <>
       <style>{CSS}</style>
@@ -133,8 +133,11 @@ export default function LuxuryLanding({ producto, cantidad, setCantidad, maxCant
               <div className="lxl-rule" />
 
               <div className="lxl-ctas">
+                <button type="button" onClick={onAddToCart} disabled={sinStock} className="lxl-btn-cart" style={{ background: isInCart ? '#22c55e' : '#f5f5f5', color: isInCart ? '#fff' : '#0D0D0D', border: isInCart ? 'none' : '1.5px solid #E8E4DF' }}>
+                  <ShoppingCart size={15} /> {isInCart ? 'En el carrito' : 'Agregar al carrito'}
+                </button>
+                <button type="button" onClick={onComprar} disabled={sinStock} className="lxl-btn-mp"><CreditCard size={15} /> Comprar ahora</button>
                 <button type="button" onClick={onWhatsApp} className="lxl-btn-wa"><WhatsAppIcon size={18} /> Pedir por WhatsApp</button>
-                <button type="button" onClick={onComprar} disabled={sinStock} className="lxl-btn-mp"><CreditCard size={15} /> Pagar con MercadoPago</button>
                 <div className="lxl-pay-note"><ShieldCheck strokeWidth={1.5} style={{ width: 12, height: 12, color: '#C0BAB3', flexShrink: 0 }} /><p>Aceptamos <strong>transferencia, efectivo</strong> y otros medios.</p></div>
               </div>
             </div>
@@ -221,11 +224,14 @@ const CSS = `
 
   /* CTAS */
   .lxl-ctas { display: flex; flex-direction: column; gap: 10px; }
-  .lxl-btn-wa { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 15px 24px; background: #25D366; color: #fff; border: none; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; letter-spacing: 0.02em; }
-  .lxl-btn-wa:hover { background: #1EBE57; }
+  .lxl-btn-cart { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 15px 24px; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; letter-spacing: 0.02em; }
+  .lxl-btn-cart:hover { opacity: 0.9; }
+  .lxl-btn-cart:disabled { opacity: 0.5; cursor: not-allowed; }
   .lxl-btn-mp { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 15px 24px; background: #0D0D0D; color: #fff; border: none; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; letter-spacing: 0.02em; }
   .lxl-btn-mp:hover { background: #1A1A1A; }
   .lxl-btn-mp:disabled { background: #E8E4DF; color: #C0BAB3; cursor: default; }
+  .lxl-btn-wa { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 15px 24px; background: #25D366; color: #fff; border: none; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; letter-spacing: 0.02em; }
+  .lxl-btn-wa:hover { background: #1EBE57; }
   .lxl-pay-note { display: flex; align-items: flex-start; gap: 8px; background: #F8F5F1; padding: 12px 16px; margin-top: 4px; }
   .lxl-pay-note p { font-size: 11px; color: #8A8480; line-height: 1.5; }
   .lxl-pay-note strong { color: #5A5550; }

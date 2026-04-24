@@ -42,6 +42,7 @@ function PagoResultado({ tipo }) {
 
   const paymentId = searchParams.get('payment_id')
   const whatsappNumber = searchParams.get('wa') || ''
+  const tenantSlug = searchParams.get('slug') || 'miraclesolutions'
 
   const handleWhatsapp = () => {
     const texto = [
@@ -53,6 +54,19 @@ function PagoResultado({ tipo }) {
       paymentId ? `ID de pago: ${paymentId}` : '',
     ].filter(Boolean).join('\n')
     window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(texto)}`, '_blank', 'noopener,noreferrer')
+  }
+
+  const handleVolverTienda = () => {
+    const hostname = window.location.hostname
+
+    // Si es dominio custom (no es localhost ni miraclesolutions.com.co), redirigir a la raíz
+    if (hostname !== 'localhost' && !hostname.includes('miraclesolutions.com.co')) {
+      window.location.href = '/'
+      return
+    }
+
+    // Si es miraclesolutions.com.co o localhost, usar el slug del query param
+    navigate(`/${tenantSlug}/tienda`)
   }
 
   return (
@@ -116,7 +130,7 @@ function PagoResultado({ tipo }) {
           )}
           <button
             type="button"
-            onClick={() => navigate('/tienda')}
+            onClick={handleVolverTienda}
             className="flex w-full items-center justify-center gap-2 rounded-2xl bg-white/[0.05] py-3.5 text-sm font-medium text-white/60 ring-1 ring-white/[0.06] transition-all hover:bg-white/[0.08] hover:text-white"
           >
             <ArrowLeft className="h-4 w-4" />

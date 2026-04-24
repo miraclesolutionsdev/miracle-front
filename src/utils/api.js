@@ -191,6 +191,7 @@ export const storeConfigApi = {
   guardarPlantilla: (plantilla) =>
     request('store-config/plantilla', { method: 'PATCH', body: JSON.stringify({ plantilla }) }),
   obtenerInfo: () => request('store-config/info'),
+  resolverPorDominio: (hostname) => request(`store-config/dominio?hostname=${encodeURIComponent(hostname)}`),
 }
 
 export const authApi = {
@@ -275,6 +276,8 @@ export const ordenesApi = {
       method: 'PATCH',
       body: JSON.stringify({ estadoPago }),
     }),
+  verificarPago: (id) =>
+    request(`ordenes/${id}/verificar-pago`, { method: 'POST' }),
 }
 
 export function getProductoImagenSrc(producto, index) {

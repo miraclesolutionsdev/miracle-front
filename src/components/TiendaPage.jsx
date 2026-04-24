@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { BASE_URL } from '../utils/api'
 import { getStoreTemplate } from '../templates'
+import MiniCart from './MiniCart'
 
 const MAIN_DOMAIN = import.meta.env.VITE_MAIN_DOMAIN || 'miraclesolutions.com.co'
 
@@ -82,5 +83,10 @@ export default function TiendaPage({ defaultSlug } = {}) {
   if (!slug) return null
 
   const StoreComponent = getStoreTemplate(plantilla)
-  return <StoreComponent slug={slug} />
+  return (
+    <>
+      <MiniCart position="floating" />
+      <StoreComponent slug={slug} />
+    </>
+  )
 }

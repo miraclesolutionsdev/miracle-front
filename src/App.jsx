@@ -3,6 +3,7 @@ import { useAuth } from './context/AuthContext'
 import DashboardLayout from './components/DashboardLayout'
 import LandingProductoPage from './components/LandingProductoPage'
 import TiendaPage from './components/TiendaPage'
+import CartPage from './components/CartPage'
 import Login from './components/Login'
 import GlobalLogin from './components/GlobalLogin'
 import CrearTienda from './components/CrearTienda'
@@ -37,6 +38,7 @@ function App() {
       <Routes>
         {/* En dominio custom el tenant ya está implícito en el hostname.
             La tienda vive en / y cada producto en /{productoId} */}
+        <Route path="/carrito" element={<CartPage />} />
         <Route path="/:productoId" element={<LandingProductoPage />} />
         <Route path="*" element={<TiendaPage />} />
       </Routes>
@@ -63,6 +65,7 @@ function App() {
       <Route path="/:slug/login" element={<Login />} />
       <Route path="/:slug/tienda" element={<TiendaPage />} />
       <Route path="/:slug/tienda/:productoId" element={<LandingProductoPage />} />
+      <Route path="/:slug/carrito" element={<CartPage />} />
       <Route
         path="/:slug/plataforma/ia-resumen"
         element={<ProtectedRoute><IACopyResumenPage /></ProtectedRoute>}
