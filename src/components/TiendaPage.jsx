@@ -15,8 +15,8 @@ export default function TiendaPage({ defaultSlug } = {}) {
   const { slug: slugFromUrl } = useParams()
   const navigate = useNavigate()
   const [slug, setSlug] = useState(slugFromUrl || defaultSlug || null)
-  const [plantilla, setPlantilla] = useState('luxury')
-  const [loading, setLoading] = useState(!slugFromUrl && !defaultSlug)
+  const [plantilla, setPlantilla] = useState(null)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
   useEffect(() => {
@@ -59,8 +59,12 @@ export default function TiendaPage({ defaultSlug } = {}) {
     if (!slug) return
     fetch(`${BASE_URL}/store-config/info?slug=${slug}`)
       .then((r) => r.json())
-      .then((d) => { if (d.plantilla) setPlantilla(d.plantilla) })
-      .catch(() => {})
+      .then((d) => {
+        if (d.plantilla) setPlantilla(d.plantilla)
+        else setPlantilla('luxury') // fallback
+      })
+      .catch(() => setPlantilla('luxury'))
+      .finally(() => setLoading(false))
   }, [slug])
 
   if (loading) {
@@ -79,7 +83,7 @@ export default function TiendaPage({ defaultSlug } = {}) {
     )
   }
 
-  if (!slug) return null
+  if (!slug || !plantilla) return null
 
   const StoreComponent = getStoreTemplate(plantilla)
   return <StoreComponent slug={slug} />

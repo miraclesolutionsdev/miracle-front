@@ -594,6 +594,7 @@ export default function VistaVentas() {
   const limit = 10
 
   const cargarOrdenes = useCallback(async () => {
+    setLoading(true)
     try {
       setError(null)
       const params = { limit, skip }
@@ -610,7 +611,7 @@ export default function VistaVentas() {
     } finally {
       setLoading(false)
     }
-  }, [filtroPago, filtroPreparacion, filtroOrigen, desde, hasta, skip])
+  }, [filtroPago, filtroPreparacion, filtroOrigen, desde, hasta, skip, limit])
 
   useEffect(() => { cargarOrdenes() }, [cargarOrdenes])
 

@@ -32,7 +32,8 @@ function LandingProductoPage({ defaultSlug } = {}) {
   const [cantidad, setCantidad] = useState(1)
   const [showModal, setShowModal] = useState(false)
   const [tenantSlug, setTenantSlug] = useState(slugFromParams || defaultSlug || null)
-  const [plantilla, setPlantilla] = useState('luxury')
+  const [plantilla, setPlantilla] = useState(null)
+  const [plantillaCargada, setPlantillaCargada] = useState(false)
 
   useEffect(() => {
     document.title = 'Miracle Store'
@@ -59,8 +60,14 @@ function LandingProductoPage({ defaultSlug } = {}) {
     if (!tenantSlug) return
     fetch(`${BASE_URL}/store-config/info?slug=${tenantSlug}`)
       .then((r) => r.json())
-      .then((d) => { if (d.plantilla) setPlantilla(d.plantilla) })
-      .catch(() => {})
+      .then((d) => {
+        setPlantilla(d.plantilla || 'luxury')
+        setPlantillaCargada(true)
+      })
+      .catch(() => {
+        setPlantilla('luxury')
+        setPlantillaCargada(true)
+      })
   }, [tenantSlug])
 
   // Fetch producto
@@ -106,8 +113,8 @@ function LandingProductoPage({ defaultSlug } = {}) {
     }
   }
 
-  // Loading state
-  if (cargando) {
+  // Loading state (esperar tanto producto como plantilla)
+  if (cargando || !plantillaCargada) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#fff' }}>
         <div style={{ width: 32, height: 32, border: '2px solid #E8E4DF', borderTopColor: '#999', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
