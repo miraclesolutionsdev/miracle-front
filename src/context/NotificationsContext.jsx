@@ -28,7 +28,7 @@ export function NotificationsProvider({ children }) {
     } catch { /* noop */ }
   }, [])
 
-  // ─── SSE ─────────────────────────────────────────────────────────────────────
+  // ─── SSE (deshabilitado en producción - Vercel no lo soporta) ───────────────
   useEffect(() => {
     if (!isAuthenticated) {
       esRef.current?.close()
@@ -39,6 +39,15 @@ export function NotificationsProvider({ children }) {
 
     fetchNotifications()
 
+    // SSE no funciona en Vercel, usar polling en producción
+    const isProduction = import.meta.env.PROD
+    if (isProduction) {
+      // Polling cada 30 segundos en producción
+      const intervalId = setInterval(fetchNotifications, 30000)
+      return () => clearInterval(intervalId)
+    }
+
+    // SSE solo en desarrollo local
     function connect() {
       const token = sessionStorage.getItem(TOKEN_KEY)
       const url = `${BASE_URL.replace(/\/$/, '')}/notificaciones/stream${token ? `?token=${encodeURIComponent(token)}` : ''}`
