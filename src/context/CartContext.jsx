@@ -1,16 +1,16 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
-import { getTenantSlug, getProductoImagenSrc } from '../utils/api'
+import { getTenantIdentifier, getProductoImagenSrc } from '../utils/api'
 
 const CartContext = createContext(null)
 
-function getCartKey(slug) {
-  return `miracle_cart_${slug || 'default'}`
+function getCartKey(identifier) {
+  return `miracle_cart_${identifier || 'default'}`
 }
 
-function loadCartFromStorage(slug) {
-  if (!slug) return { items: [], total: 0, itemCount: 0 }
+function loadCartFromStorage(identifier) {
+  if (!identifier) return { items: [], total: 0, itemCount: 0 }
   try {
-    const stored = localStorage.getItem(getCartKey(slug))
+    const stored = localStorage.getItem(getCartKey(identifier))
     if (!stored) return { items: [], total: 0, itemCount: 0 }
     const parsed = JSON.parse(stored)
     return {
@@ -24,10 +24,10 @@ function loadCartFromStorage(slug) {
   }
 }
 
-function saveCartToStorage(cart, slug) {
-  if (!slug) return
+function saveCartToStorage(cart, identifier) {
+  if (!identifier) return
   try {
-    localStorage.setItem(getCartKey(slug), JSON.stringify(cart))
+    localStorage.setItem(getCartKey(identifier), JSON.stringify(cart))
   } catch (error) {
     console.error('Error saving cart:', error)
   }
@@ -42,22 +42,22 @@ function calculateItemCount(items) {
 }
 
 export function CartProvider({ children }) {
-  const [currentSlug, setCurrentSlug] = useState(getTenantSlug())
-  const [cart, setCart] = useState(() => loadCartFromStorage(currentSlug))
+  const [currentIdentifier, setCurrentIdentifier] = useState(getTenantIdentifier())
+  const [cart, setCart] = useState(() => loadCartFromStorage(currentIdentifier))
 
   // Detectar cambio de tenant y cargar su carrito
   useEffect(() => {
-    const slug = getTenantSlug()
-    if (slug !== currentSlug) {
-      setCurrentSlug(slug)
-      setCart(loadCartFromStorage(slug))
+    const identifier = getTenantIdentifier()
+    if (identifier !== currentIdentifier) {
+      setCurrentIdentifier(identifier)
+      setCart(loadCartFromStorage(identifier))
     }
-  }, [currentSlug])
+  }, [currentIdentifier])
 
   // Persistir en localStorage cuando cambie el carrito
   useEffect(() => {
-    saveCartToStorage(cart, currentSlug)
-  }, [cart, currentSlug])
+    saveCartToStorage(cart, currentIdentifier)
+  }, [cart, currentIdentifier])
 
   const addToCart = useCallback((producto, cantidad = 1) => {
     setCart((prev) => {

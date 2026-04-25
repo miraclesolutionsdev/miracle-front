@@ -32,6 +32,28 @@ export function getTenantSlug() {
   return match?.[1] ?? null
 }
 
+/**
+ * Obtiene un identificador único para el tenant actual.
+ * - Si es dominio custom (venompharmacol.com), usa el hostname
+ * - Si es slug-based (miraclesolutions.com.co/venompharma), usa el slug
+ * - Fallback a 'default'
+ */
+export function getTenantIdentifier() {
+  if (typeof window === 'undefined') return 'default'
+
+  const hostname = window.location.hostname
+  const MAIN_DOMAIN = import.meta.env.VITE_MAIN_DOMAIN || 'miraclesolutions.com.co'
+
+  // Si es dominio custom, usar el hostname completo
+  if (hostname !== 'localhost' && hostname !== MAIN_DOMAIN && hostname !== `www.${MAIN_DOMAIN}`) {
+    return hostname.replace(/^www\./, '')
+  }
+
+  // Si es slug-based, usar el slug de la URL
+  const slug = getTenantSlug()
+  return slug || 'default'
+}
+
 function handleUnauthorized() {
   if (typeof window === 'undefined') return
   if (window.location.pathname.includes('/plataforma')) {
