@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import useStoreData from '../useStoreData'
 import { fmt, getInitials, navigateToProduct, getProductoImagenSrc } from '../templateUtils'
+import MiniCart from '../../components/MiniCart'
 
 /* ── Skeleton card ── */
 function SkeletonCard() {
@@ -119,6 +120,7 @@ export default function LuxuryStore({ slug: slugProp }) {
 
         {/* NAV */}
         <nav className="lx-nav">
+          <MiniCart position="header" />
           <div className="lx-nav-inner">
             <div className="lx-logo-zone">
               <div className="lx-logo-text">
@@ -275,11 +277,11 @@ const CSS = `
   .lx-hero-strip { position: absolute; top: 0; right: 0; width: 4px; height: 100%; background: #C8352B; }
 
   /* CATALOG */
-  .lx-catalog { max-width: 1440px; margin: 0 auto; padding: 24px 40px 80px; }
+  .lx-catalog { max-width: 1400px; margin: 0 auto; padding: 24px 40px 80px; }
   .lx-catalog-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid #E8E4DF; }
   .lx-count { font-size: 12px; color: #C0BAB3; }
   .lx-count strong { color: #8A8480; font-weight: 600; }
-  .lx-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .lx-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 
   /* PRODUCT CARD */
   .lx-pc { display: flex; flex-direction: column; background: #F8F5F1; cursor: pointer; outline: none; user-select: none; text-align: left; position: relative; border: 1px solid #E8E4DF; transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s; animation: lxCardIn 0.5s ease both; overflow: hidden; }
@@ -287,7 +289,7 @@ const CSS = `
   .lx-pc:focus-visible { outline: 2px solid #C8352B; outline-offset: 2px; }
   @keyframes lxCardIn { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
   .lx-pc-accent { position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: #C8352B; transform-origin: left; transition: transform 0.28s; }
-  .lx-pc-img-wrap { position: relative; padding-bottom: 125%; overflow: hidden; background: #F0EDE9; flex-shrink: 0; }
+  .lx-pc-img-wrap { position: relative; padding-bottom: 95%; overflow: hidden; background: #F0EDE9; flex-shrink: 0; }
   .lx-pc-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.7s cubic-bezier(.25,.8,.25,1); }
   .lx-pc-placeholder { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 44px; color: rgba(13,13,13,0.1); background: #F0EDE9; }
   .lx-pc-overlay { position: absolute; inset: 0; background: rgba(13,13,13,0.28); transition: opacity 0.3s; pointer-events: none; }
@@ -313,7 +315,7 @@ const CSS = `
 
   /* SKELETON */
   .lx-sk { background: #F8F5F1; border: 1px solid #E8E4DF; display: flex; flex-direction: column; animation: lxCardIn 0.4s ease both; overflow: hidden; }
-  .lx-sk-img { padding-bottom: 125%; width: 100%; }
+  .lx-sk-img { padding-bottom: 95%; width: 100%; }
   .lx-sk-body { padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
   .lx-sk-line { height: 14px; border-radius: 3px; }
   .lx-sk-lg { width: 72%; }

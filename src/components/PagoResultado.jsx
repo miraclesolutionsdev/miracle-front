@@ -1,5 +1,7 @@
 import { useSearchParams, useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
 import { CheckCircle, XCircle, Clock, ArrowLeft, MessageCircle, RefreshCw } from 'lucide-react'
+import { useCart } from '../context/CartContext'
 
 const WA_BOT = '573243520379'
 
@@ -36,6 +38,7 @@ const ESTADOS = {
 function PagoResultado({ tipo }) {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
+  const { clearCart } = useCart()
 
   const estado = ESTADOS[tipo] || ESTADOS.pendiente
   const Icon = estado.icon
@@ -43,6 +46,18 @@ function PagoResultado({ tipo }) {
   const paymentId = searchParams.get('payment_id')
   const whatsappNumber = searchParams.get('wa') || ''
   const tenantSlug = searchParams.get('slug') || 'miraclesolutions'
+
+  // Limpiar carrito solo si el pago fue exitoso y había un carrito pendiente
+  useEffect(() => {
+    if (tipo === 'exitoso') {
+      const pendingClear = sessionStorage.getItem('miracle_pending_cart_clear')
+      if (pendingClear === 'true') {
+        clearCart()
+        sessionStorage.removeItem('miracle_pending_cart_clear')
+        console.log('[PagoResultado] Carrito limpiado después de pago exitoso')
+      }
+    }
+  }, [tipo, clearCart])
 
   const handleWhatsapp = () => {
     const texto = [

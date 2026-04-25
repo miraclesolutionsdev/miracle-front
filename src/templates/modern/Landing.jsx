@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { ArrowLeft, Check, ShieldCheck, Zap, Star, ChevronLeft, ChevronRight, CreditCard, Package } from 'lucide-react'
+import { ArrowLeft, Check, ShieldCheck, Zap, Star, ChevronLeft, ChevronRight, CreditCard, Package, ShoppingCart } from 'lucide-react'
 import ImageLightbox from '../../components/ImageLightbox.jsx'
 import { getProductoImagenSrc } from '../../utils/api'
 
@@ -51,7 +51,7 @@ function Gallery({ producto }) {
   )
 }
 
-export default function ModernLanding({ producto, cantidad, setCantidad, maxCantidad, sinStock, stockBajo, onWhatsApp, onComprar, navigateBack }) {
+export default function ModernLanding({ producto, cantidad, setCantidad, maxCantidad, sinStock, stockBajo, onWhatsApp, onAddToCart, isInCart, onComprar, navigateBack }) {
   const [tab, setTab] = useState('desc')
 
   return (
@@ -109,6 +109,9 @@ export default function ModernLanding({ producto, cantidad, setCantidad, maxCant
 
               {/* CTAs side by side */}
               <div className="mdl-ctas">
+                <button type="button" onClick={onAddToCart} disabled={sinStock} className="mdn-btn-cart" style={{ background: isInCart ? '#22c55e' : '#666', color: '#fff' }}>
+                  <ShoppingCart size={16} /> {isInCart ? 'En el carrito' : 'Agregar al carrito'}
+                </button>
                 <button type="button" onClick={onComprar} disabled={sinStock} className="mdl-btn-buy">
                   <CreditCard size={16} /> Comprar ahora
                 </button>
@@ -170,8 +173,8 @@ const CSS = `
   .mdl-bc-active { color: #18181B; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px; }
   .mdl-bc svg { color: #D4D4D8; flex-shrink: 0; }
 
-  .mdl-content { max-width: 1280px; margin: 0 auto; padding: 32px 24px 60px; }
-  .mdl-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px; align-items: start; }
+  .mdl-content { max-width: 1100px; margin: 0 auto; padding: 32px 24px 60px; }
+  .mdl-grid { display: grid; grid-template-columns: 1.3fr 0.95fr; gap: 56px; align-items: start; }
 
   /* GALLERY - Desktop horizontal layout with left thumbnails */
   .mdl-gal { display: flex; gap: 10px; position: sticky; top: 72px; }
@@ -209,6 +212,9 @@ const CSS = `
 
   /* CTAs */
   .mdl-ctas { display: flex; gap: 10px; margin-bottom: 20px; }
+  .mdn-btn-cart { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 24px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; flex: 1; }
+  .mdn-btn-cart:hover { opacity: 0.9; }
+  .mdn-btn-cart:disabled { opacity: 0.5; cursor: not-allowed; }
   .mdl-btn-buy { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 20px; background: #4F46E5; color: #fff; border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
   .mdl-btn-buy:hover { background: #4338CA; box-shadow: 0 4px 16px rgba(79,70,229,0.25); }
   .mdl-btn-buy:disabled { background: #E4E4E7; color: #A1A1AA; cursor: default; box-shadow: none; }

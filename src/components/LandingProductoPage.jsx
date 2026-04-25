@@ -7,7 +7,6 @@ import { productosApi, BASE_URL } from '../utils/api'
 import { Package } from 'lucide-react'
 import { getLandingTemplate } from '../templates'
 import CheckoutModal from './CheckoutModal'
-import MiniCart from './MiniCart'
 
 const fmt = (v) => `$${(Number(v) || 0).toLocaleString('es-CO')}`
 const WHATSAPP_NUMBER = '573243520379'
@@ -140,7 +139,6 @@ function LandingProductoPage({ defaultSlug } = {}) {
 
   return (
     <>
-      <MiniCart position="floating" />
       <LandingComponent
         producto={producto}
         cantidad={cantidad}

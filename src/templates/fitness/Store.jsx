@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import useStoreData from '../useStoreData'
 import { fmt, getInitials, navigateToProduct, getProductoImagenSrc } from '../templateUtils'
+import MiniCart from '../../components/MiniCart'
 
 function SkeletonCard() {
   return (
@@ -123,12 +124,6 @@ export default function FitnessStore({ slug: slugProp }) {
               <span className="ft-brand-badge">OFFICIAL</span>
             </div>
 
-            {/* Nav center */}
-            <nav className="ft-nav-center">
-              <button type="button" className="ft-nav-btn active">TIENDA</button>
-              <button type="button" className="ft-nav-btn" disabled>NUEVOS</button>
-            </nav>
-
             {/* Search */}
             <div className="ft-search-area">
               <div className="ft-search-box">
@@ -142,6 +137,9 @@ export default function FitnessStore({ slug: slugProp }) {
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
               </button>
             </div>
+
+            {/* Cart */}
+            <MiniCart position="header" theme="fitness" />
           </div>
 
           {/* Mobile search */}
@@ -278,21 +276,16 @@ const CSS = `
 
   /* HEADER */
   .ft-header { position: sticky; top: 0; z-index: 50; background: rgba(10,10,10,0.95); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(57,255,20,0.12); }
-  .ft-header-inner { max-width: 1400px; margin: 0 auto; height: 72px; display: flex; align-items: center; padding: 0 32px; gap: 24px; }
+  .ft-header-inner { max-width: 1400px; margin: 0 auto; height: 72px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; padding: 0 32px; gap: 32px; }
   .ft-brand { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
   .ft-brand-name { font-family: 'Oswald', sans-serif; font-size: 26px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #fff; }
   .ft-brand-badge { font-family: 'Barlow Condensed', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.2em; padding: 3px 8px; border: 1px solid #39FF14; color: #39FF14; }
-  .ft-nav-center { display: flex; gap: 4px; flex: 1; justify-content: center; }
-  .ft-nav-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.12em; padding: 8px 20px; background: transparent; border: 1px solid transparent; color: #666; cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
-  .ft-nav-btn.active { color: #39FF14; border-color: rgba(57,255,20,0.3); background: rgba(57,255,20,0.05); }
-  .ft-nav-btn:hover:not(:disabled) { color: #fff; }
-  .ft-nav-btn:disabled { opacity: 0.3; cursor: default; }
-  .ft-search-area { flex-shrink: 0; }
-  .ft-search-box { position: relative; display: flex; align-items: center; }
+  .ft-search-area { display: flex; align-items: center; justify-content: center; gap: 12px; max-width: 600px; margin: 0 auto; }
+  .ft-search-box { position: relative; display: flex; align-items: center; flex: 1; }
   .ft-search-box svg { position: absolute; left: 12px; color: #555; pointer-events: none; }
-  .ft-search-box input { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 10px 14px 10px 40px; font-family: 'Barlow', sans-serif; font-size: 13px; color: #fff; outline: none; width: 200px; transition: all 0.2s; }
+  .ft-search-box input { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 10px 14px 10px 40px; font-family: 'Barlow', sans-serif; font-size: 13px; color: #fff; outline: none; width: 100%; transition: all 0.2s; }
   .ft-search-box input::placeholder { color: #555; }
-  .ft-search-box input:focus { border-color: #39FF14; background: rgba(57,255,20,0.03); width: 260px; }
+  .ft-search-box input:focus { border-color: #39FF14; background: rgba(57,255,20,0.03); }
   .ft-search-x { position: absolute; right: 10px; background: none; border: none; color: #666; cursor: pointer; font-size: 12px; }
   .ft-search-mob { display: none; width: 42px; height: 42px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #888; cursor: pointer; align-items: center; justify-content: center; }
   .ft-mob-search { padding: 12px 32px 16px; border-top: 1px solid rgba(255,255,255,0.05); }

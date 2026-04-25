@@ -82,7 +82,9 @@ export default function CartPage() {
             {/* Lista de productos */}
             <div className="lg:col-span-2">
               <div className="space-y-4">
-                {cart.items.map((item) => (
+                {cart.items.map((item) => {
+                  console.log('[CartPage] Item:', item)
+                  return (
                   <div
                     key={item.productoId}
                     className="flex gap-4 rounded-2xl bg-white/[0.03] p-4 ring-1 ring-white/[0.06] transition-all hover:bg-white/[0.05]"
@@ -94,6 +96,7 @@ export default function CartPage() {
                           src={item.imagen}
                           alt={item.nombre}
                           className="h-full w-full object-cover"
+                          onError={(e) => console.error('[CartPage] Error cargando imagen:', item.imagen)}
                         />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center">
@@ -154,7 +157,7 @@ export default function CartPage() {
                       </div>
                     </div>
                   </div>
-                ))}
+                )})}
               </div>
             </div>
 

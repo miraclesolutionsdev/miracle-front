@@ -75,7 +75,13 @@ export default function CheckoutModal({ producto, cantidad: cantidadSimple, prod
   const isMultiple = !!productos
   const items = isMultiple
     ? productos
-    : [{ productoId: producto.id, cantidad: cantidadSimple, nombre: producto.nombre, precio: producto.precio, tipo: producto.tipo }]
+    : [{
+        productoId: producto._id || producto.id,
+        cantidad: cantidadSimple,
+        nombre: producto.nombre,
+        precio: Number(producto.precio),
+        tipo: producto.tipo
+      }]
 
   const total = items.reduce((sum, item) => sum + item.precio * item.cantidad, 0)
   const tieneProductosFisicos = items.some((item) => item.tipo === 'producto')
@@ -123,7 +129,7 @@ export default function CheckoutModal({ producto, cantidad: cantidadSimple, prod
       } else {
         // Modo single: enviar producto único (backward compatible)
         const payload = {
-          productoId: producto.id,
+          productoId: producto._id || producto.id,
           cantidad: cantidadSimple,
           ...datos,
         }
@@ -131,9 +137,9 @@ export default function CheckoutModal({ producto, cantidad: cantidadSimple, prod
         init_point = response.init_point
       }
 
-      // Limpiar carrito si es compra múltiple
+      // Guardar el carrito en sessionStorage para limpiarlo después del pago exitoso
       if (isMultiple) {
-        clearCart()
+        sessionStorage.setItem('miracle_pending_cart_clear', 'true')
       }
 
       // Redirigir a MercadoPago

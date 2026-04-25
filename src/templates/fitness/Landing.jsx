@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
-import { ArrowLeft, Check, ShieldCheck, Zap, Star, ChevronLeft, ChevronRight, CreditCard, Package } from 'lucide-react'
+import { ArrowLeft, Check, ShieldCheck, Zap, Star, ChevronLeft, ChevronRight, CreditCard, Package, ShoppingCart } from 'lucide-react'
 import ImageLightbox from '../../components/ImageLightbox.jsx'
+import MiniCart from '../../components/MiniCart'
 import { getProductoImagenSrc } from '../../utils/api'
 
 const fmt = (v) => `$${(Number(v) || 0).toLocaleString('es-CO')}`
@@ -62,7 +63,7 @@ function Gallery({ producto }) {
   )
 }
 
-export default function FitnessLanding({ producto, cantidad, setCantidad, maxCantidad, sinStock, stockBajo, onWhatsApp, onComprar, navigateBack }) {
+export default function FitnessLanding({ producto, cantidad, setCantidad, maxCantidad, sinStock, stockBajo, onWhatsApp, onAddToCart, onComprar, isInCart, navigateBack }) {
   const isProducto = producto.tipo === 'producto'
   const hasDesc = !!producto.descripcion
   const hasCaract = producto.caracteristicas?.length > 0
@@ -80,6 +81,7 @@ export default function FitnessLanding({ producto, cantidad, setCantidad, maxCan
           </button>
           <div className="ftl-nav-line" />
           <span className="ftl-nav-name">{producto.nombre}</span>
+          <MiniCart position="header" theme="fitness" />
         </nav>
 
         {/* ── SHOWCASE: Gallery centered + floating purchase panel ── */}
@@ -129,6 +131,9 @@ export default function FitnessLanding({ producto, cantidad, setCantidad, maxCan
                 <div className="ftl-cmd-btns">
                   <button type="button" onClick={onComprar} disabled={sinStock} className="ftl-btn-buy">
                     <CreditCard size={16} /> COMPRAR AHORA
+                  </button>
+                  <button type="button" onClick={onAddToCart} disabled={sinStock} className={`ftl-btn-cart ${isInCart ? 'ftl-btn-cart-active' : ''}`}>
+                    <ShoppingCart size={16} /> {isInCart ? 'EN CARRITO' : 'AL CARRITO'}
                   </button>
                 </div>
                 <button type="button" onClick={onWhatsApp} className="ftl-btn-wa-full">
@@ -236,6 +241,7 @@ const CSS = `
     border-bottom: 1px solid rgba(57,255,20,0.08);
     display: flex; align-items: center; gap: 16px;
     padding: 0 32px; height: 56px;
+    max-width: 1400px; margin: 0 auto;
   }
   .ftl-nav-back {
     display: flex; align-items: center; gap: 6px;
@@ -474,6 +480,30 @@ const CSS = `
     display: flex; align-items: center; justify-content: center;
   }
   .ftl-cmd-btns { display: flex; gap: 0; align-items: stretch; }
+  .ftl-btn-cart {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 0 24px; height: 48px; flex: 1;
+    background: transparent;
+    border: 2px solid #39FF14;
+    color: #39FF14;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px; font-weight: 700; letter-spacing: 0.1em;
+    cursor: pointer; transition: all 0.2s;
+    white-space: nowrap;
+    text-transform: uppercase;
+  }
+  .ftl-btn-cart:hover:not(:disabled) {
+    background: rgba(57, 255, 20, 0.1);
+    transform: translateY(-1px);
+  }
+  .ftl-btn-cart:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+  .ftl-btn-cart-active {
+    background: #39FF14;
+    color: #0A0A0A;
+  }
+  .ftl-btn-cart-active:hover:not(:disabled) {
+    background: #2ee610;
+  }
   .ftl-btn-buy {
     display: flex; align-items: center; justify-content: center; gap: 8px;
     padding: 0 24px; height: 48px; flex: 1;

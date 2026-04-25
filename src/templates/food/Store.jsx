@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import useStoreData from '../useStoreData'
 import { fmt, getInitials, navigateToProduct, getProductoImagenSrc } from '../templateUtils'
+import MiniCart from '../../components/MiniCart'
 
 function SkeletonCard() {
   return (
@@ -97,6 +98,7 @@ export default function FoodStore({ slug: slugProp }) {
       <div className="fd-root">
         {/* HEADER */}
         <header className="fd-header">
+          <MiniCart position="header" />
           <div className="fd-header-inner">
             <div className="fd-brand">
               <span className="fd-brand-icon">🛒</span>
@@ -215,14 +217,14 @@ const CSS = `
   .fd-results-bar strong { color: #FF6B00; }
 
   /* GRID */
-  .fd-main { max-width: 1200px; margin: 0 auto; padding: 24px 24px 80px; }
-  .fd-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .fd-main { max-width: 1400px; margin: 0 auto; padding: 24px 24px 80px; }
+  .fd-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 
   /* CARD */
   .fd-card { background: #FFFFFF; border-radius: 16px; cursor: pointer; outline: none; user-select: none; text-align: left; overflow: hidden; transition: all 0.3s ease; animation: fdCardIn 0.4s ease both; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
   .fd-card:hover { transform: translateY(-4px); box-shadow: 0 12px 36px rgba(255,107,0,0.1); }
   @keyframes fdCardIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-  .fd-card-img { position: relative; padding-bottom: 90%; overflow: hidden; background: #FFF5ED; }
+  .fd-card-img { position: relative; padding-bottom: 95%; overflow: hidden; background: #FFF5ED; }
   .fd-card-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.5s cubic-bezier(.25,.8,.25,1); }
   .fd-card-no-img { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Quicksand', sans-serif; font-size: 36px; font-weight: 700; color: #F0E0D0; }
   .fd-arr { position: absolute; top: 50%; transform: translateY(-50%); width: 30px; height: 30px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; color: #2D2218; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 5; box-shadow: 0 2px 8px rgba(0,0,0,0.1); line-height: 1; padding: 0; }
@@ -240,7 +242,7 @@ const CSS = `
 
   /* SKELETON */
   .fd-sk { background: #fff; border-radius: 16px; overflow: hidden; animation: fdCardIn 0.4s ease both; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
-  .fd-sk-img { padding-bottom: 90%; }
+  .fd-sk-img { padding-bottom: 95%; }
   .fd-sk-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
   .fd-sk-line { height: 14px; border-radius: 8px; }
   .fd-sk-lg { width: 75%; }

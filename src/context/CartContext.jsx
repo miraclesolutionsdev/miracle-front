@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
-import { getTenantSlug } from '../utils/api'
+import { getTenantSlug, getProductoImagenSrc } from '../utils/api'
 
 const CartContext = createContext(null)
 
@@ -73,6 +73,13 @@ export function CartProvider({ children }) {
       } else {
         // Agregar nuevo producto
         const maxCantidad = producto.tipo === 'producto' ? producto.stock : 999
+        const imagenUrl = getProductoImagenSrc(producto, 0)
+        console.log('[CartContext] Agregando producto:', {
+          id: producto.id,
+          nombre: producto.nombre,
+          imagenes: producto.imagenes,
+          imagenUrl
+        })
         newItems = [
           ...prev.items,
           {
@@ -80,7 +87,7 @@ export function CartProvider({ children }) {
             nombre: producto.nombre,
             precio: producto.precio,
             cantidad: Math.min(cantidad, maxCantidad),
-            imagen: producto.imagenes?.[0] || null,
+            imagen: imagenUrl,
             tipo: producto.tipo,
             stock: producto.stock || 0,
             maxCantidad,

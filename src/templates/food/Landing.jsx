@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { ArrowLeft, Check, ShieldCheck, Zap, ChevronLeft, ChevronRight, CreditCard, Package } from 'lucide-react'
+import { ArrowLeft, Check, ShieldCheck, Zap, ChevronLeft, ChevronRight, CreditCard, Package, ShoppingCart } from 'lucide-react'
 import ImageLightbox from '../../components/ImageLightbox.jsx'
 import { getProductoImagenSrc } from '../../utils/api'
 
@@ -37,7 +37,7 @@ function Gallery({ producto }) {
   )
 }
 
-export default function FoodLanding({ producto, cantidad, setCantidad, maxCantidad, sinStock, stockBajo, onWhatsApp, onComprar, navigateBack }) {
+export default function FoodLanding({ producto, cantidad, setCantidad, maxCantidad, sinStock, stockBajo, onWhatsApp, onAddToCart, isInCart, onComprar, navigateBack }) {
   return (
     <>
       <style>{CSS}</style>
@@ -86,6 +86,9 @@ export default function FoodLanding({ producto, cantidad, setCantidad, maxCantid
                 )}
 
                 {/* Big CTA */}
+                <button type="button" onClick={onAddToCart} disabled={sinStock} className="fd-btn-cart" style={{ background: isInCart ? '#22c55e' : '#666', color: '#fff' }}>
+                  <ShoppingCart size={16} /> {isInCart ? 'En el carrito' : 'Agregar al carrito'}
+                </button>
                 <button type="button" onClick={onComprar} disabled={sinStock} className="fdl-btn-order">
                   <CreditCard size={16} />
                   {sinStock ? 'No disponible' : 'Ordenar ahora'}
@@ -136,8 +139,8 @@ const CSS = `
   .fdl-back { width: 36px; height: 36px; border-radius: 50%; border: none; background: #FFF5ED; color: #FF6B00; cursor: pointer; display: flex; align-items: center; justify-content: center; }
   .fdl-nav-title { font-family: 'Quicksand', sans-serif; font-size: 14px; font-weight: 700; color: #2D2218; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px; }
 
-  .fdl-content { max-width: 1200px; margin: 0 auto; padding: 24px 24px 60px; }
-  .fdl-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; align-items: start; }
+  .fdl-content { max-width: 1100px; margin: 0 auto; padding: 24px 24px 60px; }
+  .fdl-grid { display: grid; grid-template-columns: 1.3fr 0.95fr; gap: 56px; align-items: start; }
 
   /* GALLERY */
   .fdl-gal { position: sticky; top: 72px; }
@@ -169,6 +172,9 @@ const CSS = `
   .fdl-total { font-family: 'Quicksand', sans-serif; font-size: 18px; font-weight: 700; color: #FF6B00; }
 
   /* CTAs */
+  .fd-btn-cart { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 24px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; width: 100%; border-radius: 14px; font-family: 'Nunito', sans-serif; margin-bottom: 10px; }
+  .fd-btn-cart:hover { opacity: 0.9; }
+  .fd-btn-cart:disabled { opacity: 0.5; cursor: not-allowed; }
   .fdl-btn-order { width: 100%; padding: 14px; background: #FF6B00; color: #fff; border: none; border-radius: 14px; font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s; margin-bottom: 10px; }
   .fdl-btn-order:hover { background: #E85E00; }
   .fdl-btn-order:disabled { background: #E0D0C0; color: #A09080; cursor: default; }

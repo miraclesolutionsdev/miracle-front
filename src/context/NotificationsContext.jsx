@@ -97,8 +97,18 @@ export function NotificationsProvider({ children }) {
     } catch { /* noop */ }
   }, [])
 
+  // ─── Alerts simples (toast-style) ───────────────────────────────────────────
+  const alertSuccess = useCallback((message) => {
+    // Simple console log por ahora, se puede mejorar con un toast real
+    console.log('[Success]', message)
+  }, [])
+
+  const alertError = useCallback((message) => {
+    console.error('[Error]', message)
+  }, [])
+
   return (
-    <NotificationsContext.Provider value={{ notifications, unreadCount, markAllRead, markOneRead }}>
+    <NotificationsContext.Provider value={{ notifications, unreadCount, markAllRead, markOneRead, alertSuccess, alertError }}>
       {children}
     </NotificationsContext.Provider>
   )

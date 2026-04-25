@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import useStoreData from '../useStoreData'
 import { fmt, getInitials, navigateToProduct, getProductoImagenSrc } from '../templateUtils'
+import MiniCart from '../../components/MiniCart'
 
 function SkeletonCard() {
   return (
@@ -99,6 +100,7 @@ export default function MinimalStore({ slug: slugProp }) {
       <div className="mn-root">
         {/* HEADER — just logo centered */}
         <header className="mn-header">
+          <MiniCart position="header" />
           <span className="mn-logo">{tenantNombre || 'Store'}</span>
         </header>
 
@@ -173,14 +175,14 @@ const CSS = `
   .mn-subtitle { font-size: 12px; font-weight: 300; color: #B0B0B0; margin-top: 16px; letter-spacing: 0.06em; }
 
   /* GRID */
-  .mn-main { max-width: 1100px; margin: 0 auto; padding: 48px 40px 100px; }
-  .mn-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+  .mn-main { max-width: 1400px; margin: 0 auto; padding: 48px 40px 100px; }
+  .mn-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 
   /* CARD */
   .mn-card { cursor: pointer; outline: none; user-select: none; text-align: center; animation: mnFadeIn 0.6s ease both; transition: transform 0.4s ease; }
   .mn-card:hover { transform: translateY(-6px); }
   @keyframes mnFadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-  .mn-card-img { position: relative; padding-bottom: 120%; overflow: hidden; background: #FFFFFF; border-radius: 20px; box-shadow: 0 4px 24px rgba(0,0,0,0.04); transition: box-shadow 0.4s; }
+  .mn-card-img { position: relative; padding-bottom: 95%; overflow: hidden; background: #FFFFFF; border-radius: 20px; box-shadow: 0 4px 24px rgba(0,0,0,0.04); transition: box-shadow 0.4s; }
   .mn-card:hover .mn-card-img { box-shadow: 0 12px 48px rgba(0,0,0,0.08); }
   .mn-card-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.6s cubic-bezier(.25,.8,.25,1); border-radius: 20px; }
   .mn-card-no-img { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: 200; color: #E0E0E0; border-radius: 20px; }
@@ -199,7 +201,7 @@ const CSS = `
 
   /* SKELETON */
   .mn-sk { animation: mnFadeIn 0.4s ease both; }
-  .mn-sk-img { padding-bottom: 120%; border-radius: 20px; }
+  .mn-sk-img { padding-bottom: 95%; border-radius: 20px; }
   .mn-sk-body { padding: 20px 8px 0; display: flex; flex-direction: column; align-items: center; gap: 8px; }
   .mn-sk-line { height: 12px; border-radius: 6px; }
   .mn-sk-lg { width: 60%; }

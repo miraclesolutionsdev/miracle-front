@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import useStoreData from '../useStoreData'
 import { fmt, getInitials, navigateToProduct, getProductoImagenSrc } from '../templateUtils'
+import MiniCart from '../../components/MiniCart'
 
 function SkeletonCard() {
   return (
@@ -112,6 +113,7 @@ export default function ModernStore({ slug: slugProp }) {
 
         {/* NAV */}
         <nav className="md-nav">
+          <MiniCart position="header" />
           <div className="md-nav-inner">
             <div className="md-logo">
               <span className="md-logo-name">{tenantNombre || 'Store'}</span>
@@ -239,19 +241,19 @@ const CSS = `
   .md-pill { font-size: 12px; font-weight: 500; color: #71717A; background: #F4F4F5; padding: 4px 12px; border-radius: 6px; }
 
   /* MAIN */
-  .md-main { max-width: 1300px; margin: 0 auto; padding: 24px 24px 80px; }
+  .md-main { max-width: 1400px; margin: 0 auto; padding: 24px 24px 80px; }
   .md-filters-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
   .md-showing { font-size: 13px; color: #71717A; }
   .md-showing strong { color: #18181B; font-weight: 600; }
   .md-showing em { font-style: normal; color: #4F46E5; }
-  .md-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .md-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 
   /* CARD */
   .md-card { background: #FFFFFF; border-radius: 12px; cursor: pointer; outline: none; user-select: none; text-align: left; overflow: hidden; border: 1px solid #E4E4E7; transition: all 0.25s ease; animation: mdCardIn 0.4s ease both; }
   .md-card:hover { border-color: #4F46E5; box-shadow: 0 8px 32px rgba(79,70,229,0.08); transform: translateY(-2px); }
   .md-card:focus-visible { outline: 2px solid #4F46E5; outline-offset: 2px; }
   @keyframes mdCardIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-  .md-card-img { position: relative; padding-bottom: 115%; overflow: hidden; background: #FAFAFA; }
+  .md-card-img { position: relative; padding-bottom: 95%; overflow: hidden; background: #FAFAFA; }
   .md-card-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.5s cubic-bezier(.25,.8,.25,1); }
   .md-card-no-img { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Archivo', sans-serif; font-size: 40px; font-weight: 800; color: #E4E4E7; }
   .md-card-quickview { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #fff; background: #4F46E5; padding: 8px 18px; border-radius: 8px; transition: all 0.25s; z-index: 3; white-space: nowrap; box-shadow: 0 4px 16px rgba(79,70,229,0.3); }
@@ -273,7 +275,7 @@ const CSS = `
 
   /* SKELETON */
   .md-sk { background: #fff; border-radius: 12px; border: 1px solid #E4E4E7; overflow: hidden; animation: mdCardIn 0.4s ease both; }
-  .md-sk-img { padding-bottom: 115%; }
+  .md-sk-img { padding-bottom: 95%; }
   .md-sk-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
   .md-sk-line { height: 14px; border-radius: 6px; }
   .md-sk-lg { width: 70%; }

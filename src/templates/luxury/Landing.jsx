@@ -165,8 +165,8 @@ const CSS = `
   .lxl-nav-crumb { font-size: 12px; color: #8A8480; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px; }
 
   /* CONTENT */
-  .lxl-content { max-width: 1360px; margin: 0 auto; padding: 40px 40px 60px; }
-  .lxl-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 60px; align-items: start; }
+  .lxl-content { max-width: 1100px; margin: 0 auto; padding: 40px 40px 60px; }
+  .lxl-grid { display: grid; grid-template-columns: 1.3fr 0.95fr; gap: 56px; align-items: start; }
 
   /* GALLERY - Desktop horizontal layout with left thumbnails */
   .lxl-gal { display: flex; flex-direction: row; gap: 12px; position: sticky; top: 76px; }

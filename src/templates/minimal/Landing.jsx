@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { ArrowLeft, Check, ShieldCheck, Zap, ChevronLeft, ChevronRight, CreditCard, Package } from 'lucide-react'
+import { ArrowLeft, Check, ShieldCheck, Zap, ChevronLeft, ChevronRight, CreditCard, Package, ShoppingCart } from 'lucide-react'
 import ImageLightbox from '../../components/ImageLightbox.jsx'
 import { getProductoImagenSrc } from '../../utils/api'
 
@@ -46,7 +46,7 @@ function Gallery({ producto }) {
   )
 }
 
-export default function MinimalLanding({ producto, cantidad, setCantidad, maxCantidad, sinStock, stockBajo, onWhatsApp, onComprar, navigateBack }) {
+export default function MinimalLanding({ producto, cantidad, setCantidad, maxCantidad, sinStock, stockBajo, onWhatsApp, onAddToCart, isInCart, onComprar, navigateBack }) {
   return (
     <>
       <style>{CSS}</style>
@@ -90,6 +90,9 @@ export default function MinimalLanding({ producto, cantidad, setCantidad, maxCan
 
             {/* CTAs */}
             <div className="mnl-ctas">
+              <button type="button" onClick={onAddToCart} disabled={sinStock} className="mnl-btn-cart" style={{ background: isInCart ? '#22c55e' : '#666', color: '#fff' }}>
+                <ShoppingCart size={16} /> {isInCart ? 'En el carrito' : 'Agregar al carrito'}
+              </button>
               <button type="button" onClick={onComprar} disabled={sinStock} className="mnl-btn-buy">
                 Comprar
               </button>
@@ -137,7 +140,7 @@ const CSS = `
   .mnl-back { display: inline-flex; align-items: center; gap: 6px; font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 300; color: #999; background: none; border: none; cursor: pointer; transition: color 0.2s; }
   .mnl-back:hover { color: #1A1A1A; }
 
-  .mnl-content { max-width: 680px; margin: 0 auto; padding: 0 24px 80px; text-align: center; }
+  .mnl-content { max-width: 1100px; margin: 0 auto; padding: 0 24px 80px; text-align: center; }
 
   /* GALLERY */
   .mnl-gal { margin-bottom: 40px; }
@@ -169,6 +172,9 @@ const CSS = `
 
   /* CTAs */
   .mnl-ctas { display: flex; gap: 10px; justify-content: center; margin: 24px 0 32px; flex-wrap: wrap; }
+  .mnl-btn-cart { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 24px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; border-radius: 50px; font-family: 'Sora', sans-serif; letter-spacing: 0.02em; }
+  .mnl-btn-cart:hover { opacity: 0.9; }
+  .mnl-btn-cart:disabled { opacity: 0.5; cursor: not-allowed; }
   .mnl-btn-buy { padding: 14px 40px; background: #1A1A1A; color: #fff; border: none; border-radius: 50px; font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; letter-spacing: 0.02em; }
   .mnl-btn-buy:hover { background: #333; }
   .mnl-btn-buy:disabled { background: #E0E0E0; color: #B0B0B0; cursor: default; }
