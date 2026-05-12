@@ -3,7 +3,7 @@ import { alertError, alertSuccess } from '../utils/alerts'
 import { productosApi } from '../utils/api'
 import { useProductos } from '../context/ProductosContext'
 
-const TIPOS = ['servicio', 'producto']
+const TIPOS = ['producto']
 const ESTADOS = ['activo', 'inactivo']
 
 function ProductoForm({ producto, onGuardar, onCancelar }) {
@@ -13,11 +13,13 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
     nombre: '',
     descripcion: '',
     precio: '',
-    tipo: 'servicio',
+    tipo: 'producto',
     estado: 'activo',
     archivosImagen: [],
     usosTexto: '',
     caracteristicasTexto: '',
+    especificacionesTexto: '',
+    incluyeTexto: '',
     stock: '',
     whatsapp: '',
     categoria: '',
@@ -70,13 +72,13 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
         nombre: producto.nombre ?? '',
         descripcion: producto.descripcion ?? '',
         precio: producto.precio ?? '',
-        tipo: producto.tipo ?? 'servicio',
+        tipo: producto.tipo ?? 'producto',
         estado: producto.estado ?? 'activo',
         archivosImagen: [],
         usosTexto: Array.isArray(producto.usos) ? producto.usos.join('\n') : '',
-        caracteristicasTexto: Array.isArray(producto.caracteristicas)
-          ? producto.caracteristicas.join('\n')
-          : '',
+        caracteristicasTexto: Array.isArray(producto.caracteristicas) ? producto.caracteristicas.join('\n') : '',
+        especificacionesTexto: Array.isArray(producto.especificaciones) ? producto.especificaciones.join('\n') : '',
+        incluyeTexto: Array.isArray(producto.incluye) ? producto.incluye.join('\n') : '',
         stock: producto.stock != null ? String(producto.stock) : '',
         whatsapp: producto.whatsapp ?? '',
         categoria: producto.categoria ?? '',
@@ -92,11 +94,13 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
         nombre: '',
         descripcion: '',
         precio: '',
-        tipo: 'servicio',
+        tipo: 'producto',
         estado: 'activo',
         archivosImagen: [],
         usosTexto: '',
         caracteristicasTexto: '',
+        especificacionesTexto: '',
+        incluyeTexto: '',
         stock: '',
         categoria: '',
         subcategoria: '',
@@ -111,6 +115,8 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
 
   const usos = form.usosTexto.split('\n').map((s) => s.trim()).filter(Boolean)
   const caracteristicas = form.caracteristicasTexto.split('\n').map((s) => s.trim()).filter(Boolean)
+  const especificaciones = form.especificacionesTexto.split('\n').map((s) => s.trim()).filter(Boolean)
+  const incluye = form.incluyeTexto.split('\n').map((s) => s.trim()).filter(Boolean)
   const imagenesExistentes = Array.isArray(producto?.imagenes) ? producto.imagenes : []
 
   const handleSubmit = (e) => {
@@ -133,6 +139,8 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
       formData.append('subcategoria', form.subcategoria || '')
       formData.append('usos', JSON.stringify(usos))
       formData.append('caracteristicas', JSON.stringify(caracteristicas))
+      formData.append('especificaciones', JSON.stringify(especificaciones))
+      formData.append('incluye', JSON.stringify(incluye))
       form.archivosImagen.forEach((file) => formData.append('imagenes', file))
       const payload = { formData }
       if (esEdicion) payload.id = producto.id
@@ -146,6 +154,8 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
         stock: form.tipo === 'producto' ? (Number(form.stock) || 0) : 0,
         usos,
         caracteristicas,
+        especificaciones,
+        incluye,
         imagenes: imagenesExistentes,
       }
       if (esEdicion) payload.id = producto.id
@@ -185,7 +195,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
             <label className="mb-1 block text-sm font-medium text-muted-foreground">
-              Nombre del producto/servicio
+              Nombre del producto
             </label>
             <input
               type="text"
@@ -211,7 +221,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
               onFocus={() => setShowCatSuggestions(true)}
               onBlur={() => setTimeout(() => setShowCatSuggestions(false), 150)}
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
-              placeholder="Ej. Orales, Inyectables, Camisetas..."
+              placeholder="Categoría del producto"
             />
             {showCatSuggestions && catSuggestions.length > 0 && (
               <div className="absolute z-10 mt-1 w-full rounded-lg border border-border bg-card shadow-lg max-h-40 overflow-auto">
@@ -251,7 +261,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
               onFocus={() => setShowSubcatSuggestions(true)}
               onBlur={() => setTimeout(() => setShowSubcatSuggestions(false), 150)}
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
-              placeholder="Ej. 100mg, 250mg, 10ml..."
+              placeholder="Subcategoría del producto"
             />
             {showSubcatSuggestions && subcatSuggestions.length > 0 && (
               <div className="absolute z-10 mt-1 w-full rounded-lg border border-border bg-card shadow-lg max-h-40 overflow-auto">
@@ -292,7 +302,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
           </div>
           <div>
             <label className="mb-1 block text-sm font-medium text-muted-foreground">
-              Usos del producto/servicio
+              Usos del producto
             </label>
             <textarea
               value={form.usosTexto}
@@ -320,6 +330,36 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
           </div>
           <div>
             <label className="mb-1 block text-sm font-medium text-muted-foreground">
+              Especificaciones técnicas
+            </label>
+            <p className="mb-1 text-xs text-muted-foreground/70">Una por línea. Formato sugerido: Clave: Valor</p>
+            <textarea
+              value={form.especificacionesTexto}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, especificacionesTexto: e.target.value }))
+              }
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-card-foreground min-h-32"
+              rows={5}
+              placeholder="Material: Acero inoxidable&#10;Peso: 19g&#10;Temperatura: 150°C - 230°C"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-muted-foreground">
+              ¿Qué incluye?
+            </label>
+            <p className="mb-1 text-xs text-muted-foreground/70">Un ítem por línea</p>
+            <textarea
+              value={form.incluyeTexto}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, incluyeTexto: e.target.value }))
+              }
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-card-foreground min-h-28"
+              rows={4}
+              placeholder="Dispositivo M7 XL&#10;Estuche metálico&#10;Encendedor Dynatorch"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-muted-foreground">
               Precio del distribuidor (COP)
             </label>
             <button
@@ -333,60 +373,38 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
               <span className="text-muted-foreground text-sm">⚙️ Configurar</span>
             </button>
           </div>
-          {form.tipo === 'producto' && (
-            <div>
-              <label className="mb-1 block text-sm font-medium text-muted-foreground">
-                Stock disponible
-              </label>
-              <input
-                type="number"
-                min={0}
-                value={form.stock}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, stock: e.target.value }))
-                }
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
-                placeholder="Ej. 10"
-              />
-            </div>
-          )} 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="mb-1 block text-sm font-medium text-muted-foreground">
-                Tipo
-              </label>
-              <select
-                value={form.tipo}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, tipo: e.target.value }))
-                }
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
-              >
-                {TIPOS.map((t) => (
-                  <option key={t} value={t}>
-                    {t === 'servicio' ? 'Servicio' : 'Producto'}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium text-muted-foreground">
-                Estado
-              </label>
-              <select
-                value={form.estado}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, estado: e.target.value }))
-                }
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
-              >
-                {ESTADOS.map((s) => (
-                  <option key={s} value={s}>
-                    {s === 'activo' ? 'Activo' : 'Inactivo'}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-muted-foreground">
+              Stock disponible
+            </label>
+            <input
+              type="number"
+              min={0}
+              value={form.stock}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, stock: e.target.value }))
+              }
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
+              placeholder="Ej. 10"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-muted-foreground">
+              Estado
+            </label>
+            <select
+              value={form.estado}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, estado: e.target.value }))
+              }
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
+            >
+              {ESTADOS.map((s) => (
+                <option key={s} value={s}>
+                  {s === 'activo' ? 'Activo' : 'Inactivo'}
+                </option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="mb-1 block text-sm font-medium text-muted-foreground">

@@ -21,6 +21,14 @@ const THEME_STYLES = {
     badgeText: 'text-red-600',
     iconColor: 'text-white',
   },
+  exclusive: {
+    floating: 'fixed bottom-6 right-6 z-50 rounded-sm bg-[#3d4f3a] px-5 py-3 shadow-xl hover:bg-[#2c3a29] transition-all',
+    header: 'rounded-sm px-3 py-2 hover:bg-[#f0ede6] transition-all',
+    textColor: 'text-white',
+    badgeBg: 'bg-[#3d4f3a]',
+    badgeText: 'text-white',
+    iconColor: 'text-[#2c3028]',
+  },
 }
 
 export default function MiniCart({ position = 'floating', theme }) {

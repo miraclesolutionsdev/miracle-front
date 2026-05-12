@@ -54,6 +54,8 @@ export function ProductosProvider({ children }) {
       stock: payload.stock ?? 0,
       usos: Array.isArray(payload.usos) ? payload.usos : [],
       caracteristicas: Array.isArray(payload.caracteristicas) ? payload.caracteristicas : [],
+      especificaciones: Array.isArray(payload.especificaciones) ? payload.especificaciones : [],
+      incluye: Array.isArray(payload.incluye) ? payload.incluye : [],
     }
 
     if (payload.id) {

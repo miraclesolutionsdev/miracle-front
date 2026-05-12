@@ -3,12 +3,14 @@ import FitnessStore from './fitness/Store'
 import MinimalStore from './minimal/Store'
 import FoodStore from './food/Store'
 import ModernStore from './modern/Store'
+import ExclusiveStore from './exclusive/Store'
 
 import LuxuryLanding from './luxury/Landing'
 import FitnessLanding from './fitness/Landing'
 import MinimalLanding from './minimal/Landing'
 import FoodLanding from './food/Landing'
 import ModernLanding from './modern/Landing'
+import ExclusiveLanding from './exclusive/Landing'
 
 const STORES = {
   luxury: LuxuryStore,
@@ -16,6 +18,7 @@ const STORES = {
   minimal: MinimalStore,
   food: FoodStore,
   modern: ModernStore,
+  exclusive: ExclusiveStore,
 }
 
 const LANDINGS = {
@@ -24,6 +27,7 @@ const LANDINGS = {
   minimal: MinimalLanding,
   food: FoodLanding,
   modern: ModernLanding,
+  exclusive: ExclusiveLanding,
 }
 
 export function getStoreTemplate(name) {
@@ -40,4 +44,5 @@ export const TEMPLATE_LIST = [
   { id: 'minimal', nombre: 'Minimal', descripcion: 'Limpio y sofisticado — ideal para tecnología, diseño, arte', preview: '✨' },
   { id: 'food', nombre: 'Food', descripcion: 'Cálido y apetitoso — ideal para restaurantes, delivery, comida', preview: '🍕' },
   { id: 'modern', nombre: 'Modern', descripcion: 'Versátil y funcional — ideal para cualquier tipo de negocio', preview: '🛍️' },
+  { id: 'exclusive', nombre: 'Exclusive', descripcion: 'Luxury minimalista — blanco hueso, sage y gold para marcas premium', preview: '🌿' },
 ]

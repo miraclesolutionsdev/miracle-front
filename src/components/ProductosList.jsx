@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import SectionCard from './SectionCard'
 import { getProductoImagenSrc } from '../utils/api'
 import { useAuth } from '../context/AuthContext'
+import { downloadTemplate, PRODUCTOS_PLANTILLA_HEADERS } from '../utils/excel'
 
 const COLUMNAS = [
   'Stock',
@@ -57,13 +58,22 @@ function ProductosList({
           </button>
         )}
         {onImportExcel && (
-          <button
-            type="button"
-            onClick={handleImportClick}
-            className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50"
-          >
-            Importar Excel
-          </button>
+          <>
+            <button
+              type="button"
+              onClick={() => downloadTemplate(PRODUCTOS_PLANTILLA_HEADERS, 'plantilla_productos')}
+              className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50"
+            >
+              Descargar Plantilla
+            </button>
+            <button
+              type="button"
+              onClick={handleImportClick}
+              className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50"
+            >
+              Importar Excel
+            </button>
+          </>
         )}
         <button
           type="button"

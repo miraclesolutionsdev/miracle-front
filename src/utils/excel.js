@@ -16,6 +16,35 @@ export function exportToExcel(headers, rows, fileName = 'export') {
   XLSX.writeFile(wb, `${fileName}.xlsx`)
 }
 
+export const CLIENTES_PLANTILLA_HEADERS = [
+  'Nombre/Empresa',
+  'Cédula/NIT',
+  'Email',
+  'WhatsApp',
+  'Dirección',
+  'Ciudad/Barrio',
+]
+
+export const PRODUCTOS_PLANTILLA_HEADERS = [
+  'Nombre',
+  'Descripción',
+  'Precio',
+  'Tipo',
+  'Estado',
+  'Stock',
+  'Categoría',
+  'Subcategoría',
+  'Usos',
+  'Características',
+]
+
+export function downloadTemplate(headers, fileName) {
+  const ws = XLSX.utils.aoa_to_sheet([headers])
+  const wb = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(wb, ws, 'Datos')
+  XLSX.writeFile(wb, `${fileName}.xlsx`)
+}
+
 /**
  * Lee un archivo y devuelve la primera hoja como array de filas (incluye cabecera)
  * Soporta: .xlsx, .xls y .csv
@@ -189,7 +218,7 @@ export function validarFilasClientes(rows) {
 
 export const CLIENTES_HEADERS = [
   'ID',
-  'Nombre Empresa',
+  'Nombre/Empresa',
   'Cédula/NIT',
   'Email',
   'WhatsApp',
