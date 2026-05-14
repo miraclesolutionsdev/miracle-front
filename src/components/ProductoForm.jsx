@@ -3,7 +3,6 @@ import { alertError, alertSuccess } from '../utils/alerts'
 import { productosApi } from '../utils/api'
 import { useProductos } from '../context/ProductosContext'
 
-const TIPOS = ['producto']
 const ESTADOS = ['activo', 'inactivo']
 
 function ProductoForm({ producto, onGuardar, onCancelar }) {
@@ -21,7 +20,6 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
     especificacionesTexto: '',
     incluyeTexto: '',
     stock: '',
-    whatsapp: '',
     categoria: '',
     subcategoria: '',
   })
@@ -80,7 +78,6 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
         especificacionesTexto: Array.isArray(producto.especificaciones) ? producto.especificaciones.join('\n') : '',
         incluyeTexto: Array.isArray(producto.incluye) ? producto.incluye.join('\n') : '',
         stock: producto.stock != null ? String(producto.stock) : '',
-        whatsapp: producto.whatsapp ?? '',
         categoria: producto.categoria ?? '',
         subcategoria: producto.subcategoria ?? '',
       })
@@ -130,11 +127,10 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
       formData.append('precio', String(form.precio).replace(/\D/g, '') || '0')
       formData.append('precioDistribuidor', String(Number(precioConfig.precioDistribuidor) || 0))
       formData.append('aumentoPrecio', String(Number(precioConfig.aumentoPrecio) || 0))
-      formData.append('utilidad', String(Number(precioConfig.utilidad) || 30))
+      formData.append('utilidad', String(Number.isNaN(Number(precioConfig.utilidad)) ? 30 : Number(precioConfig.utilidad)))
       formData.append('tipo', form.tipo)
       formData.append('estado', form.estado)
       formData.append('stock', form.tipo === 'producto' ? String(Number(form.stock) || 0) : '0')
-      formData.append('whatsapp', form.whatsapp || '')
       formData.append('categoria', form.categoria || '')
       formData.append('subcategoria', form.subcategoria || '')
       formData.append('usos', JSON.stringify(usos))
@@ -150,7 +146,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
         ...form,
         precioDistribuidor: Number(precioConfig.precioDistribuidor) || 0,
         aumentoPrecio: Number(precioConfig.aumentoPrecio) || 0,
-        utilidad: Number(precioConfig.utilidad) || 30,
+        utilidad: Number.isNaN(Number(precioConfig.utilidad)) ? 30 : Number(precioConfig.utilidad),
         stock: form.tipo === 'producto' ? (Number(form.stock) || 0) : 0,
         usos,
         caracteristicas,
@@ -340,7 +336,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
               }
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-card-foreground min-h-32"
               rows={5}
-              placeholder="Material: Acero inoxidable&#10;Peso: 19g&#10;Temperatura: 150°C - 230°C"
+              placeholder="Una especificación por línea..."
             />
           </div>
           <div>
@@ -355,7 +351,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
               }
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-card-foreground min-h-28"
               rows={4}
-              placeholder="Dispositivo M7 XL&#10;Estuche metálico&#10;Encendedor Dynatorch"
+              placeholder="Un ítem por línea..."
             />
           </div>
           <div>
@@ -567,7 +563,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
                       ).toLocaleString('es-CO')}
                     </span>
                   </div>
-                  {precioConfig.utilidad && (
+                  {precioConfig.utilidad !== '' && (
                     <>
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">
@@ -625,7 +621,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
                     const payload = {
                       precioDistribuidor: Number(precioConfig.precioDistribuidor) || 0,
                       aumentoPrecio: Number(precioConfig.aumentoPrecio) || 0,
-                      utilidad: Number(precioConfig.utilidad) || 30,
+                      utilidad: Number.isNaN(Number(precioConfig.utilidad)) ? 30 : Number(precioConfig.utilidad),
                     }
                     const productoActualizado = await productosApi.actualizarPrecio(producto.id, payload)
 

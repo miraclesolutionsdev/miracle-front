@@ -294,33 +294,35 @@ const CSS = `
 
   /* NAV */
   .exl-nav { position: sticky; top: 0; z-index: 40; background: rgba(255,255,255,0.98); backdrop-filter: blur(16px); border-bottom: 0.5px solid #e0dbd0; }
-  .exl-nav-inner { max-width: 1280px; margin: 0 auto; padding: 0 2.5rem; height: 56px; display: flex; align-items: center; gap: 10px; }
-  .exl-nav-back { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: #2c3028; background: none; border: none; cursor: pointer; padding: 6px 0; letter-spacing: 0.04em; transition: opacity 0.15s; font-family: 'Inter', sans-serif; }
+  .exl-nav-inner { max-width: 1280px; margin: 0 auto; padding: 0 2.5rem; height: 56px; display: flex; align-items: center; gap: 10px; min-width: 0; overflow: hidden; }
+  .exl-nav-back { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: #2c3028; background: none; border: none; cursor: pointer; padding: 6px 0; letter-spacing: 0.04em; transition: opacity 0.15s; font-family: 'Inter', sans-serif; white-space: nowrap; flex-shrink: 0; min-height: 44px; }
   .exl-nav-back:hover { opacity: 0.6; }
-  .exl-nav-sep { color: #e0dbd0; font-size: 12px; }
-  .exl-nav-crumb { font-size: 12px; color: #7a8275; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 400px; }
+  .exl-nav-sep { color: #e0dbd0; font-size: 12px; flex-shrink: 0; }
+  .exl-nav-crumb { font-size: 12px; color: #7a8275; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 400px; min-width: 0; flex: 1; }
 
   /* TOP SECTION */
   .exl-content { max-width: 1280px; margin: 0 auto; padding: 2.5rem 2.5rem 2rem; }
   .exl-grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 4rem; align-items: start; }
 
-  /* GALLERY */
-  .exl-col-gal {}
-  .exl-gal { display: flex; flex-direction: row; gap: 10px; }
-  .exl-gal-empty { aspect-ratio: 4/5; max-height: 440px; background: #ede9e1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; width: 100%; border-radius: 2px; }
+  /* GALLERY — mobile-first */
+  .exl-col-gal { width: 100%; min-width: 0; }
+  /* Mobile: imagen arriba, thumbnails abajo en fila */
+  .exl-gal { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+  .exl-gal-empty { aspect-ratio: 1/1; background: #ede9e1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; width: 100%; border-radius: 2px; }
   .exl-gal-empty span { font-size: 11px; color: #7a8275; letter-spacing: 0.08em; }
-  .exl-gal-main { position: relative; overflow: hidden; cursor: zoom-in; background: #f7f5f0; aspect-ratio: 4/5; max-height: 440px; flex: 1; min-width: 0; border-radius: 2px; }
+  .exl-gal-main { position: relative; overflow: hidden; cursor: zoom-in; background: #f7f5f0; aspect-ratio: 1/1; width: 100%; border-radius: 2px; }
   .exl-gal-strip { display: flex; transition: transform 0.5s cubic-bezier(.4,0,.2,1); height: 100%; }
   .exl-gal-img { width: 100%; height: 100%; object-fit: contain; display: block; transition: transform 0.6s ease; }
-  .exl-gal-arr { position: absolute; top: 50%; transform: translateY(-50%); width: 34px; height: 34px; background: rgba(255,255,255,0.92); border: 0.5px solid #e0dbd0; color: #2c3028; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 5; transition: all 0.15s; border-radius: 2px; }
+  .exl-gal-arr { position: absolute; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; background: rgba(255,255,255,0.92); border: 0.5px solid #e0dbd0; color: #2c3028; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 5; transition: all 0.15s; border-radius: 2px; }
   .exl-gal-arr:hover { background: #fff; border-color: #3d4f3a; }
   .exl-gal-arr-l { left: 10px; }
   .exl-gal-arr-r { right: 10px; }
   .exl-gal-dots { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 4px; z-index: 5; }
-  .exl-gal-dot { height: 4px; border: none; padding: 0; cursor: pointer; transition: all 0.22s; border-radius: 2px; }
-  .exl-gal-thumbs { display: flex; flex-direction: column; gap: 8px; max-width: 76px; max-height: 440px; overflow-y: auto; flex-shrink: 0; order: -1; scrollbar-width: none; }
+  .exl-gal-dot { height: 5px; border: none; padding: 0; cursor: pointer; transition: all 0.22s; border-radius: 2px; min-width: 5px; }
+  /* Thumbnails: fila horizontal por defecto (mobile) */
+  .exl-gal-thumbs { display: flex; flex-direction: row; gap: 6px; width: 100%; overflow-x: auto; overflow-y: visible; scrollbar-width: none; padding-bottom: 2px; }
   .exl-gal-thumbs::-webkit-scrollbar { display: none; }
-  .exl-gal-thumb { width: 76px; height: 76px; cursor: pointer; border: none; padding: 0; background: #ede9e1; transition: opacity 0.18s; overflow: hidden; flex-shrink: 0; border-radius: 2px; }
+  .exl-gal-thumb { width: 56px; height: 56px; flex-shrink: 0; cursor: pointer; border: none; padding: 0; background: #ede9e1; transition: opacity 0.18s; overflow: hidden; border-radius: 2px; }
 
   /* BUY PANEL — sticky */
   .exl-col-buy {}
@@ -407,23 +409,108 @@ const CSS = `
   .exl-footer { text-align: center; padding: 1.4rem 24px; border-top: 0.5px solid #e0dbd0; background: #ffffff; }
   .exl-footer p { font-size: 11px; color: #7a8275; letter-spacing: 0.06em; }
 
-  /* RESPONSIVE */
+  /* DESKTOP — galería con thumbs verticales a la izquierda */
+  @media (min-width: 1024px) {
+    .exl-gal { flex-direction: row; gap: 10px; }
+    .exl-gal-main { aspect-ratio: 4/5; max-height: 480px; flex: 1; }
+    .exl-gal-thumbs { flex-direction: column; width: 76px; max-width: 76px; max-height: 480px; overflow-y: auto; overflow-x: visible; order: -1; gap: 8px; }
+    .exl-gal-thumb { width: 76px; height: 76px; }
+  }
+
+  /* TABLET — 1 columna, galería apilada */
   @media (max-width: 1023px) {
-    .exl-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .exl-grid { grid-template-columns: 1fr; gap: 1.5rem; }
     .exl-buy-sticky { position: static; }
-    .exl-gal { flex-direction: column-reverse; }
-    .exl-gal-thumbs { flex-direction: row; max-width: 100%; overflow-x: auto; padding-bottom: 4px; }
-    .exl-gal-thumbs::-webkit-scrollbar { height: 4px; }
-    .exl-gal-thumbs::-webkit-scrollbar-thumb { background: #e0dbd0; border-radius: 2px; }
-    .exl-gal-thumb { width: 62px; height: 62px; }
-    .exl-content { padding: 1.5rem 1.5rem 1.5rem; }
+    .exl-content { padding: 1.2rem 1.5rem; }
     .exl-nav-inner { padding: 0 1.5rem; }
+    .exl-nav-crumb { max-width: 220px; }
     .exl-detail-inner { padding: 0 1.5rem 2.5rem; }
     .exl-tab-grid-2 { grid-template-columns: 1fr; }
     .exl-tab-kit { grid-template-columns: 1fr 1fr; }
+    .exl-title { font-size: clamp(20px, 5vw, 28px); }
+    .exl-gal-main { aspect-ratio: 4/3; }
+    .exl-gal-thumb { width: 62px; height: 62px; }
   }
-  @media (max-width: 480px) {
+
+  /* MOBILE — layout compacto, aprovecha el ancho */
+  @media (max-width: 640px) {
+    .exl-root { overflow-x: hidden; }
+
+    /* Nav */
+    .exl-nav-inner { padding: 0 1rem; gap: 6px; height: 48px; }
+    .exl-nav-crumb { max-width: calc(100vw - 130px); font-size: 11px; }
+    .exl-nav-back { font-size: 11px; gap: 4px; }
+
+    /* Layout: sin padding lateral excesivo */
+    .exl-content { padding: 0; }
+    .exl-grid { gap: 0; }
+    .exl-col-gal { width: 100%; }
+
+    /* Gallery: full-width sin padding lateral */
+    .exl-gal { gap: 0; }
+    .exl-gal-main { aspect-ratio: 1/1; width: 100%; border-radius: 0; }
+    .exl-gal-thumbs { padding: 8px 12px; gap: 6px; background: #f7f5f0; border-bottom: 0.5px solid #e0dbd0; }
+    .exl-gal-thumb { width: 52px; height: 52px; }
+    .exl-gal-arr { width: 32px; height: 32px; }
+
+    /* Panel compra: padding lateral cómodo */
+    .exl-col-buy { padding: 0; }
+    .exl-buy-sticky { padding: 1.2rem 1rem 1.4rem; }
+
+    /* Tags + título: compactos */
+    .exl-tags { margin-bottom: 8px; }
+    .exl-title { font-size: clamp(17px, 5.5vw, 22px); margin-bottom: 0; line-height: 1.25; }
+
+    /* Precio + cantidad: en una fila para aprovechar el ancho */
+    .exl-price-section { flex-direction: row; justify-content: space-between; align-items: center; background: none; border: none; border-top: 0.5px solid #e0dbd0; border-bottom: 0.5px solid #e0dbd0; padding: 0.9rem 0; margin: 0.9rem 0; border-radius: 0; }
+    .exl-price { font-size: 24px; }
+
+    /* Qty: inline con label a la izquierda */
+    .exl-qty { background: none; border: none; padding: 0; margin-bottom: 1rem; border-radius: 0; display: flex; align-items: center; justify-content: space-between; }
+    .exl-qty-lbl { margin-bottom: 0; font-size: 11px; }
+    .exl-qty-ctrl { border: 0.5px solid #e0dbd0; }
+    .exl-qty-btn { width: 44px; height: 44px; font-size: 20px; }
+    .exl-qty-val { width: 44px; height: 44px; }
+    .exl-qty-total { margin-top: 8px; padding-top: 8px; }
+
+    /* CTAs: full width, bien altos */
+    .exl-ctas { gap: 8px; margin-bottom: 1rem; }
+    .exl-btn-cart, .exl-btn-mp, .exl-btn-wa { padding: 15px 16px; min-height: 52px; font-size: 12px; border-radius: 2px; }
+
+    /* Trust: distribuir en fila */
+    .exl-trust { justify-content: space-between; gap: 4px; margin-bottom: 0.8rem; }
+    .exl-trust-item { font-size: 10px; flex-direction: column; align-items: center; text-align: center; gap: 4px; flex: 1; }
+
+    /* Pay note: compacto */
+    .exl-pay-note { padding: 8px 12px; }
+    .exl-pay-note p { font-size: 10.5px; }
+
+    /* Tabs */
+    .exl-detail-inner { padding: 0 1rem 2rem; }
+    .exl-tab-btn { padding: 0.85rem 0.9rem; font-size: 10px; letter-spacing: 0.07em; }
+    .exl-tab-content { padding: 1.2rem 0; }
+    .exl-tab-p { font-size: 13px; }
     .exl-tab-kit { grid-template-columns: 1fr; }
-    .exl-tab-btn { padding: 1rem 1rem; font-size: 10px; }
+    .exl-specs { max-width: 100%; }
+    .exl-spec-row { grid-template-columns: 1fr 1.2fr; padding: 8px 10px; }
+    .exl-spec-key { font-size: 11px; }
+    .exl-spec-val { font-size: 11px; }
+    .exl-tab-grid-2 { gap: 8px 0; }
+  }
+
+  /* SMALL MOBILE (< 400px) */
+  @media (max-width: 400px) {
+    .exl-nav-crumb { max-width: calc(100vw - 110px); }
+    .exl-buy-sticky { padding: 1rem 0.85rem 1.2rem; }
+    .exl-price { font-size: 21px; }
+    .exl-gal-thumb { width: 44px; height: 44px; }
+    .exl-tab-btn { padding: 0.75rem 0.7rem; font-size: 9.5px; }
+    .exl-spec-row { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .exl-gal-strip { transition: none !important; }
+    .exl-gal-img { transition: none !important; }
   }
 `

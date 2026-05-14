@@ -36,6 +36,8 @@ export const PRODUCTOS_PLANTILLA_HEADERS = [
   'Subcategoría',
   'Usos',
   'Características',
+  'Especificaciones',
+  'Incluye',
 ]
 
 export function downloadTemplate(headers, fileName) {
@@ -300,6 +302,8 @@ export const PRODUCTOS_HEADERS = [
   'Imágenes',
   'Usos',
   'Características',
+  'Especificaciones',
+  'Incluye',
 ]
 
 /** Índices y nombres para validación de productos (mismo orden que PRODUCTOS_HEADERS) */
@@ -379,6 +383,8 @@ export function productosToRows(productos) {
     Array.isArray(p.imagenes) ? p.imagenes.join(SEP) : '',
     Array.isArray(p.usos) ? p.usos.join(SEP) : '',
     Array.isArray(p.caracteristicas) ? p.caracteristicas.join(SEP) : '',
+    Array.isArray(p.especificaciones) ? p.especificaciones.join(SEP) : '',
+    Array.isArray(p.incluye) ? p.incluye.join(SEP) : '',
   ])
 }
 
@@ -391,6 +397,8 @@ export function rowsToProductos(rows) {
       const imagenes = String(row[9] ?? '').trim()
       const usos = String(row[10] ?? '').trim()
       const caracteristicas = String(row[11] ?? '').trim()
+      const especificaciones = String(row[12] ?? '').trim()
+      const incluye = String(row[13] ?? '').trim()
       return {
         id: row[0] ? String(row[0]).trim() : undefined,
         nombre: String(row[1] ?? '').trim(),
@@ -404,6 +412,8 @@ export function rowsToProductos(rows) {
         imagenes: imagenes ? imagenes.split(SEP).map((s) => s.trim()).filter(Boolean) : [],
         usos: usos ? usos.split(SEP).map((s) => s.trim()).filter(Boolean) : [],
         caracteristicas: caracteristicas ? caracteristicas.split(SEP).map((s) => s.trim()).filter(Boolean) : [],
+        especificaciones: especificaciones ? especificaciones.split(SEP).map((s) => s.trim()).filter(Boolean) : [],
+        incluye: incluye ? incluye.split(SEP).map((s) => s.trim()).filter(Boolean) : [],
       }
     })
 }
