@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(frontend-design:frontend-design)",
+      "Skill(frontend-design:frontend-design:*)",
+      "Skill(frontend-design:ui-ux-pro-max)",
+      "Skill(frontend-design:ui-ux-pro-max:*)"
+    ]
+  }
+}

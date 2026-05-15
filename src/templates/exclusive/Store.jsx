@@ -1,4 +1,5 @@
 import { useState, useRef, useMemo, useEffect } from 'react'
+import { useLocation, useNavigate as useRRNavigate } from 'react-router-dom'
 import useStoreData from '../useStoreData'
 import { fmt, getInitials, navigateToProduct, getProductoImagenSrc } from '../templateUtils'
 import MiniCart from '../../components/MiniCart'
@@ -16,10 +17,16 @@ function SkeletonCard() {
   )
 }
 
-function ProductCard({ p, index, slug, featured = false }) {
+function ProductCard({ p, index, slug, featured = false, cat = '' }) {
+  const navigate = useRRNavigate()
   const [hov, setHov] = useState(false)
   const [imgIdx, setImgIdx] = useState(0)
   const touchX = useRef(null)
+
+  const goToProduct = () => {
+    const base = slug ? `/${slug}/tienda/${p.id}` : `/${p.id}`
+    navigate(cat ? `${base}?from=${encodeURIComponent(cat)}` : base)
+  }
   const total = Math.max(p.imagenes?.length || 1, 1)
   const src = getProductoImagenSrc(p, imgIdx)
   const isProducto = p.tipo === 'producto'
@@ -40,8 +47,8 @@ function ProductCard({ p, index, slug, featured = false }) {
     <article
       role="button" tabIndex={0}
       onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
-      onClick={() => navigateToProduct(p.id, slug)}
-      onKeyDown={(e) => e.key === 'Enter' && navigateToProduct(p.id, slug)}
+      onClick={goToProduct}
+      onKeyDown={(e) => e.key === 'Enter' && goToProduct()}
       className={`ex-pc${featured ? ' ex-pc-featured' : ''}`}
       style={{ animationDelay: `${Math.min(index * 60, 480)}ms`, opacity: sinStock ? 0.55 : 1 }}
     >
@@ -109,43 +116,6 @@ function ProductCard({ p, index, slug, featured = false }) {
   )
 }
 
-function HeroProduct({ producto, slug }) {
-  const [hov, setHov] = useState(false)
-  const src = getProductoImagenSrc(producto, 0)
-  const sinStock = producto.stock != null && producto.stock <= 0
-
-  return (
-    <div
-      className="ex-hero-product"
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
-      onClick={() => navigateToProduct(producto.id, slug)}
-      style={{ cursor: 'pointer' }}
-    >
-      <div className="ex-hero-product-img-wrap">
-        {src ? (
-          <img
-            src={src}
-            alt={producto.nombre}
-            className="ex-hero-product-img"
-            style={{ transform: hov ? 'scale(1.05)' : 'scale(1)' }}
-          />
-        ) : (
-          <div className="ex-hero-product-placeholder">{getInitials(producto.nombre)}</div>
-        )}
-        <div className="ex-hero-product-label">
-          <span className="ex-hero-product-tag">Nuevo</span>
-        </div>
-      </div>
-      <div className="ex-hero-product-info">
-        <p className="ex-hero-product-name">{producto.nombre}</p>
-        {producto.precio != null && (
-          <p className="ex-hero-product-price">{fmt(producto.precio)}</p>
-        )}
-      </div>
-    </div>
-  )
-}
 
 // ─── WHY US SECTION ─────────────────────────────────────────────────────────
 const WHY_ITEMS = [
@@ -581,29 +551,22 @@ function CatalogView({ catLabel, productos, slug, loading, onBack }) {
 
   return (
     <main className="cv-root">
-      {/* Category hero header */}
+      {/* Compact catalog band — breadcrumb + title + count + sort in one row */}
       <div className="cv-header">
-        <button type="button" className="cv-back" onClick={onBack} aria-label="Volver">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M9 2L4 7l5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          Volver
-        </button>
-        <div className="cv-header-body">
-          <p className="cv-header-kicker">Categoría</p>
-          <h1 className="cv-header-title">{catLabel}</h1>
-          <p className="cv-header-count">
-            {loading ? '—' : `${sorted.length} producto${sorted.length !== 1 ? 's' : ''}`}
-          </p>
-        </div>
-      </div>
-
-      {/* Sort / filter bar */}
-      <div className="cv-toolbar">
-        <div className="cv-toolbar-inner">
-          <span className="cv-toolbar-label">
-            {loading ? 'Cargando…' : `${sorted.length} resultado${sorted.length !== 1 ? 's' : ''}`}
-          </span>
+        <div className="cv-header-inner">
+          {/* Left: back nav + title */}
+          <div className="cv-header-left">
+            <button type="button" className="cv-back" onClick={onBack} aria-label="Volver a la tienda">
+              <svg width="10" height="10" viewBox="0 0 12 12" fill="none" aria-hidden>
+                <path d="M8 2L4 6l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Tienda
+            </button>
+            <span className="cv-header-sep">/</span>
+            <h1 className="cv-header-title">{catLabel || 'Resultados'}</h1>
+            {!loading && <span className="cv-header-badge">{sorted.length}</span>}
+          </div>
+          {/* Right: sort */}
           <div className="cv-sort-wrap">
             <button
               type="button"
@@ -611,8 +574,11 @@ function CatalogView({ catLabel, productos, slug, loading, onBack }) {
               onClick={() => setSortOpen((v) => !v)}
               aria-expanded={sortOpen}
             >
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden style={{ opacity: 0.6 }}>
+                <path d="M1 3h10M3 6h6M5 9h2" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+              </svg>
               <span>{sortLabel}</span>
-              <svg width="10" height="10" viewBox="0 0 10 10" fill="none"
+              <svg width="9" height="9" viewBox="0 0 10 10" fill="none"
                 style={{ transform: sortOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
                 <path d="M2 3.5l3 3 3-3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
@@ -654,6 +620,7 @@ function CatalogView({ catLabel, productos, slug, loading, onBack }) {
                 p={p}
                 index={i}
                 slug={slug}
+                cat={catLabel}
               />
             ))}
           </div>
@@ -664,17 +631,36 @@ function CatalogView({ catLabel, productos, slug, loading, onBack }) {
 }
 // ────────────────────────────────────────────────────────────────────────────
 
+// ExclusiveStore v2
 export default function ExclusiveStore({ slug: slugProp }) {
   const {
     slug, productosFiltrados, tenantNombre, loading,
     busqueda, setBusqueda, searchOpen, setSearchOpen, mobileInputRef,
-    totalProductos, enStock, productos,
-    categorias, categoriaActiva, setCategoriaActiva,
+    productos,
+    categorias, setCategoriaActiva,
   } = useStoreData(slugProp)
 
+  const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
   const [view, setView] = useState('landing') // 'landing' | 'catalog'
   const [activeCatLabel, setActiveCatLabel] = useState('')
+
+  // Read ?q= param on mount (redirect from Landing search)
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    const q = params.get('q')
+    const cat = params.get('cat')
+    if (q) {
+      setBusqueda(q)
+      setSearchOpen(true)
+      setView('catalog')
+      setActiveCatLabel('')
+    } else if (cat) {
+      setCategoriaActiva(cat)
+      setActiveCatLabel(cat)
+      setView('catalog')
+    }
+  }, [location.search])
 
   const handleNavCat = (label) => {
     // Map nav label → categoria value in store data (case-insensitive match)
@@ -709,11 +695,6 @@ export default function ExclusiveStore({ slug: slugProp }) {
     const shuffled = [...pool].sort((a, b) => a.id > b.id ? 1 : -1)
     return shuffled.slice(0, Math.min(3, shuffled.length))
   }, [productos])
-
-  const firstHero = heroProducts[0] || null
-
-  // Featured product: primero con imagen en catálogo filtrado
-  const featuredIdx = productosFiltrados.findIndex((p) => p.imagenes?.length > 0)
 
   return (
     <>
@@ -1185,21 +1166,19 @@ const CSS = `
   .cv-root { background: var(--ex-bone); min-height: 60vh; }
   .cv-root .ex-grid { background: transparent; }
 
-  .cv-header { background: var(--ex-white); border-bottom: 0.5px solid var(--ex-bone-border); padding: 2.4rem 2.5rem 2rem; position: relative; }
-  .cv-back { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ex-ink-soft); background: none; border: none; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 500; padding: 0; margin-bottom: 1.4rem; transition: color 0.15s; }
-  .cv-back:hover { color: var(--ex-sage); }
-  .cv-header-body { max-width: 1200px; margin: 0 auto; }
-  .cv-header-kicker { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ex-sage-mid); font-family: 'Inter', sans-serif; font-weight: 500; margin-bottom: 6px; }
-  .cv-header-title { font-family: 'Playfair Display', serif; font-size: clamp(32px, 5vw, 52px); font-weight: 400; color: var(--ex-ink); line-height: 1.1; margin-bottom: 8px; }
-  .cv-header-count { font-size: 12px; color: var(--ex-ink-soft); font-family: 'Inter', sans-serif; letter-spacing: 0.04em; }
+  /* Compact catalog band */
+  .cv-header { background: var(--ex-sage); border-bottom: 0.5px solid rgba(247,245,240,0.1); position: sticky; top: 52px; z-index: 30; }
+  .cv-header-inner { max-width: 1280px; margin: 0 auto; padding: 0 2.5rem; height: 52px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .cv-header-left { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; }
+  .cv-back { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(247,245,240,0.55); background: none; border: none; cursor: pointer; font-family: 'Inter', sans-serif; padding: 0; min-height: 44px; white-space: nowrap; transition: color 0.15s; flex-shrink: 0; }
+  .cv-back:hover { color: rgba(247,245,240,0.9); }
+  .cv-header-sep { color: rgba(247,245,240,0.2); font-size: 12px; flex-shrink: 0; }
+  .cv-header-title { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 400; font-style: italic; color: rgba(247,245,240,0.95); line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0; }
+  .cv-header-badge { display: inline-flex; align-items: center; font-size: 10px; font-weight: 600; color: rgba(184,154,90,0.8); font-family: 'Inter', sans-serif; background: rgba(184,154,90,0.12); border: 1px solid rgba(184,154,90,0.22); padding: 2px 8px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; letter-spacing: 0.04em; }
 
-  .cv-toolbar { background: var(--ex-white); border-bottom: 0.5px solid var(--ex-bone-border); position: sticky; top: 52px; z-index: 30; }
-  .cv-toolbar-inner { max-width: 1200px; margin: 0 auto; padding: 0 2.5rem; height: 46px; display: flex; align-items: center; justify-content: space-between; }
-  .cv-toolbar-label { font-size: 11.5px; color: var(--ex-ink-soft); font-family: 'Inter', sans-serif; letter-spacing: 0.04em; }
-
-  .cv-sort-wrap { position: relative; }
-  .cv-sort-btn { display: inline-flex; align-items: center; gap: 7px; font-size: 11.5px; letter-spacing: 0.06em; color: var(--ex-ink-mid); background: none; border: 0.5px solid var(--ex-bone-border); padding: 6px 12px; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 500; transition: border-color 0.15s, color 0.15s; }
-  .cv-sort-btn:hover { border-color: var(--ex-ink-soft); color: var(--ex-ink); }
+  .cv-sort-wrap { position: relative; flex-shrink: 0; }
+  .cv-sort-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; letter-spacing: 0.07em; color: rgba(247,245,240,0.65); background: rgba(247,245,240,0.07); border: 0.5px solid rgba(247,245,240,0.18); padding: 6px 11px; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 500; transition: background 0.15s, color 0.15s, border-color 0.15s; border-radius: 2px; min-height: 32px; }
+  .cv-sort-btn:hover { background: rgba(247,245,240,0.13); color: rgba(247,245,240,0.95); border-color: rgba(247,245,240,0.3); }
   .cv-sort-dropdown { position: absolute; top: calc(100% + 4px); right: 0; background: var(--ex-white); border: 0.5px solid var(--ex-bone-border); min-width: 200px; z-index: 50; box-shadow: 0 8px 24px rgba(44,48,40,0.08); }
   .cv-sort-option { display: block; width: 100%; text-align: left; padding: 10px 16px; font-size: 12px; color: var(--ex-ink-mid); background: none; border: none; cursor: pointer; font-family: 'Inter', sans-serif; letter-spacing: 0.04em; transition: background 0.12s, color 0.12s; }
   .cv-sort-option:hover { background: var(--ex-bone); color: var(--ex-ink); }
@@ -1208,8 +1187,7 @@ const CSS = `
   .cv-grid-wrap { max-width: 1200px; margin: 0 auto; padding: 2.5rem 2.5rem 5rem; background: var(--ex-bone); }
 
   @media (max-width: 768px) {
-    .cv-header { padding: 1.8rem 1.5rem 1.4rem; }
-    .cv-toolbar-inner { padding: 0 1.5rem; }
+    .cv-header-inner { padding: 0 1.5rem; }
     .cv-grid-wrap { padding: 1.5rem 1.5rem 4rem; }
   }
 
@@ -1308,11 +1286,8 @@ const CSS = `
     .ex-nav-inner { padding: 0 1.2rem; }
 
     /* Catalog header */
-    .cv-header { padding: 1.4rem 1.2rem 1.2rem; }
-    .cv-back { min-height: 44px; display: flex; align-items: center; }
-    .cv-header-title { font-size: clamp(26px, 8vw, 38px); }
-    .cv-toolbar-inner { padding: 0 1.2rem; height: 50px; }
-    .cv-toolbar-label { font-size: 11px; }
+    .cv-header-inner { padding: 0 1.2rem; }
+    .cv-back { min-height: 44px; }
     .cv-sort-dropdown { min-width: 180px; }
     .cv-grid-wrap { padding: 1.2rem 1.2rem 4rem; }
 
@@ -1362,8 +1337,8 @@ const CSS = `
     .wu-item-desc { font-size: 12.5px; }
 
     /* CatalogView header más compacto */
-    .cv-header { padding: 1.2rem 1.2rem 1rem; }
-    .cv-back { margin-bottom: 0.8rem; }
+    .cv-header-title { font-size: 15px; }
+    .cv-sort-btn { font-size: 10px; }
 
     /* Footer: solo logo */
     .ex-footer-inner { gap: 4px; }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import { useProductos } from '../context/ProductosContext.jsx'
 import { useCart } from '../context/CartContext.jsx'
 import { useNotifications } from '../context/NotificationsContext.jsx'
@@ -23,6 +23,7 @@ function LandingProductoPage({ defaultSlug } = {}) {
   const { addToCart, isInCart } = useCart()
   const { alertSuccess } = useNotifications()
   const navigate = useNavigate()
+  const location = useLocation()
   const { findProductoById } = useProductos()
 
   const [producto, setProducto] = useState(null)
@@ -106,10 +107,15 @@ function LandingProductoPage({ defaultSlug } = {}) {
   }
 
   const navigateBack = () => {
-    if (window.history.length > 1) {
+    const params = new URLSearchParams(location.search)
+    const fromCat = params.get('from')
+    const storeBase = isCustomDomain() || defaultSlug ? '/' : (tenantSlug ? `/${tenantSlug}/tienda` : '/')
+    if (fromCat) {
+      navigate(`${storeBase}?cat=${encodeURIComponent(fromCat)}`)
+    } else if (window.history.length > 1) {
       navigate(-1)
     } else {
-      navigate(isCustomDomain() || defaultSlug ? '/' : (tenantSlug ? `/${tenantSlug}/tienda` : '/'))
+      navigate(storeBase)
     }
   }
 
