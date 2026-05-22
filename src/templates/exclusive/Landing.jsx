@@ -220,8 +220,6 @@ export default function ExclusiveLanding({ producto, cantidad, setCantidad, maxC
                 <button type="button" onClick={navigateBack} className="exl-nav-back">
                   <ArrowLeft size={12} /> Tienda
                 </button>
-                <span className="exl-nav-sep">/</span>
-                <span className="exl-nav-crumb">{producto.nombre}</span>
 
                 <button type="button" onClick={handleHomeClick} className="exl-nav-logo-btn" aria-label={`Ir a ${tenantNombre || 'la tienda'}`}>
                   <span className="exl-nav-logo-name">{tenantNombre || 'STORE'}</span>
