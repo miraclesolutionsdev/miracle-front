@@ -81,17 +81,26 @@ export default function useStoreData(slugProp) {
   const productosFiltrados = useMemo(() => {
     let lista = productos.filter((p) => p.tipo === 'producto')
     if (categoriaActiva) {
-      lista = lista.filter((p) => p.categoria === categoriaActiva)
+      if (categoriaActiva.toLowerCase() === 'ofertas') {
+        lista = lista.filter((p) => p.descuento > 0)
+      } else {
+        lista = lista.filter((p) => p.categoria === categoriaActiva)
+      }
     }
     if (subcategoriaActiva) {
       lista = lista.filter((p) => p.subcategoria === subcategoriaActiva)
     }
     if (busqueda.trim()) {
       const q = busqueda.toLowerCase()
-      lista = lista.filter((p) =>
-        (p.nombre || '').toLowerCase().includes(q) ||
-        (p.descripcion || '').toLowerCase().includes(q)
-      )
+      lista = lista.filter((p) => {
+        if ((p.nombre || '').toLowerCase().includes(q)) return true
+        if ((p.descripcion || '').toLowerCase().includes(q)) return true
+        if ((p.categoria || '').toLowerCase().includes(q)) return true
+        if ((p.subcategoria || '').toLowerCase().includes(q)) return true
+        if (Array.isArray(p.caracteristicas) && p.caracteristicas.some((c) => c.toLowerCase().includes(q))) return true
+        if (Array.isArray(p.especificaciones) && p.especificaciones.some((e) => e.toLowerCase().includes(q))) return true
+        return false
+      })
     }
     return lista
   }, [productos, busqueda, categoriaActiva, subcategoriaActiva])

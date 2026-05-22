@@ -179,7 +179,7 @@ function InfoTabs({ producto }) {
   )
 }
 
-export default function ExclusiveLanding({ producto, cantidad, setCantidad, maxCantidad, sinStock, stockBajo, onWhatsApp, onAddToCart, onComprar, isInCart, navigateBack, tenantSlug }) {
+export default function ExclusiveLanding({ producto, cantidad, setCantidad, maxCantidad, sinStock, stockBajo, onWhatsApp, onAddToCart, onComprar, isInCart, navigateBack, tenantSlug, tenantNombre }) {
   const navigate = useNavigate()
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -203,6 +203,11 @@ export default function ExclusiveLanding({ producto, cantidad, setCantidad, maxC
     navigate(tenantSlug ? `/${tenantSlug}/carrito` : '/carrito')
   }
 
+  const handleHomeClick = () => {
+    const base = tenantSlug ? `/${tenantSlug}/tienda` : '/'
+    navigate(base)
+  }
+
   return (
     <>
       <style>{CSS}</style>
@@ -217,6 +222,12 @@ export default function ExclusiveLanding({ producto, cantidad, setCantidad, maxC
                 </button>
                 <span className="exl-nav-sep">/</span>
                 <span className="exl-nav-crumb">{producto.nombre}</span>
+
+                <button type="button" onClick={handleHomeClick} className="exl-nav-logo-btn" aria-label={`Ir a ${tenantNombre || 'la tienda'}`}>
+                  <span className="exl-nav-logo-name">{tenantNombre || 'STORE'}</span>
+                  <span className="exl-nav-logo-tag">Tienda oficial</span>
+                </button>
+
                 <div className="exl-nav-actions">
                   <button type="button" className="exl-nav-icon-btn" aria-label="Buscar" onClick={() => setSearchOpen(true)}>
                     <Search size={16} />
@@ -455,11 +466,18 @@ const CSS = `
 
   /* ── NAV ── */
   .exl-nav { position: sticky; top: 0; z-index: 40; background: var(--sage); border-bottom: 1px solid rgba(0,0,0,0.12); }
-  .exl-nav-inner { max-width: 1280px; margin: 0 auto; padding: 0 2.5rem; height: 56px; display: flex; align-items: center; gap: 10px; min-width: 0; overflow: hidden; }
+  .exl-nav-inner { max-width: 1280px; margin: 0 auto; padding: 0 2.5rem; height: 56px; display: flex; align-items: center; gap: 10px; min-width: 0; overflow: hidden; position: relative; }
   .exl-nav-back { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: rgba(247,245,240,0.9); background: none; border: none; cursor: pointer; padding: 6px 0; letter-spacing: 0.05em; transition: opacity 0.15s; font-family: 'Inter', sans-serif; white-space: nowrap; flex-shrink: 0; min-height: 44px; text-transform: uppercase; }
   .exl-nav-back:hover { opacity: 0.65; }
   .exl-nav-sep { color: rgba(247,245,240,0.3); font-size: 12px; flex-shrink: 0; }
-  .exl-nav-crumb { font-size: 12px; color: rgba(247,245,240,0.65); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1; font-style: italic; font-family: 'Playfair Display', serif; }
+  .exl-nav-crumb { font-size: 12px; color: rgba(247,245,240,0.65); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; max-width: 200px; font-style: italic; font-family: 'Playfair Display', serif; }
+
+  /* Logo central — posicionado absolutamente para no empujar el breadcrumb */
+  .exl-nav-logo-btn { position: absolute; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 2px; background: none; border: none; cursor: pointer; padding: 6px 12px; min-height: 44px; justify-content: center; transition: opacity 0.18s; }
+  .exl-nav-logo-btn:hover { opacity: 0.75; }
+  .exl-nav-logo-name { font-size: 13px; letter-spacing: 0.26em; text-transform: uppercase; color: rgba(247,245,240,0.95); font-weight: 700; line-height: 1; font-family: 'Inter', sans-serif; white-space: nowrap; }
+  .exl-nav-logo-tag { font-size: 7px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(247,245,240,0.45); font-weight: 400; font-family: 'Inter', sans-serif; white-space: nowrap; }
+
   .exl-nav-actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; margin-left: auto; }
   .exl-nav-icon-btn { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: rgba(247,245,240,0.1); border: none; cursor: pointer; color: rgba(247,245,240,0.85); transition: background 0.15s; position: relative; }
   .exl-nav-icon-btn:hover { background: rgba(247,245,240,0.22); }
@@ -661,7 +679,8 @@ const CSS = `
     .exl-buy-sticky { position: static; }
     .exl-content { padding: 1.5rem 1.5rem; }
     .exl-nav-inner { padding: 0 1.5rem; }
-    .exl-nav-crumb { max-width: 220px; }
+    .exl-nav-crumb { max-width: 180px; }
+    .exl-nav-logo-name { font-size: 12px; letter-spacing: 0.2em; }
     .exl-detail-inner { padding: 0 1.5rem 2.5rem; }
     .exl-tab-grid-2 { grid-template-columns: 1fr; }
     .exl-tab-kit { grid-template-columns: 1fr 1fr; }
@@ -676,8 +695,10 @@ const CSS = `
   @media (max-width: 640px) {
     .exl-root { overflow-x: hidden; }
     .exl-nav-inner { padding: 0 1rem; gap: 6px; height: 50px; }
-    .exl-nav-crumb { max-width: calc(100vw - 140px); font-size: 11px; }
+    .exl-nav-crumb { max-width: calc(100vw - 200px); font-size: 11px; }
     .exl-nav-back { font-size: 11px; gap: 4px; }
+    .exl-nav-logo-tag { display: none; }
+    .exl-nav-logo-name { font-size: 11px; letter-spacing: 0.18em; }
 
     .exl-content { padding: 0; }
     .exl-grid { gap: 0; }
@@ -738,7 +759,9 @@ const CSS = `
 
   /* ── SMALL MOBILE ── */
   @media (max-width: 400px) {
-    .exl-nav-crumb { max-width: calc(100vw - 110px); }
+    .exl-nav-crumb { display: none; }
+    .exl-nav-sep { display: none; }
+    .exl-nav-logo-name { font-size: 10.5px; letter-spacing: 0.14em; }
     .exl-buy-sticky { padding: 1rem 0.85rem 1.2rem; }
     .exl-price { font-size: 22px; }
     .exl-gal-thumb { width: 46px; height: 46px; }

@@ -35,6 +35,7 @@ function LandingProductoPage({ defaultSlug } = {}) {
   const [tenantSlug, setTenantSlug] = useState(slugFromParams || defaultSlug || null)
   const [plantilla, setPlantilla] = useState(null)
   const [plantillaCargada, setPlantillaCargada] = useState(false)
+  const [tenantNombre, setTenantNombre] = useState('')
 
   useEffect(() => {
     document.title = 'Miracle Store'
@@ -63,6 +64,7 @@ function LandingProductoPage({ defaultSlug } = {}) {
       .then((r) => r.json())
       .then((d) => {
         setPlantilla(d.plantilla || 'luxury')
+        if (d.nombre) setTenantNombre(d.nombre)
         setPlantillaCargada(true)
       })
       .catch(() => {
@@ -165,6 +167,7 @@ function LandingProductoPage({ defaultSlug } = {}) {
         isInCart={isInCart(producto.id)}
         navigateBack={navigateBack}
         tenantSlug={tenantSlug}
+        tenantNombre={tenantNombre}
       />
       {showModal && (
         <CheckoutModal

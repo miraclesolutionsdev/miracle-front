@@ -31,6 +31,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
     precioDistribuidor: '',
     aumentoPrecio: '',
     utilidad: '30',
+    descuento: '0',
   })
   const catRef = useRef(null)
   const subcatRef = useRef(null)
@@ -85,6 +86,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
         precioDistribuidor: producto.precioDistribuidor != null ? String(producto.precioDistribuidor) : '',
         aumentoPrecio: producto.aumentoPrecio != null ? String(producto.aumentoPrecio) : '',
         utilidad: producto.utilidad != null ? String(producto.utilidad) : '30',
+        descuento: producto.descuento != null ? String(producto.descuento) : '0',
       })
     } else {
       setForm({
@@ -106,6 +108,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
         precioDistribuidor: '',
         aumentoPrecio: '',
         utilidad: '30',
+        descuento: '0',
       })
     }
   }, [producto])
@@ -128,6 +131,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
       formData.append('precioDistribuidor', String(Number(precioConfig.precioDistribuidor) || 0))
       formData.append('aumentoPrecio', String(Number(precioConfig.aumentoPrecio) || 0))
       formData.append('utilidad', String(Number.isNaN(Number(precioConfig.utilidad)) ? 30 : Number(precioConfig.utilidad)))
+      formData.append('descuento', String(Math.min(100, Math.max(0, Number(precioConfig.descuento) || 0))))
       formData.append('tipo', form.tipo)
       formData.append('estado', form.estado)
       formData.append('stock', form.tipo === 'producto' ? String(Number(form.stock) || 0) : '0')
@@ -147,6 +151,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
         precioDistribuidor: Number(precioConfig.precioDistribuidor) || 0,
         aumentoPrecio: Number(precioConfig.aumentoPrecio) || 0,
         utilidad: Number.isNaN(Number(precioConfig.utilidad)) ? 30 : Number(precioConfig.utilidad),
+        descuento: Math.min(100, Math.max(0, Number(precioConfig.descuento) || 0)),
         stock: form.tipo === 'producto' ? (Number(form.stock) || 0) : 0,
         usos,
         caracteristicas,
@@ -532,6 +537,25 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
                 />
               </div>
 
+              {/* Descuento (%) */}
+              <div>
+                <label className="mb-1 block text-sm font-medium text-muted-foreground">
+                  Descuento (%)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value={precioConfig.descuento}
+                  onChange={(e) =>
+                    setPrecioConfig((p) => ({ ...p, descuento: e.target.value }))
+                  }
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-card-foreground"
+                  placeholder="Ej. 10"
+                />
+              </div>
+
               {/* Utilidad (%) */}
               <div>
                 <label className="mb-1 block text-sm font-medium text-muted-foreground">
@@ -563,6 +587,17 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
                       ).toLocaleString('es-CO')}
                     </span>
                   </div>
+                  {Number(precioConfig.descuento) > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Precio con descuento ({precioConfig.descuento}%):</span>
+                      <span className="font-semibold text-orange-500">
+                        ${(
+                          (Number(precioConfig.precioDistribuidor) + Number(precioConfig.aumentoPrecio)) *
+                          (1 - Number(precioConfig.descuento) / 100)
+                        ).toLocaleString('es-CO')}
+                      </span>
+                    </div>
+                  )}
                   {precioConfig.utilidad !== '' && (
                     <>
                       <div className="flex justify-between text-sm">
@@ -622,6 +657,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
                       precioDistribuidor: Number(precioConfig.precioDistribuidor) || 0,
                       aumentoPrecio: Number(precioConfig.aumentoPrecio) || 0,
                       utilidad: Number.isNaN(Number(precioConfig.utilidad)) ? 30 : Number(precioConfig.utilidad),
+                      descuento: Math.min(100, Math.max(0, Number(precioConfig.descuento) || 0)),
                     }
                     const productoActualizado = await productosApi.actualizarPrecio(producto.id, payload)
 
@@ -633,6 +669,7 @@ function ProductoForm({ producto, onGuardar, onCancelar }) {
                       precioDistribuidor: productoActualizado.precioDistribuidor,
                       aumentoPrecio: productoActualizado.aumentoPrecio,
                       utilidad: productoActualizado.utilidad,
+                      descuento: productoActualizado.descuento,
                       precio: productoActualizado.precio,
                     })
 
