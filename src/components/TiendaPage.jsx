@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { BASE_URL } from '../utils/api'
+import { useParams } from 'react-router-dom'
+import { BASE_URL, isCustomDomain, setResolvedCustomSlug } from '../utils/api'
 import { getStoreTemplate } from '../templates'
-
-const MAIN_DOMAIN = import.meta.env.VITE_MAIN_DOMAIN || 'miraclesolutions.com.co'
 
 /**
  * Detecta si el usuario entró desde un dominio custom (ej. venompharmacol.com).
@@ -13,7 +11,7 @@ const MAIN_DOMAIN = import.meta.env.VITE_MAIN_DOMAIN || 'miraclesolutions.com.co
  */
 export default function TiendaPage({ defaultSlug } = {}) {
   const { slug: slugFromUrl } = useParams()
-  const navigate = useNavigate()
+
   const [slug, setSlug] = useState(slugFromUrl || defaultSlug || null)
   const [plantilla, setPlantilla] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -25,25 +23,20 @@ export default function TiendaPage({ defaultSlug } = {}) {
   }, [])
 
   useEffect(() => {
-    const hostname = window.location.hostname
-    const isMainDomain =
-      hostname === 'localhost' ||
-      hostname === MAIN_DOMAIN ||
-      hostname === `www.${MAIN_DOMAIN}`
-
-    // Si el hostname es el dominio principal, el slug viene de la URL o de la prop
-    if (isMainDomain) {
+    if (!isCustomDomain()) {
       setSlug(slugFromUrl || defaultSlug || null)
       setLoading(false)
       return
     }
 
-    // Hostname custom (ej. venompharmacol.com) — consultar backend
+    // Hostname custom — consultar backend
+    const hostname = window.location.hostname.replace(/^www\./, '')
     setLoading(true)
     fetch(`${BASE_URL}/store-config/dominio?hostname=${encodeURIComponent(hostname)}`)
       .then((r) => r.json())
       .then((data) => {
         if (data.slug) {
+          setResolvedCustomSlug(data.slug)
           setSlug(data.slug)
           if (data.plantilla) setPlantilla(data.plantilla)
         } else {
@@ -86,5 +79,7 @@ export default function TiendaPage({ defaultSlug } = {}) {
   if (!slug || !plantilla) return null
 
   const StoreComponent = getStoreTemplate(plantilla)
-  return <StoreComponent slug={slug} />
+  // En dominio custom el slug no va en las URLs — las rutas son relativas a /
+  const slugParaRutas = isCustomDomain() ? null : slug
+  return <StoreComponent slug={slugParaRutas} tenantSlug={slug} />
 }

@@ -1,4 +1,5 @@
 import { useSearchParams, useNavigate } from 'react-router-dom'
+import { buildStoreBase } from '../templates/templateUtils'
 import { useEffect } from 'react'
 import { CheckCircle, XCircle, Clock, ArrowLeft, MessageCircle, RefreshCw } from 'lucide-react'
 import { useCart } from '../context/CartContext'
@@ -72,16 +73,7 @@ function PagoResultado({ tipo }) {
   }
 
   const handleVolverTienda = () => {
-    const hostname = window.location.hostname
-
-    // Si es dominio custom (no es localhost ni miraclesolutions.com.co), redirigir a la raíz
-    if (hostname !== 'localhost' && !hostname.includes('miraclesolutions.com.co')) {
-      window.location.href = '/'
-      return
-    }
-
-    // Si es miraclesolutions.com.co o localhost, usar el slug del query param
-    navigate(`/${tenantSlug}/tienda`)
+    navigate(buildStoreBase(tenantSlug))
   }
 
   return (

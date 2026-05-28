@@ -6,9 +6,12 @@ import { productosApi, BASE_URL } from '../utils/api'
  * Shared hook for store data fetching.
  * All templates use this to get productos, tenantNombre, search, etc.
  */
-export default function useStoreData(slugProp) {
+// slugProp = slug para rutas (null en dominio custom)
+// tenantSlugProp = slug real del tenant para fetches (siempre tiene valor)
+export default function useStoreData(slugProp, tenantSlugProp) {
   const { slug: slugFromParams } = useParams()
-  const slug = slugProp || slugFromParams
+  const slug = slugProp ?? slugFromParams ?? null
+  const tenantSlug = tenantSlugProp || slug
 
   const [productos, setProductos] = useState([])
   const [tenantNombre, setTenantNombre] = useState('')
@@ -20,21 +23,20 @@ export default function useStoreData(slugProp) {
   const mobileInputRef = useRef(null)
 
   useEffect(() => {
-    if (!slug) return
-    fetch(`${BASE_URL}/store-config/info?slug=${slug}`)
+    if (!tenantSlug) return
+    fetch(`${BASE_URL}/store-config/info?slug=${tenantSlug}`)
       .then((r) => r.json())
       .then((d) => { if (d.nombre) setTenantNombre(d.nombre) })
       .catch(() => {})
-  }, [slug])
+  }, [tenantSlug])
 
   useEffect(() => {
-    if (!slug) return
-    const fn = productosApi.listarPublico({ estado: 'activo' }, slug)
-    fn
+    if (!tenantSlug) return
+    productosApi.listarPublico({ estado: 'activo' }, tenantSlug)
       .then((data) => setProductos(Array.isArray(data) ? data : []))
       .catch(() => setProductos([]))
       .finally(() => setLoading(false))
-  }, [slug])
+  }, [tenantSlug])
 
   useEffect(() => {
     if (searchOpen) mobileInputRef.current?.focus()

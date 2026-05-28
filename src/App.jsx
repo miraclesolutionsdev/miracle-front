@@ -10,6 +10,7 @@ import CrearTienda from './components/CrearTienda'
 import IACopyResumenPage from './components/IACopyResumenPage'
 import PagoResultado from './components/PagoResultado'
 import ServiciosPage from './components/ServiciosPage'
+import { isCustomDomain } from './utils/api'
 import './App.css'
 
 function ProtectedRoute({ children }) {
@@ -21,13 +22,6 @@ function ProtectedRoute({ children }) {
   if (loading && !hasToken) return null
   if (!isAuthenticated && !hasToken) return <Navigate to="/login" replace />
   return children
-}
-
-const MAIN_DOMAIN = import.meta.env.VITE_MAIN_DOMAIN || 'miraclesolutions.com.co'
-
-function isCustomDomain() {
-  const h = window.location.hostname
-  return h !== 'localhost' && h !== MAIN_DOMAIN && h !== `www.${MAIN_DOMAIN}`
 }
 
 function App() {

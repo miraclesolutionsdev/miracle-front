@@ -95,12 +95,12 @@ function ProductCard({ p, index, slug }) {
   )
 }
 
-export default function ModernStore({ slug: slugProp }) {
+export default function ModernStore({ slug: slugProp, tenantSlug }) {
   const {
     slug, productosFiltrados, tenantNombre, loading,
     busqueda, setBusqueda, searchOpen, setSearchOpen, mobileInputRef,
     totalProductos, enStock,
-  } = useStoreData(slugProp)
+  } = useStoreData(slugProp, tenantSlug)
 
   return (
     <>

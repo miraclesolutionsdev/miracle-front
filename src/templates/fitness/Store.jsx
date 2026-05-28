@@ -102,14 +102,14 @@ function ProductCard({ p, index, slug }) {
   )
 }
 
-export default function FitnessStore({ slug: slugProp }) {
+export default function FitnessStore({ slug: slugProp, tenantSlug }) {
   const {
     slug, productosFiltrados, tenantNombre, loading,
     busqueda, setBusqueda, searchOpen, setSearchOpen, mobileInputRef,
     totalProductos, enStock,
     categorias, categoriaConteo, categoriaActiva, setCategoriaActiva,
     subcategorias, subcategoriaConteo, subcategoriaActiva, setSubcategoriaActiva,
-  } = useStoreData(slugProp)
+  } = useStoreData(slugProp, tenantSlug)
 
   return (
     <>

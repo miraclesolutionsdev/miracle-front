@@ -1,5 +1,13 @@
 const BACKEND_FALLBACK = 'http://localhost:3000'
 
+export const MAIN_DOMAIN = import.meta.env.VITE_MAIN_DOMAIN || 'miraclesolutions.com.co'
+
+export function isCustomDomain() {
+  if (typeof window === 'undefined') return false
+  const h = window.location.hostname
+  return h !== 'localhost' && h !== MAIN_DOMAIN && h !== `www.${MAIN_DOMAIN}`
+}
+
 export const BASE_URL = (() => {
   const fromEnv = import.meta.env.VITE_API_URL?.trim()
   if (fromEnv) return fromEnv
@@ -9,7 +17,7 @@ export const BASE_URL = (() => {
   return BACKEND_FALLBACK
 })()
 
-const getTokenKey = (slug) => `miracle_auth_${slug || getTenantSlug()}`
+const getTokenKey = (slug) => `miracle_auth_${slug || getTenantSlugForHeader() || 'default'}`
 
 export function storeToken(token, slug) {
   try { sessionStorage.setItem(getTokenKey(slug), token) } catch { /* noop */ }
@@ -18,13 +26,16 @@ export function clearToken(slug) {
   try { sessionStorage.removeItem(getTokenKey(slug)) } catch { /* noop */ }
 }
 function getStoredToken() {
-  try { return sessionStorage.getItem(getTokenKey()) } catch { return null }
+  try {
+    const slug = getTenantSlugForHeader()
+    return sessionStorage.getItem(getTokenKey(slug))
+  } catch { return null }
 }
 
 /**
  * Extrae el slug del tenant desde la URL actual.
  * Patrón esperado: /{slug}/plataforma, /{slug}/tienda, /{slug}/login
- * Retorna null si la URL no tiene slug (ej. /login, /crear-tienda).
+ * En dominio custom el slug NO está en la URL — usar getTenantSlugForHeader() para requests.
  */
 export function getTenantSlug() {
   if (typeof window === 'undefined') return null
@@ -34,24 +45,29 @@ export function getTenantSlug() {
 
 /**
  * Obtiene un identificador único para el tenant actual.
- * - Si es dominio custom (venompharmacol.com), usa el hostname
- * - Si es slug-based (miraclesolutions.com.co/venompharma), usa el slug
+ * - Si es dominio custom (vpluxury.co), usa el hostname sin www
+ * - Si es slug-based (miraclesolutions.com.co/vpluxury), usa el slug
  * - Fallback a 'default'
  */
 export function getTenantIdentifier() {
   if (typeof window === 'undefined') return 'default'
+  if (isCustomDomain()) return window.location.hostname.replace(/^www\./, '')
+  return getTenantSlug() || 'default'
+}
 
-  const hostname = window.location.hostname
-  const MAIN_DOMAIN = import.meta.env.VITE_MAIN_DOMAIN || 'miraclesolutions.com.co'
+// Cache en memoria del slug resuelto para dominio custom (se llena desde TiendaPage/LandingProductoPage)
+let _resolvedCustomSlug = null
+export function setResolvedCustomSlug(slug) { _resolvedCustomSlug = slug }
+export function getResolvedCustomSlug() { return _resolvedCustomSlug }
 
-  // Si es dominio custom, usar el hostname completo
-  if (hostname !== 'localhost' && hostname !== MAIN_DOMAIN && hostname !== `www.${MAIN_DOMAIN}`) {
-    return hostname.replace(/^www\./, '')
-  }
-
-  // Si es slug-based, usar el slug de la URL
-  const slug = getTenantSlug()
-  return slug || 'default'
+/**
+ * Devuelve el valor correcto para el header X-Tenant-Slug:
+ * - Dominio custom: usa el slug resuelto (cacheado tras llamar al backend)
+ * - Dominio principal: usa el slug de la URL
+ */
+function getTenantSlugForHeader() {
+  if (isCustomDomain()) return _resolvedCustomSlug
+  return getTenantSlug()
 }
 
 function handleUnauthorized() {
@@ -71,7 +87,7 @@ function translateNetworkError(err) {
 
 async function request(path, options = {}) {
   const url = `${BASE_URL.replace(/\/$/, '')}/${path.replace(/^\//, '')}`
-  const slug = getTenantSlug()
+  const slug = getTenantSlugForHeader()
   const token = getStoredToken()
   const headers = {
     'Content-Type': 'application/json',
@@ -92,7 +108,7 @@ async function request(path, options = {}) {
 
 async function requestFormData(path, method, formData) {
   const url = `${BASE_URL.replace(/\/$/, '')}/${path.replace(/^\//, '')}`
-  const slug = getTenantSlug()
+  const slug = getTenantSlugForHeader()
   const token = getStoredToken()
   const headers = {
     ...(slug ? { 'X-Tenant-Slug': slug } : {}),

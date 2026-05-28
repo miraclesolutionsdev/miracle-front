@@ -3,19 +3,14 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import { useProductos } from '../context/ProductosContext.jsx'
 import { useCart } from '../context/CartContext.jsx'
 import { useNotifications } from '../context/NotificationsContext.jsx'
-import { productosApi, BASE_URL } from '../utils/api'
+import { productosApi, BASE_URL, isCustomDomain, setResolvedCustomSlug } from '../utils/api'
+import { buildStoreBase } from '../templates/templateUtils'
 import { Package } from 'lucide-react'
 import { getLandingTemplate } from '../templates'
 import CheckoutModal from './CheckoutModal'
 
 const fmt = (v) => `$${(Number(v) || 0).toLocaleString('es-CO')}`
 const WHATSAPP_NUMBER = '573243520379'
-const MAIN_DOMAIN = import.meta.env.VITE_MAIN_DOMAIN || 'miraclesolutions.com.co'
-
-function isCustomDomain() {
-  const h = window.location.hostname
-  return h !== 'localhost' && h !== MAIN_DOMAIN && h !== `www.${MAIN_DOMAIN}`
-}
 
 /* ── Main Page (data wrapper — delegates rendering to template) ── */
 function LandingProductoPage({ defaultSlug } = {}) {
@@ -33,8 +28,7 @@ function LandingProductoPage({ defaultSlug } = {}) {
   const [cantidad, setCantidad] = useState(1)
   const [showModal, setShowModal] = useState(false)
   const [tenantSlug, setTenantSlug] = useState(slugFromParams || defaultSlug || null)
-  const [plantilla, setPlantilla] = useState(null)
-  const [plantillaCargada, setPlantillaCargada] = useState(false)
+  const [plantilla, setPlantilla] = useState('luxury')
   const [tenantNombre, setTenantNombre] = useState('')
 
   useEffect(() => {
@@ -51,10 +45,11 @@ function LandingProductoPage({ defaultSlug } = {}) {
     fetch(`${BASE_URL}/store-config/dominio?hostname=${encodeURIComponent(hostname)}`)
       .then((r) => r.json())
       .then((d) => {
-        if (d.slug) setTenantSlug(d.slug)
+        if (d.slug) { setResolvedCustomSlug(d.slug); setTenantSlug(d.slug) }
         if (d.plantilla) setPlantilla(d.plantilla)
+        if (!d.slug) { setError(new Error('Tienda no encontrada.')); setCargando(false) }
       })
-      .catch(() => setError(new Error('No se pudo resolver la tienda.')))
+      .catch(() => { setError(new Error('No se pudo resolver la tienda.')); setCargando(false) })
   }, [slugFromParams, defaultSlug])
 
   // Fetch plantilla when slug is known
@@ -65,12 +60,8 @@ function LandingProductoPage({ defaultSlug } = {}) {
       .then((d) => {
         setPlantilla(d.plantilla || 'luxury')
         if (d.nombre) setTenantNombre(d.nombre)
-        setPlantillaCargada(true)
       })
-      .catch(() => {
-        setPlantilla('luxury')
-        setPlantillaCargada(true)
-      })
+      .catch(() => {})
   }, [tenantSlug])
 
   // Fetch producto
@@ -111,7 +102,7 @@ function LandingProductoPage({ defaultSlug } = {}) {
   const navigateBack = () => {
     const params = new URLSearchParams(location.search)
     const fromCat = params.get('from')
-    const storeBase = isCustomDomain() || defaultSlug ? '/' : (tenantSlug ? `/${tenantSlug}/tienda` : '/')
+    const storeBase = buildStoreBase(defaultSlug ? null : tenantSlug)
     if (fromCat) {
       navigate(`${storeBase}?cat=${encodeURIComponent(fromCat)}`)
     } else if (window.history.length > 1) {
@@ -121,8 +112,7 @@ function LandingProductoPage({ defaultSlug } = {}) {
     }
   }
 
-  // Loading state (esperar tanto producto como plantilla)
-  if (cargando || !plantillaCargada) {
+  if (cargando) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#fff' }}>
         <div style={{ width: 32, height: 32, border: '2px solid #E8E4DF', borderTopColor: '#999', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />

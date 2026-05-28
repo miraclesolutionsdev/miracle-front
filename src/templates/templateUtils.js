@@ -1,11 +1,6 @@
-import { getProductoImagenSrc } from '../utils/api'
+import { getProductoImagenSrc, isCustomDomain } from '../utils/api'
 
-const MAIN_DOMAIN = import.meta.env.VITE_MAIN_DOMAIN || 'miraclesolutions.com.co'
-
-export function isCustomDomain() {
-  const h = window.location.hostname
-  return h !== 'localhost' && h !== MAIN_DOMAIN && h !== `www.${MAIN_DOMAIN}`
-}
+export { isCustomDomain }
 
 export const fmt = (v) => `$${(Number(v) || 0).toLocaleString('es-CO')}`
 
@@ -14,16 +9,23 @@ export function getInitials(name = '') {
 }
 
 /**
- * Builds the URL to navigate to a product page.
- * On custom domains or root store (no /tienda in path), use /{id}
- * On slug-based stores, use /{slug}/tienda/{id}
+ * Base path for the store. On custom domains the tenant is implicit in the
+ * hostname, so all routes are rooted at '/'. On the main domain they live
+ * under '/{slug}/tienda'.
  */
+export function buildStoreBase(slug) {
+  if (isCustomDomain() || !slug) return '/'
+  return `/${slug}/tienda`
+}
+
+export function buildCartUrl(slug) {
+  if (isCustomDomain() || !slug) return '/carrito'
+  return `/${slug}/carrito`
+}
+
 export function buildProductUrl(productId, slug) {
-  const isRootStore = !window.location.pathname.includes('/tienda')
-  if (isCustomDomain() || isRootStore) {
-    return `${window.location.origin}/${productId}`
-  }
-  return `${window.location.origin}/${slug}/tienda/${productId}`
+  const base = buildStoreBase(slug)
+  return base === '/' ? `/${productId}` : `${base}/${productId}`
 }
 
 export function navigateToProduct(productId, slug) {

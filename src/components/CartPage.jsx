@@ -4,6 +4,7 @@ import { ArrowLeft, Trash2, Plus, Minus, ShoppingBag } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 import { useNotifications } from '../context/NotificationsContext'
 import { getTenantSlug } from '../utils/api'
+import { buildStoreBase } from '../templates/templateUtils'
 import CheckoutModal from './CheckoutModal'
 
 export default function CartPage() {
@@ -14,12 +15,7 @@ export default function CartPage() {
   const [showCheckout, setShowCheckout] = useState(false)
 
   const handleVolverTienda = () => {
-    const hostname = window.location.hostname
-    if (hostname !== 'localhost' && !hostname.includes('miraclesolutions.com.co')) {
-      navigate('/')
-    } else {
-      navigate(`/${slug || 'miraclesolutions'}/tienda`)
-    }
+    navigate(buildStoreBase(slug))
   }
 
   const handleRemove = (productoId, nombre) => {

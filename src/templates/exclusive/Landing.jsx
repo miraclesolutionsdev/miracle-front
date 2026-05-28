@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { buildStoreBase, buildCartUrl } from '../templateUtils'
 import { ArrowLeft, ShieldCheck, Zap, Star, ChevronLeft, ChevronRight, CreditCard, Package, ShoppingCart, Check, Search } from 'lucide-react'
 import ImageLightbox from '../../components/ImageLightbox.jsx'
 import { getProductoImagenSrc } from '../../utils/api'
@@ -193,19 +194,18 @@ export default function ExclusiveLanding({ producto, cantidad, setCantidad, maxC
     e.preventDefault()
     const q = searchQuery.trim()
     if (!q) return
-    const base = tenantSlug ? `/${tenantSlug}/tienda` : '/'
+    const base = buildStoreBase(tenantSlug)
     navigate(`${base}?q=${encodeURIComponent(q)}`)
     setSearchOpen(false)
     setSearchQuery('')
   }
 
   const handleCartClick = () => {
-    navigate(tenantSlug ? `/${tenantSlug}/carrito` : '/carrito')
+    navigate(buildCartUrl(tenantSlug))
   }
 
   const handleHomeClick = () => {
-    const base = tenantSlug ? `/${tenantSlug}/tienda` : '/'
-    navigate(base)
+    navigate(buildStoreBase(tenantSlug))
   }
 
   return (
@@ -380,7 +380,7 @@ export default function ExclusiveLanding({ producto, cantidad, setCantidad, maxC
               <p className="exl-footer-col-title">Categorías</p>
               <ul className="exl-footer-list">
                 {['Pen Portátiles', 'Desktop', 'Accesorios', 'Kits', 'Ofertas'].map(item => (
-                  <li key={item}><button type="button" className="exl-footer-list-btn" onClick={() => navigate(tenantSlug ? `/${tenantSlug}/tienda` : '/')}>{item}</button></li>
+                  <li key={item}><button type="button" className="exl-footer-list-btn" onClick={() => navigate(buildStoreBase(tenantSlug))}>{item}</button></li>
                 ))}
               </ul>
             </div>

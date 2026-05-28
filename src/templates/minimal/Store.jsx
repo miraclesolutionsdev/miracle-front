@@ -88,11 +88,11 @@ function ProductCard({ p, index, slug }) {
   )
 }
 
-export default function MinimalStore({ slug: slugProp }) {
+export default function MinimalStore({ slug: slugProp, tenantSlug }) {
   const {
     slug, productosFiltrados, tenantNombre, loading,
     busqueda, setBusqueda, totalProductos,
-  } = useStoreData(slugProp)
+  } = useStoreData(slugProp, tenantSlug)
 
   return (
     <>

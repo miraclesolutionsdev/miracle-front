@@ -1,8 +1,11 @@
 import { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react'
 import { useAuth } from './AuthContext'
-import { BASE_URL } from '../utils/api'
+import { BASE_URL, getResolvedCustomSlug, getTenantSlug } from '../utils/api'
 
-const TOKEN_KEY = 'miracle_auth_token'
+function getTokenKey() {
+  const slug = getResolvedCustomSlug() || getTenantSlug()
+  return `miracle_auth_${slug || 'default'}`
+}
 
 const NotificationsContext = createContext(null)
 
@@ -17,7 +20,7 @@ export function NotificationsProvider({ children }) {
   // ─── Carga inicial desde REST ────────────────────────────────────────────────
   const fetchNotifications = useCallback(async () => {
     try {
-      const token = sessionStorage.getItem(TOKEN_KEY)
+      const token = sessionStorage.getItem(getTokenKey())
       const res = await fetch(`${BASE_URL.replace(/\/$/, '')}/notificaciones`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         credentials: 'include',
@@ -49,7 +52,7 @@ export function NotificationsProvider({ children }) {
 
     // SSE solo en desarrollo local
     function connect() {
-      const token = sessionStorage.getItem(TOKEN_KEY)
+      const token = sessionStorage.getItem(getTokenKey())
       const url = `${BASE_URL.replace(/\/$/, '')}/notificaciones/stream${token ? `?token=${encodeURIComponent(token)}` : ''}`
 
       const es = new EventSource(url, { withCredentials: true })
@@ -84,7 +87,7 @@ export function NotificationsProvider({ children }) {
   // ─── Acciones ────────────────────────────────────────────────────────────────
   const markAllRead = useCallback(async () => {
     try {
-      const token = sessionStorage.getItem(TOKEN_KEY)
+      const token = sessionStorage.getItem(getTokenKey())
       await fetch(`${BASE_URL.replace(/\/$/, '')}/notificaciones/leer-todas`, {
         method: 'PATCH',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -96,7 +99,7 @@ export function NotificationsProvider({ children }) {
 
   const markOneRead = useCallback(async (id) => {
     try {
-      const token = sessionStorage.getItem(TOKEN_KEY)
+      const token = sessionStorage.getItem(getTokenKey())
       await fetch(`${BASE_URL.replace(/\/$/, '')}/notificaciones/${id}/leer`, {
         method: 'PATCH',
         headers: token ? { Authorization: `Bearer ${token}` } : {},

@@ -1,7 +1,7 @@
 import { useState, useRef, useMemo, useEffect, useCallback } from 'react'
 import { useLocation, useNavigate as useRRNavigate } from 'react-router-dom'
 import useStoreData from '../useStoreData'
-import { fmt, getInitials, getProductoImagenSrc } from '../templateUtils'
+import { fmt, getInitials, getProductoImagenSrc, buildStoreBase, buildCartUrl, buildProductUrl } from '../templateUtils'
 import MiniCart from '../../components/MiniCart'
 
 function SkeletonCard() {
@@ -24,7 +24,7 @@ function ProductCard({ p, index, slug, featured = false, cat = '' }) {
   const touchX = useRef(null)
 
   const goToProduct = () => {
-    const base = slug ? `/${slug}/tienda/${p.id}` : `/${p.id}`
+    const base = buildProductUrl(p.id, slug)
     navigate(cat ? `${base}?from=${encodeURIComponent(cat)}` : base)
   }
   const total = Math.max(p.imagenes?.length || 1, 1)
@@ -877,13 +877,13 @@ function CatalogView({ catLabel, productos, slug, loading, onHome }) {
 // ────────────────────────────────────────────────────────────────────────────
 
 // ExclusiveStore v2
-export default function ExclusiveStore({ slug: slugProp }) {
+export default function ExclusiveStore({ slug: slugProp, tenantSlug }) {
   const {
     slug, productosFiltrados, tenantNombre, loading,
     busqueda, setBusqueda, searchOpen, setSearchOpen, mobileInputRef,
     productos,
     categorias, setCategoriaActiva,
-  } = useStoreData(slugProp)
+  } = useStoreData(slugProp, tenantSlug)
 
   const location = useLocation()
   const navigate = useRRNavigate()
@@ -905,7 +905,7 @@ export default function ExclusiveStore({ slug: slugProp }) {
     else { setCategoriaActiva('') }
   }, [location.search]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const storeBase = slug ? `/${slug}/tienda` : '/'
+  const storeBase = buildStoreBase(slug)
 
   const handleNavCat = (label) => {
     navigate(`${storeBase}?cat=${encodeURIComponent(label)}`)
@@ -977,7 +977,7 @@ export default function ExclusiveStore({ slug: slugProp }) {
   }, [busqueda, searchOpen])
 
   const handleSugerenciaClick = useCallback((producto) => {
-    const base = slug ? `/${slug}/tienda/${producto.id}` : `/${producto.id}`
+    const base = buildProductUrl(producto.id, slug)
     setBusqueda('')
     setSearchOpen(false)
     setDropdownVisible(false)

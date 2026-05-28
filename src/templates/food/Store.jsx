@@ -85,12 +85,12 @@ function ProductCard({ p, index, slug }) {
   )
 }
 
-export default function FoodStore({ slug: slugProp }) {
+export default function FoodStore({ slug: slugProp, tenantSlug }) {
   const {
     slug, productosFiltrados, tenantNombre, loading,
     busqueda, setBusqueda, searchOpen, setSearchOpen, mobileInputRef,
     totalProductos,
-  } = useStoreData(slugProp)
+  } = useStoreData(slugProp, tenantSlug)
 
   return (
     <>

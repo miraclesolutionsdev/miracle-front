@@ -102,12 +102,12 @@ function ProductCard({ p, index, slug }) {
 }
 
 /* ── Main Store ── */
-export default function LuxuryStore({ slug: slugProp }) {
+export default function LuxuryStore({ slug: slugProp, tenantSlug }) {
   const {
     slug, productosFiltrados, tenantNombre, loading,
     busqueda, setBusqueda, searchOpen, setSearchOpen, mobileInputRef,
     totalProductos, enStock,
-  } = useStoreData(slugProp)
+  } = useStoreData(slugProp, tenantSlug)
 
   return (
     <>

@@ -1,7 +1,8 @@
 import { ShoppingBag } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
-import { getTenantSlug, BASE_URL } from '../utils/api'
+import { getTenantSlug, isCustomDomain, storeConfigApi } from '../utils/api'
+import { buildCartUrl } from '../templates/templateUtils'
 import { useState, useEffect } from 'react'
 
 const THEME_STYLES = {
@@ -43,16 +44,12 @@ export default function MiniCart({ position = 'floating', theme }) {
 
     const detectTheme = async () => {
       try {
-        const hostname = window.location.hostname
-        const isCustom = hostname !== 'localhost' && !hostname.includes('miraclesolutions.com.co')
-
-        if (isCustom) {
-          const res = await fetch(`${BASE_URL}/store-config/dominio?hostname=${encodeURIComponent(hostname)}`)
-          const data = await res.json()
+        if (isCustomDomain()) {
+          const hostname = window.location.hostname.replace(/^www\./, '')
+          const data = await storeConfigApi.resolverPorDominio(hostname)
           setAutoTheme(data.plantilla || 'luxury')
         } else if (slug) {
-          const res = await fetch(`${BASE_URL}/store-config/info?slug=${slug}`)
-          const data = await res.json()
+          const data = await storeConfigApi.obtenerInfo()
           setAutoTheme(data.plantilla || 'luxury')
         }
       } catch {
@@ -64,12 +61,7 @@ export default function MiniCart({ position = 'floating', theme }) {
   }, [theme, slug])
 
   const handleClick = () => {
-    const hostname = window.location.hostname
-    if (hostname !== 'localhost' && !hostname.includes('miraclesolutions.com.co')) {
-      navigate('/carrito')
-    } else {
-      navigate(`/${slug || 'miraclesolutions'}/carrito`)
-    }
+    navigate(buildCartUrl(slug))
   }
 
   if (cart.itemCount === 0) return null
