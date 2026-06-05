@@ -4,6 +4,7 @@ import SectionCard from '../layout/SectionCard'
 import { useProductos } from '../../context/ProductosContext.jsx'
 import { iaApi } from '../../utils/api'
 
+
 export default function CampaignAIChat() {
   const { productos } = useProductos()
   const [productoId, setProductoId] = useState('')
@@ -39,6 +40,7 @@ export default function CampaignAIChat() {
         mensaje.trim() ||
         'Generar ángulos de venta y copys efectivos para este producto.',
     }
+    
   }
 
   const handleGenerarGuionDesdeImagen = async () => {
