@@ -132,8 +132,10 @@ export function CartProvider({ children }) {
   }, [])
 
   const clearCart = useCallback(() => {
-    setCart({ items: [], total: 0, itemCount: 0 })
-  }, [])
+    const empty = { items: [], total: 0, itemCount: 0 }
+    setCart(empty)
+    saveCartToStorage(empty, currentIdentifier)
+  }, [currentIdentifier])
 
   const getCartItem = useCallback(
     (productoId) => {

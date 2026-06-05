@@ -151,7 +151,7 @@ export default function CheckoutModal({ producto, cantidad: cantidadSimple, prod
         const response = await pagosApi.crearPreferencia(payload)
         init_point = response.init_point
       }
-      if (isMultiple) sessionStorage.setItem('miracle_pending_cart_clear', 'true')
+      sessionStorage.setItem('miracle_pending_cart_clear', 'true')
       window.location.href = init_point
     } catch (error) {
       alertError(error.message || 'Error al procesar el pago')

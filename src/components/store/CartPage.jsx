@@ -35,7 +35,7 @@ function useTemplateSlug() {
 
 // ─── CARRITO EXCLUSIVE ────────────────────────────────────────────────────────
 
-function CartExclusive({ cart, onBack, onRemove, onIncrement, onDecrement, onCheckout }) {
+function CartExclusive({ cart, onBack, onRemove, onIncrement, onDecrement, onCheckout, onClear }) {
   return (
     <>
       <style>{CSS_EXCLUSIVE}</style>
@@ -45,6 +45,9 @@ function CartExclusive({ cart, onBack, onRemove, onIncrement, onDecrement, onChe
           <span className="cx-nav-title">
             Carrito ({cart.itemCount} {cart.itemCount === 1 ? 'artículo' : 'artículos'})
           </span>
+          {cart.itemCount > 0 && (
+            <button className="cx-clear" onClick={onClear}>Limpiar carrito</button>
+          )}
         </nav>
 
         {cart.itemCount === 0 ? (
@@ -124,7 +127,7 @@ function CartExclusive({ cart, onBack, onRemove, onIncrement, onDecrement, onChe
 
 // ─── CARRITO GENÉRICO (oscuro) ─────────────────────────────────────────────
 
-function CartGeneric({ cart, onBack, onRemove, onIncrement, onDecrement, onCheckout }) {
+function CartGeneric({ cart, onBack, onRemove, onIncrement, onDecrement, onCheckout, onClear }) {
   if (cart.itemCount === 0) {
     return (
       <div className="min-h-screen bg-[#09090e] px-4 py-16">
@@ -152,9 +155,16 @@ function CartGeneric({ cart, onBack, onRemove, onIncrement, onDecrement, onCheck
             <ArrowLeft className="h-4 w-4" />
             Continuar comprando
           </button>
-          <h1 className="text-2xl font-bold text-white">
-            Carrito de compras ({cart.itemCount} {cart.itemCount === 1 ? 'item' : 'items'})
-          </h1>
+          <div className="flex items-center gap-4">
+            <h1 className="text-2xl font-bold text-white">
+              Carrito de compras ({cart.itemCount} {cart.itemCount === 1 ? 'item' : 'items'})
+            </h1>
+            {cart.itemCount > 0 && (
+              <button onClick={onClear} className="text-xs text-red-400/70 hover:text-red-400 transition-colors font-medium uppercase tracking-wider">
+                Limpiar
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="grid gap-8 lg:grid-cols-3">
@@ -222,7 +232,7 @@ function CartGeneric({ cart, onBack, onRemove, onIncrement, onDecrement, onCheck
 // ─── COMPONENTE PRINCIPAL ─────────────────────────────────────────────────────
 
 export default function CartPage() {
-  const { cart, removeFromCart, updateQuantity } = useCart()
+  const { cart, removeFromCart, updateQuantity, clearCart } = useCart()
   const { alertSuccess, alertError } = useNotifications()
   const navigate = useNavigate()
   const { slug, plantilla } = useTemplateSlug()
@@ -236,7 +246,7 @@ export default function CartPage() {
   }
   const handleDecrement = (item) => { if (item.cantidad > 1) updateQuantity(item.productoId, item.cantidad - 1) }
 
-  const handlers = { cart, onBack: handleBack, onRemove: handleRemove, onIncrement: handleIncrement, onDecrement: handleDecrement, onCheckout: () => setShowCheckout(true) }
+  const handlers = { cart, onBack: handleBack, onRemove: handleRemove, onIncrement: handleIncrement, onDecrement: handleDecrement, onCheckout: () => setShowCheckout(true), onClear: clearCart }
 
   if (!plantilla) {
     return <div style={{ minHeight: '100vh', background: '#f7f5f0' }} />
@@ -293,6 +303,8 @@ const CSS_EXCLUSIVE = `
   .cx-back { background: none; border: none; color: var(--ex-ink-mid); font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; padding: 0; transition: color 0.15s; }
   .cx-back:hover { color: var(--ex-ink); }
   .cx-nav-title { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ex-ink-soft); }
+  .cx-clear { background: none; border: none; color: #c0392b; font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; padding: 0; transition: opacity 0.15s; }
+  .cx-clear:hover { opacity: 0.7; }
 
   /* EMPTY */
   .cx-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; padding: 4rem 2rem; text-align: center; }
