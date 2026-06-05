@@ -1,7 +1,7 @@
-import { useState, useRef } from 'react'
+﻿import { useState, useRef } from 'react'
 import useStoreData from '../useStoreData'
 import { fmt, getInitials, navigateToProduct, getProductoImagenSrc } from '../templateUtils'
-import MiniCart from '../../components/MiniCart'
+import MiniCart from '../../components/store/MiniCart'
 
 function SkeletonCard() {
   return (
@@ -90,21 +90,28 @@ function ProductCard({ p, index, slug }) {
 
 export default function MinimalStore({ slug: slugProp, tenantSlug }) {
   const {
-    slug, productosFiltrados, tenantNombre, loading,
+    slug, productosFiltrados, tenantNombre, tagline, loading,
+    colorPrimario, colorSecundario, colorTexto,
     busqueda, setBusqueda, totalProductos,
   } = useStoreData(slugProp, tenantSlug)
+
+  const cssVars = {
+    '--mn-accent': colorPrimario  || '#1A1A1A',
+    '--mn-bg':     colorSecundario || '#FAFAFA',
+    '--mn-text':   colorTexto     || '#1A1A1A',
+  }
 
   return (
     <>
       <style>{CSS}</style>
-      <div className="mn-root">
-        {/* HEADER — just logo centered */}
+      <div className="mn-root" style={cssVars}>
+        {/* HEADER â€" just logo centered */}
         <header className="mn-header">
           <MiniCart position="header" />
           <span className="mn-logo">{tenantNombre || 'Store'}</span>
         </header>
 
-        {/* SEARCH — centered below header */}
+        {/* SEARCH â€" centered below header */}
         <div className="mn-search-section">
           <div className="mn-search-wrap">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -146,7 +153,7 @@ export default function MinimalStore({ slug: slugProp, tenantSlug }) {
 
         {/* FOOTER */}
         <footer className="mn-footer">
-          <p>© {new Date().getFullYear()} {tenantNombre || 'Store'}</p>
+          <p>Â© {new Date().getFullYear()} {tenantNombre || 'Store'}</p>
         </footer>
       </div>
     </>
@@ -157,21 +164,21 @@ const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Sora:wght@200;300;400;500;600&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  .mn-root { min-height: 100vh; background: #FAFAFA; color: #1A1A1A; font-family: 'Sora', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  .mn-root { min-height: 100vh; background: #FAFAFA; color: var(--mn-accent, #1A1A1A); font-family: 'Sora', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
 
   /* HEADER */
   .mn-header { text-align: center; padding: 48px 24px 0; }
-  .mn-logo { font-family: 'Sora', sans-serif; font-size: 28px; font-weight: 200; letter-spacing: 0.12em; text-transform: uppercase; color: #1A1A1A; }
+  .mn-logo { font-family: 'Sora', sans-serif; font-size: 28px; font-weight: 200; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mn-accent, #1A1A1A); }
 
   /* SEARCH */
   .mn-search-section { text-align: center; padding: 32px 24px 0; }
   .mn-search-wrap { position: relative; display: inline-flex; align-items: center; max-width: 420px; width: 100%; }
   .mn-search-wrap svg { position: absolute; left: 20px; color: #C0C0C0; pointer-events: none; }
-  .mn-search { width: 100%; background: #FFFFFF; border: 1px solid #EBEBEB; border-radius: 60px; padding: 14px 48px 14px 52px; font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 300; color: #1A1A1A; outline: none; transition: all 0.3s ease; box-shadow: 0 2px 20px rgba(0,0,0,0.03); }
+  .mn-search { width: 100%; background: #FFFFFF; border: 1px solid #EBEBEB; border-radius: 60px; padding: 14px 48px 14px 52px; font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 300; color: var(--mn-accent, #1A1A1A); outline: none; transition: all 0.3s ease; box-shadow: 0 2px 20px rgba(0,0,0,0.03); }
   .mn-search::placeholder { color: #C0C0C0; font-weight: 300; }
-  .mn-search:focus { border-color: #1A1A1A; box-shadow: 0 4px 30px rgba(0,0,0,0.06); }
+  .mn-search:focus { border-color: var(--mn-accent, #1A1A1A); box-shadow: 0 4px 30px rgba(0,0,0,0.06); }
   .mn-search-clear { position: absolute; right: 16px; background: none; border: none; color: #C0C0C0; cursor: pointer; display: flex; padding: 4px; transition: color 0.2s; }
-  .mn-search-clear:hover { color: #1A1A1A; }
+  .mn-search-clear:hover { color: var(--mn-accent, #1A1A1A); }
   .mn-subtitle { font-size: 12px; font-weight: 300; color: #B0B0B0; margin-top: 16px; letter-spacing: 0.06em; }
 
   /* GRID */
@@ -186,16 +193,16 @@ const CSS = `
   .mn-card:hover .mn-card-img { box-shadow: 0 12px 48px rgba(0,0,0,0.08); }
   .mn-card-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.6s cubic-bezier(.25,.8,.25,1); border-radius: 20px; }
   .mn-card-no-img { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: 200; color: #E0E0E0; border-radius: 20px; }
-  .mn-arr { position: absolute; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; background: rgba(255,255,255,0.95); border: none; border-radius: 50%; color: #1A1A1A; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 5; transition: all 0.25s; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+  .mn-arr { position: absolute; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; background: rgba(255,255,255,0.95); border: none; border-radius: 50%; color: var(--mn-accent, #1A1A1A); cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 5; transition: all 0.25s; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
   .mn-arr:hover { background: #fff; box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
   .mn-arr-l { left: 12px; }
   .mn-arr-r { right: 12px; }
   .mn-dots { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 5; }
-  .mn-dot { width: 5px; height: 5px; border-radius: 50%; background: #1A1A1A; transition: all 0.25s; }
+  .mn-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--mn-accent, #1A1A1A); transition: all 0.25s; }
   .mn-sold-out { position: absolute; top: 16px; right: 16px; font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: #999; background: rgba(255,255,255,0.9); padding: 5px 12px; border-radius: 20px; backdrop-filter: blur(8px); }
   .mn-card-info { padding: 20px 8px 0; }
-  .mn-card-name { font-size: 14px; font-weight: 400; color: #1A1A1A; line-height: 1.5; margin-bottom: 6px; }
-  .mn-card-price { font-size: 15px; font-weight: 500; color: #1A1A1A; }
+  .mn-card-name { font-size: 14px; font-weight: 400; color: var(--mn-accent, #1A1A1A); line-height: 1.5; margin-bottom: 6px; }
+  .mn-card-price { font-size: 15px; font-weight: 500; color: var(--mn-accent, #1A1A1A); }
   .mn-card-price.mn-consult { font-size: 12px; font-weight: 300; color: #B0B0B0; }
   .mn-card-low { font-size: 11px; font-weight: 400; color: #E88D4F; margin-top: 4px; }
 

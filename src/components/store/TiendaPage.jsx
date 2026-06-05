@@ -1,0 +1,98 @@
+import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
+import { BASE_URL, isCustomDomain, setResolvedCustomSlug } from '../../utils/api'
+import { getStoreTemplate } from '../../templates'
+
+/**
+ * Detecta si el usuario entró desde un dominio custom (ej. venompharmacol.com).
+ * Si es así, consulta al backend qué tenant le corresponde y renderiza su tienda.
+ * Si es un dominio propio (miraclesolutions.com.co), usa el slug de la URL.
+ * Carga la plantilla visual según la configuración del tenant.
+ */
+function getCachedPlantilla(slug) {
+  try { return sessionStorage.getItem(`miracle_plantilla_${slug}`) || null } catch { return null }
+}
+function setCachedPlantilla(slug, plantilla) {
+  try { sessionStorage.setItem(`miracle_plantilla_${slug}`, plantilla) } catch {}
+}
+
+export default function TiendaPage({ defaultSlug } = {}) {
+  const { slug: slugFromUrl } = useParams()
+  const initialSlug = slugFromUrl || defaultSlug || null
+
+  const [slug, setSlug] = useState(initialSlug)
+  const [plantilla, setPlantilla] = useState(() => initialSlug ? getCachedPlantilla(initialSlug) : null)
+  const [loading, setLoading] = useState(!initialSlug || !getCachedPlantilla(initialSlug))
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    document.title = 'Miracle Store'
+    return () => { document.title = 'Miracle Solutions - Dashboard' }
+  }, [])
+
+  useEffect(() => {
+    if (!isCustomDomain()) {
+      setSlug(slugFromUrl || defaultSlug || null)
+      setLoading(false)
+      return
+    }
+
+    // Hostname custom — consultar backend
+    const hostname = window.location.hostname.replace(/^www\./, '')
+    setLoading(true)
+    fetch(`${BASE_URL}/store-config/dominio?hostname=${encodeURIComponent(hostname)}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.slug) {
+          setResolvedCustomSlug(data.slug)
+          setSlug(data.slug)
+          if (data.plantilla) {
+            setPlantilla(data.plantilla)
+            setCachedPlantilla(data.slug, data.plantilla)
+          }
+        } else {
+          setError('Tienda no encontrada para este dominio.')
+        }
+      })
+      .catch(() => setError('No se pudo conectar con el servidor.'))
+      .finally(() => setLoading(false))
+  }, [slugFromUrl, defaultSlug])
+
+  // Fetch plantilla when slug is known (for main domain routes)
+  useEffect(() => {
+    if (!slug) return
+    if (plantilla) return  // ya tenemos del caché
+    fetch(`${BASE_URL}/store-config/info?slug=${slug}`)
+      .then((r) => r.json())
+      .then((d) => {
+        const p = d.plantilla || 'luxury'
+        setPlantilla(p)
+        setCachedPlantilla(slug, p)
+      })
+      .catch(() => setPlantilla('luxury'))
+      .finally(() => setLoading(false))
+  }, [slug])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#FFFFFF' }}>
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-400 border-t-transparent" />
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-gray-500 text-sm" style={{ background: '#FFFFFF' }}>
+        {error}
+      </div>
+    )
+  }
+
+  if (!slug || !plantilla) return null
+
+  const StoreComponent = getStoreTemplate(plantilla)
+  // En dominio custom el slug no va en las URLs — las rutas son relativas a /
+  const slugParaRutas = isCustomDomain() ? null : slug
+  return <StoreComponent slug={slugParaRutas} tenantSlug={slug} />
+}

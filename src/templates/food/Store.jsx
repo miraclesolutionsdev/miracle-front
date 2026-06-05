@@ -1,7 +1,7 @@
-import { useState, useRef } from 'react'
+﻿import { useState, useRef } from 'react'
 import useStoreData from '../useStoreData'
 import { fmt, getInitials, navigateToProduct, getProductoImagenSrc } from '../templateUtils'
-import MiniCart from '../../components/MiniCart'
+import MiniCart from '../../components/store/MiniCart'
 
 function SkeletonCard() {
   return (
@@ -54,14 +54,14 @@ function ProductCard({ p, index, slug }) {
 
         {total > 1 && (
           <>
-            <button type="button" onClick={goPrev} className="fd-arr fd-arr-l" aria-label="Anterior">‹</button>
-            <button type="button" onClick={goNext} className="fd-arr fd-arr-r" aria-label="Siguiente">›</button>
+            <button type="button" onClick={goPrev} className="fd-arr fd-arr-l" aria-label="Anterior">â€¹</button>
+            <button type="button" onClick={goNext} className="fd-arr fd-arr-r" aria-label="Siguiente">â€º</button>
           </>
         )}
 
         {/* Badges */}
         {stockBajo && !sinStock && (
-          <span className="fd-badge-hot">🔥 Últimas {p.stock}</span>
+          <span className="fd-badge-hot">ðŸ"¥ Ãšltimas {p.stock}</span>
         )}
         {sinStock && <span className="fd-badge-out">Agotado</span>}
       </div>
@@ -87,21 +87,28 @@ function ProductCard({ p, index, slug }) {
 
 export default function FoodStore({ slug: slugProp, tenantSlug }) {
   const {
-    slug, productosFiltrados, tenantNombre, loading,
+    slug, productosFiltrados, tenantNombre, tagline, loading,
+    colorPrimario, colorSecundario, colorTexto,
     busqueda, setBusqueda, searchOpen, setSearchOpen, mobileInputRef,
     totalProductos,
   } = useStoreData(slugProp, tenantSlug)
 
+  const cssVars = {
+    '--fd-accent': colorPrimario  || 'var(--fd-accent, #FF6B00)',
+    '--fd-bg':     colorSecundario || '#FFF9F4',
+    '--fd-text':   colorTexto     || '#2D2218',
+  }
+
   return (
     <>
       <style>{CSS}</style>
-      <div className="fd-root">
+      <div className="fd-root" style={cssVars}>
         {/* HEADER */}
         <header className="fd-header">
           <MiniCart position="header" />
           <div className="fd-header-inner">
             <div className="fd-brand">
-              <span className="fd-brand-icon">🛒</span>
+              <span className="fd-brand-icon">ðŸ›'</span>
               <div>
                 <span className="fd-brand-name">{tenantNombre || 'Store'}</span>
                 <span className="fd-brand-sub">Tienda oficial</span>
@@ -110,9 +117,9 @@ export default function FoodStore({ slug: slugProp, tenantSlug }) {
 
             <div className="fd-search-desktop">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-              <input type="text" placeholder="¿Qué estás buscando?" value={busqueda} onChange={(e) => setBusqueda(e.target.value)} />
+              <input type="text" placeholder="Â¿QuÃ© estÃ¡s buscando?" value={busqueda} onChange={(e) => setBusqueda(e.target.value)} />
               {busqueda && (
-                <button type="button" onClick={() => setBusqueda('')} className="fd-search-x">✕</button>
+                <button type="button" onClick={() => setBusqueda('')} className="fd-search-x">âœ•</button>
               )}
             </div>
 
@@ -122,7 +129,7 @@ export default function FoodStore({ slug: slugProp, tenantSlug }) {
           </div>
           {searchOpen && (
             <div className="fd-mob-search">
-              <input ref={mobileInputRef} type="text" placeholder="¿Qué buscas hoy?" value={busqueda} onChange={(e) => setBusqueda(e.target.value)} />
+              <input ref={mobileInputRef} type="text" placeholder="Â¿QuÃ© buscas hoy?" value={busqueda} onChange={(e) => setBusqueda(e.target.value)} />
             </div>
           )}
         </header>
@@ -132,7 +139,7 @@ export default function FoodStore({ slug: slugProp, tenantSlug }) {
           <div className="fd-hero-inner">
             <div className="fd-hero-text">
               <h1 className="fd-hero-title">Descubre nuestros<br/><em>productos</em></h1>
-              <p className="fd-hero-sub">{!loading ? `${totalProductos} productos disponibles para ti` : 'Cargando catálogo...'}</p>
+              <p className="fd-hero-sub">{!loading ? `${totalProductos} productos disponibles para ti` : 'Cargando catÃ¡logo...'}</p>
             </div>
             <div className="fd-hero-deco">
               <div className="fd-hero-circle" />
@@ -155,7 +162,7 @@ export default function FoodStore({ slug: slugProp, tenantSlug }) {
               Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
             ) : productosFiltrados.length === 0 ? (
               <div className="fd-empty">
-                <span className="fd-empty-icon">🔍</span>
+                <span className="fd-empty-icon">ðŸ"</span>
                 <p>{busqueda ? `No encontramos "${busqueda}"` : 'No hay productos disponibles.'}</p>
               </div>
             ) : (
@@ -168,7 +175,7 @@ export default function FoodStore({ slug: slugProp, tenantSlug }) {
         <footer className="fd-footer">
           <div className="fd-footer-inner">
             <span className="fd-footer-brand">{tenantNombre || 'Store'}</span>
-            <span className="fd-footer-copy">© {new Date().getFullYear()} · Todos los derechos reservados</span>
+            <span className="fd-footer-copy">Â© {new Date().getFullYear()} Â· Todos los derechos reservados</span>
           </div>
         </footer>
       </div>
@@ -188,20 +195,20 @@ const CSS = `
   .fd-brand { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
   .fd-brand-icon { font-size: 28px; }
   .fd-brand-name { font-family: 'Quicksand', sans-serif; font-size: 20px; font-weight: 700; color: #2D2218; display: block; line-height: 1.1; }
-  .fd-brand-sub { font-size: 10px; font-weight: 600; color: #FF6B00; letter-spacing: 0.08em; text-transform: uppercase; }
+  .fd-brand-sub { font-size: 10px; font-weight: 600; color: var(--fd-accent, #FF6B00); letter-spacing: 0.08em; text-transform: uppercase; }
   .fd-search-desktop { position: relative; display: flex; align-items: center; flex: 1; max-width: 480px; margin: 0 auto; }
   .fd-search-desktop svg { position: absolute; left: 16px; color: #CCBFB3; pointer-events: none; }
   .fd-search-desktop input { width: 100%; background: #FFF5ED; border: 2px solid transparent; border-radius: 50px; padding: 11px 40px 11px 46px; font-family: 'Nunito', sans-serif; font-size: 14px; color: #2D2218; outline: none; transition: all 0.2s; }
   .fd-search-desktop input::placeholder { color: #CCBFB3; }
-  .fd-search-desktop input:focus { border-color: #FF6B00; background: #fff; }
+  .fd-search-desktop input:focus { border-color: var(--fd-accent, #FF6B00); background: #fff; }
   .fd-search-x { position: absolute; right: 14px; background: none; border: none; color: #CCBFB3; cursor: pointer; font-size: 13px; }
-  .fd-search-mob-btn { display: none; width: 42px; height: 42px; border-radius: 50%; border: none; background: #FFF5ED; color: #FF6B00; cursor: pointer; align-items: center; justify-content: center; }
+  .fd-search-mob-btn { display: none; width: 42px; height: 42px; border-radius: 50%; border: none; background: #FFF5ED; color: var(--fd-accent, #FF6B00); cursor: pointer; align-items: center; justify-content: center; }
   .fd-mob-search { padding: 10px 24px 14px; }
   .fd-mob-search input { width: 100%; background: #FFF5ED; border: 2px solid transparent; border-radius: 50px; padding: 12px 20px; font-family: 'Nunito', sans-serif; font-size: 14px; color: #2D2218; outline: none; }
-  .fd-mob-search input:focus { border-color: #FF6B00; }
+  .fd-mob-search input:focus { border-color: var(--fd-accent, #FF6B00); }
 
   /* HERO */
-  .fd-hero { background: linear-gradient(135deg, #FF6B00 0%, #FF8F40 100%); overflow: hidden; position: relative; }
+  .fd-hero { background: linear-gradient(135deg, var(--fd-accent, #FF6B00) 0%, #FF8F40 100%); overflow: hidden; position: relative; }
   .fd-hero-inner { max-width: 1200px; margin: 0 auto; padding: 40px 24px 36px; position: relative; z-index: 1; }
   .fd-hero-text { position: relative; z-index: 2; }
   .fd-hero-title { font-family: 'Quicksand', sans-serif; font-size: clamp(28px, 4vw, 42px); font-weight: 700; color: #fff; line-height: 1.2; }
@@ -214,7 +221,7 @@ const CSS = `
   /* RESULTS */
   .fd-results-bar { max-width: 1200px; margin: 0 auto; padding: 16px 24px 0; }
   .fd-results-bar p { font-size: 13px; color: #99887A; }
-  .fd-results-bar strong { color: #FF6B00; }
+  .fd-results-bar strong { color: var(--fd-accent, #FF6B00); }
 
   /* GRID */
   .fd-main { max-width: 1400px; margin: 0 auto; padding: 24px 24px 80px; }
@@ -235,9 +242,9 @@ const CSS = `
   .fd-card-info { padding: 14px 16px 16px; }
   .fd-card-name { font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 600; color: #2D2218; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 6px; }
   .fd-card-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-  .fd-card-price { font-family: 'Quicksand', sans-serif; font-size: 22px; font-weight: 700; color: #FF6B00; line-height: 1; }
+  .fd-card-price { font-family: 'Quicksand', sans-serif; font-size: 22px; font-weight: 700; color: var(--fd-accent, #FF6B00); line-height: 1; }
   .fd-card-consult { font-size: 12px; font-weight: 600; color: #CCBFB3; }
-  .fd-card-btn { width: 100%; padding: 10px; background: #FF6B00; border: none; border-radius: 10px; color: #fff; font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.2s; }
+  .fd-card-btn { width: 100%; padding: 10px; background: var(--fd-accent, #FF6B00); border: none; border-radius: 10px; color: #fff; font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.2s; }
   .fd-card-btn:hover { background: #E85E00; }
 
   /* SKELETON */

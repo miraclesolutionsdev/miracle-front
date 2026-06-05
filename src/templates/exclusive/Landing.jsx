@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { buildStoreBase, buildCartUrl } from '../templateUtils'
 import { ArrowLeft, ShieldCheck, Zap, Star, ChevronLeft, ChevronRight, CreditCard, Package, ShoppingCart, Check, Search } from 'lucide-react'
-import ImageLightbox from '../../components/ImageLightbox.jsx'
+import ImageLightbox from '../../components/store/ImageLightbox.jsx'
 import { getProductoImagenSrc } from '../../utils/api'
 
 const fmt = (v) => `$${(Number(v) || 0).toLocaleString('es-CO')}`
@@ -301,6 +301,12 @@ export default function ExclusiveLanding({ producto, cantidad, setCantidad, maxC
                   </div>
                 )}
 
+                {/* Envíos */}
+                <div className="exl-shipping-banner">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden style={{ flexShrink: 0, color: 'var(--sage)' }}><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                  <span>Envío a todo el país · <strong>1 a 4 días hábiles</strong></span>
+                </div>
+
                 {/* Cantidad */}
                 {!sinStock && (
                   <div className="exl-qty">
@@ -573,6 +579,10 @@ const CSS = `
   .exl-pay-note { display: flex; align-items: flex-start; gap: 8px; background: var(--bone); padding: 10px 14px; border-radius: 8px; border: 1px solid var(--bone-border); }
   .exl-pay-note p { font-size: 11px; color: var(--ink-muted); line-height: 1.6; }
   .exl-pay-note strong { color: var(--ink-mid); font-weight: 500; }
+
+  /* Shipping banner */
+  .exl-shipping-banner { display: flex; align-items: center; gap: 9px; background: var(--sage-pale); border: 1px solid rgba(61,79,58,0.2); border-radius: 8px; padding: 10px 14px; margin-bottom: 1.3rem; font-size: 12px; color: var(--ink-mid); }
+  .exl-shipping-banner strong { color: var(--sage); font-weight: 600; }
 
   /* ── DETAIL SECTION ── */
   .exl-detail { background: var(--bone); border-top: 1px solid var(--bone-border); }

@@ -1,20 +1,16 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import { useParams } from 'react-router-dom'
-import { productosApi, BASE_URL } from '../utils/api'
+import { productosApi, storeConfigApi } from '../utils/api'
 
-/**
- * Shared hook for store data fetching.
- * All templates use this to get productos, tenantNombre, search, etc.
- */
-// slugProp = slug para rutas (null en dominio custom)
-// tenantSlugProp = slug real del tenant para fetches (siempre tiene valor)
+// slugProp      = slug para construir URLs (null en dominio custom)
+// tenantSlugProp = slug real del tenant para los fetches (siempre tiene valor)
 export default function useStoreData(slugProp, tenantSlugProp) {
   const { slug: slugFromParams } = useParams()
   const slug = slugProp ?? slugFromParams ?? null
   const tenantSlug = tenantSlugProp || slug
 
   const [productos, setProductos] = useState([])
-  const [tenantNombre, setTenantNombre] = useState('')
+  const [storeConfig, setStoreConfig] = useState(null) // toda la config del tenant
   const [loading, setLoading] = useState(true)
   const [busqueda, setBusqueda] = useState('')
   const [searchOpen, setSearchOpen] = useState(false)
@@ -22,20 +18,17 @@ export default function useStoreData(slugProp, tenantSlugProp) {
   const [subcategoriaActiva, setSubcategoriaActiva] = useState('')
   const mobileInputRef = useRef(null)
 
+  // Carga config del tenant y productos en paralelo
   useEffect(() => {
     if (!tenantSlug) return
-    fetch(`${BASE_URL}/store-config/info?slug=${tenantSlug}`)
-      .then((r) => r.json())
-      .then((d) => { if (d.nombre) setTenantNombre(d.nombre) })
-      .catch(() => {})
-  }, [tenantSlug])
-
-  useEffect(() => {
-    if (!tenantSlug) return
-    productosApi.listarPublico({ estado: 'activo' }, tenantSlug)
-      .then((data) => setProductos(Array.isArray(data) ? data : []))
-      .catch(() => setProductos([]))
-      .finally(() => setLoading(false))
+    setLoading(true)
+    Promise.all([
+      storeConfigApi.obtenerInfo(tenantSlug).catch(() => null),
+      productosApi.listarPublico({ estado: 'activo' }, tenantSlug).catch(() => []),
+    ]).then(([config, data]) => {
+      if (config) setStoreConfig(config)
+      setProductos(Array.isArray(data) ? data : [])
+    }).finally(() => setLoading(false))
   }, [tenantSlug])
 
   useEffect(() => {
@@ -94,15 +87,14 @@ export default function useStoreData(slugProp, tenantSlugProp) {
     }
     if (busqueda.trim()) {
       const q = busqueda.toLowerCase()
-      lista = lista.filter((p) => {
-        if ((p.nombre || '').toLowerCase().includes(q)) return true
-        if ((p.descripcion || '').toLowerCase().includes(q)) return true
-        if ((p.categoria || '').toLowerCase().includes(q)) return true
-        if ((p.subcategoria || '').toLowerCase().includes(q)) return true
-        if (Array.isArray(p.caracteristicas) && p.caracteristicas.some((c) => c.toLowerCase().includes(q))) return true
-        if (Array.isArray(p.especificaciones) && p.especificaciones.some((e) => e.toLowerCase().includes(q))) return true
-        return false
-      })
+      lista = lista.filter((p) =>
+        (p.nombre || '').toLowerCase().includes(q) ||
+        (p.descripcion || '').toLowerCase().includes(q) ||
+        (p.categoria || '').toLowerCase().includes(q) ||
+        (p.subcategoria || '').toLowerCase().includes(q) ||
+        (Array.isArray(p.caracteristicas) && p.caracteristicas.some((c) => c.toLowerCase().includes(q))) ||
+        (Array.isArray(p.especificaciones) && p.especificaciones.some((e) => e.toLowerCase().includes(q)))
+      )
     }
     return lista
   }, [productos, busqueda, categoriaActiva, subcategoriaActiva])
@@ -114,7 +106,21 @@ export default function useStoreData(slugProp, tenantSlugProp) {
     slug,
     productos,
     productosFiltrados,
-    tenantNombre,
+    // Config completa del tenant — los templates la desestructuran según lo que necesiten
+    storeConfig,
+    // Atajos de los campos más usados para no romper templates existentes
+    tenantNombre:    storeConfig?.nombre || '',
+    logoUrl:         storeConfig?.logoUrl || null,
+    colorPrimario:   storeConfig?.colorPrimario || null,
+    colorSecundario: storeConfig?.colorSecundario || null,
+    colorTexto:      storeConfig?.colorTexto || null,
+    tagline:         storeConfig?.tagline || null,
+    descripcion:     storeConfig?.descripcion || null,
+    whatsappContacto: storeConfig?.whatsapp || null,
+    instagram:       storeConfig?.instagram || null,
+    envioGratis:     storeConfig?.envioGratis || false,
+    montoEnvioGratis: storeConfig?.montoEnvioGratis || null,
+    // Estado
     loading,
     busqueda,
     setBusqueda,

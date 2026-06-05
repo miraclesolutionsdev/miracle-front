@@ -224,12 +224,18 @@ export const registerApi = {
 }
 
 export const storeConfigApi = {
-  guardarDominio: (dominio) =>
-    request('store-config/dominio', { method: 'PATCH', body: JSON.stringify({ dominio }) }),
+  obtenerInfo: (slug) => {
+    const q = slug ? `?slug=${encodeURIComponent(slug)}` : ''
+    return request(`store-config/info${q}`)
+  },
+  guardarInfo: (body) =>
+    request('store-config/info', { method: 'PATCH', body: JSON.stringify(body) }),
   guardarPlantilla: (plantilla) =>
     request('store-config/plantilla', { method: 'PATCH', body: JSON.stringify({ plantilla }) }),
-  obtenerInfo: () => request('store-config/info'),
-  resolverPorDominio: (hostname) => request(`store-config/dominio?hostname=${encodeURIComponent(hostname)}`),
+  guardarDominio: (dominio) =>
+    request('store-config/dominio', { method: 'PATCH', body: JSON.stringify({ dominio }) }),
+  resolverPorDominio: (hostname) =>
+    request(`store-config/dominio?hostname=${encodeURIComponent(hostname)}`),
 }
 
 export const authApi = {
@@ -316,6 +322,17 @@ export const ordenesApi = {
     }),
   verificarPago: (id) =>
     request(`ordenes/${id}/verificar-pago`, { method: 'POST' }),
+}
+
+export const articulosApi = {
+  listar: (params) => {
+    const q = new URLSearchParams(params || {}).toString()
+    return request(`articulos${q ? `?${q}` : ''}`)
+  },
+  obtener: (id) => request(`articulos/${id}`),
+  crear: (formData) => requestFormData('articulos', 'POST', formData),
+  actualizar: (id, formData) => requestFormData(`articulos/${id}`, 'PUT', formData),
+  eliminar: (id) => request(`articulos/${id}`, { method: 'DELETE' }),
 }
 
 export function getProductoImagenSrc(producto, index) {

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { ArrowLeft, Check, ShieldCheck, Zap, Star, ChevronLeft, ChevronRight, CreditCard, Package, ShoppingCart } from 'lucide-react'
-import ImageLightbox from '../../components/ImageLightbox.jsx'
-import MiniCart from '../../components/MiniCart'
+import ImageLightbox from '../../components/store/ImageLightbox.jsx'
+import MiniCart from '../../components/store/MiniCart'
 import { getProductoImagenSrc } from '../../utils/api'
 
 const fmt = (v) => `$${(Number(v) || 0).toLocaleString('es-CO')}`

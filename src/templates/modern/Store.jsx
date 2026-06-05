@@ -1,7 +1,7 @@
-import { useState, useRef } from 'react'
+﻿import { useState, useRef } from 'react'
 import useStoreData from '../useStoreData'
 import { fmt, getInitials, navigateToProduct, getProductoImagenSrc } from '../templateUtils'
-import MiniCart from '../../components/MiniCart'
+import MiniCart from '../../components/store/MiniCart'
 
 function SkeletonCard() {
   return (
@@ -54,7 +54,7 @@ function ProductCard({ p, index, slug }) {
         {/* Quick view on hover */}
         <div className="md-card-quickview" style={{ opacity: hov ? 1 : 0, transform: hov ? 'translateY(0)' : 'translateY(8px)' }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-          Vista rápida
+          Vista rÃ¡pida
         </div>
 
         {total > 1 && (
@@ -70,7 +70,7 @@ function ProductCard({ p, index, slug }) {
 
         {/* Badges */}
         <div className="md-badges">
-          {stockBajo && !sinStock && <span className="md-badge md-badge-low">Últimas {p.stock} unidades</span>}
+          {stockBajo && !sinStock && <span className="md-badge md-badge-low">Ãšltimas {p.stock} unidades</span>}
           {sinStock && <span className="md-badge md-badge-out">Agotado</span>}
         </div>
       </div>
@@ -97,18 +97,25 @@ function ProductCard({ p, index, slug }) {
 
 export default function ModernStore({ slug: slugProp, tenantSlug }) {
   const {
-    slug, productosFiltrados, tenantNombre, loading,
+    slug, productosFiltrados, tenantNombre, tagline, loading,
+    colorPrimario, colorSecundario, colorTexto,
     busqueda, setBusqueda, searchOpen, setSearchOpen, mobileInputRef,
     totalProductos, enStock,
   } = useStoreData(slugProp, tenantSlug)
 
+  const cssVars = {
+    '--md-accent': colorPrimario  || '#4F46E5',
+    '--md-bg':     colorSecundario || '#F7F7F8',
+    '--md-text':   colorTexto     || '#18181B',
+  }
+
   return (
     <>
       <style>{CSS}</style>
-      <div className="md-root">
+      <div className="md-root" style={cssVars}>
         {/* TOPBAR */}
         <div className="md-topbar">
-          <span>Envío disponible · Compra segura · Calidad garantizada</span>
+          <span>EnvÃ­o disponible Â· Compra segura Â· Calidad garantizada</span>
         </div>
 
         {/* NAV */}
@@ -193,10 +200,10 @@ export default function ModernStore({ slug: slugProp, tenantSlug }) {
               <span className="md-footer-sub">Tienda oficial</span>
             </div>
             <div className="md-footer-links">
-              <span>Términos y condiciones</span>
-              <span>Política de privacidad</span>
+              <span>TÃ©rminos y condiciones</span>
+              <span>PolÃ­tica de privacidad</span>
             </div>
-            <p className="md-footer-copy">© {new Date().getFullYear()} {tenantNombre || 'Store'}. Todos los derechos reservados.</p>
+            <p className="md-footer-copy">Â© {new Date().getFullYear()} {tenantNombre || 'Store'}. Todos los derechos reservados.</p>
           </div>
         </footer>
       </div>
@@ -211,7 +218,7 @@ const CSS = `
   .md-root { min-height: 100vh; background: #F7F7F8; color: #18181B; font-family: 'DM Sans', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
 
   /* TOPBAR */
-  .md-topbar { background: #4F46E5; color: rgba(255,255,255,0.85); text-align: center; font-size: 12px; font-weight: 500; padding: 8px 16px; letter-spacing: 0.02em; }
+  .md-topbar { background: var(--md-accent, #4F46E5); color: rgba(255,255,255,0.85); text-align: center; font-size: 12px; font-weight: 500; padding: 8px 16px; letter-spacing: 0.02em; }
 
   /* NAV */
   .md-nav { position: sticky; top: 0; z-index: 50; background: #FFFFFF; border-bottom: 1px solid #E4E4E7; }
@@ -222,13 +229,13 @@ const CSS = `
   .md-nav-search svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #A1A1AA; pointer-events: none; }
   .md-nav-search input { width: 100%; background: #F4F4F5; border: 1.5px solid transparent; border-radius: 10px; padding: 10px 38px 10px 42px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: #18181B; outline: none; transition: all 0.2s; }
   .md-nav-search input::placeholder { color: #A1A1AA; }
-  .md-nav-search input:focus { background: #fff; border-color: #4F46E5; }
+  .md-nav-search input:focus { background: #fff; border-color: var(--md-accent, #4F46E5); }
   .md-nav-search-x { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #A1A1AA; cursor: pointer; display: flex; padding: 2px; }
   .md-nav-actions { flex-shrink: 0; display: flex; gap: 8px; }
   .md-nav-mob-search { display: none; width: 40px; height: 40px; border-radius: 10px; border: 1.5px solid #E4E4E7; background: #fff; color: #71717A; cursor: pointer; align-items: center; justify-content: center; }
   .md-mob-search-bar { padding: 8px 24px 14px; border-top: 1px solid #E4E4E7; }
   .md-mob-search-bar input { width: 100%; background: #F4F4F5; border: 1.5px solid transparent; border-radius: 10px; padding: 12px 16px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: #18181B; outline: none; }
-  .md-mob-search-bar input:focus { border-color: #4F46E5; }
+  .md-mob-search-bar input:focus { border-color: var(--md-accent, #4F46E5); }
 
   /* BREADCRUMB */
   .md-breadcrumb-area { background: #FFFFFF; border-bottom: 1px solid #E4E4E7; }
@@ -245,20 +252,20 @@ const CSS = `
   .md-filters-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
   .md-showing { font-size: 13px; color: #71717A; }
   .md-showing strong { color: #18181B; font-weight: 600; }
-  .md-showing em { font-style: normal; color: #4F46E5; }
+  .md-showing em { font-style: normal; color: var(--md-accent, #4F46E5); }
   .md-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 
   /* CARD */
   .md-card { background: #FFFFFF; border-radius: 12px; cursor: pointer; outline: none; user-select: none; text-align: left; overflow: hidden; border: 1px solid #E4E4E7; transition: all 0.25s ease; animation: mdCardIn 0.4s ease both; }
-  .md-card:hover { border-color: #4F46E5; box-shadow: 0 8px 32px rgba(79,70,229,0.08); transform: translateY(-2px); }
-  .md-card:focus-visible { outline: 2px solid #4F46E5; outline-offset: 2px; }
+  .md-card:hover { border-color: var(--md-accent, #4F46E5); box-shadow: 0 8px 32px rgba(79,70,229,0.08); transform: translateY(-2px); }
+  .md-card:focus-visible { outline: 2px solid var(--md-accent, #4F46E5); outline-offset: 2px; }
   @keyframes mdCardIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
   .md-card-img { position: relative; padding-bottom: 95%; overflow: hidden; background: #FAFAFA; }
   .md-card-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.5s cubic-bezier(.25,.8,.25,1); }
   .md-card-no-img { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Archivo', sans-serif; font-size: 40px; font-weight: 800; color: #E4E4E7; }
-  .md-card-quickview { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #fff; background: #4F46E5; padding: 8px 18px; border-radius: 8px; transition: all 0.25s; z-index: 3; white-space: nowrap; box-shadow: 0 4px 16px rgba(79,70,229,0.3); }
+  .md-card-quickview { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #fff; background: var(--md-accent, #4F46E5); padding: 8px 18px; border-radius: 8px; transition: all 0.25s; z-index: 3; white-space: nowrap; box-shadow: 0 4px 16px rgba(79,70,229,0.3); }
   .md-arr { position: absolute; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; background: #fff; border: 1px solid #E4E4E7; border-radius: 8px; color: #18181B; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 5; transition: all 0.2s; }
-  .md-arr:hover { border-color: #4F46E5; color: #4F46E5; }
+  .md-arr:hover { border-color: var(--md-accent, #4F46E5); color: var(--md-accent, #4F46E5); }
   .md-arr-l { left: 10px; }
   .md-arr-r { right: 10px; }
   .md-badges { position: absolute; top: 10px; left: 10px; display: flex; flex-direction: column; gap: 4px; z-index: 5; pointer-events: none; }
@@ -294,7 +301,7 @@ const CSS = `
   .md-footer-inner { max-width: 1300px; margin: 0 auto; padding: 32px 24px; display: flex; flex-direction: column; gap: 16px; }
   .md-footer-brand { display: flex; flex-direction: column; gap: 2px; }
   .md-footer-name { font-family: 'Archivo', sans-serif; font-size: 18px; font-weight: 800; color: #fff; }
-  .md-footer-sub { font-size: 11px; font-weight: 500; color: #4F46E5; letter-spacing: 0.06em; text-transform: uppercase; }
+  .md-footer-sub { font-size: 11px; font-weight: 500; color: var(--md-accent, #4F46E5); letter-spacing: 0.06em; text-transform: uppercase; }
   .md-footer-links { display: flex; gap: 20px; }
   .md-footer-links span { font-size: 12px; color: #71717A; cursor: pointer; transition: color 0.15s; }
   .md-footer-links span:hover { color: #A1A1AA; }
