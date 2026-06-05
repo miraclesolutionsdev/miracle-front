@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Trash2, Plus, Minus, ShoppingBag } from 'lucide-react'
 import { useCart } from '../../context/CartContext'
 import { useNotifications } from '../../context/NotificationsContext'
-import { getTenantSlug, BASE_URL } from '../../utils/api'
+import { getTenantSlug, BASE_URL, isCustomDomain, getResolvedCustomSlug } from '../../utils/api'
 import { buildStoreBase } from '../../templates/templateUtils'
 import CheckoutModal from './CheckoutModal'
 
@@ -12,7 +12,10 @@ function getCached(slug) {
 }
 
 function useTemplateSlug() {
-  const slug = getTenantSlug()
+  // En dominio custom, CustomDomainResolver ya resolvió el slug antes de renderizar.
+  // En dominio principal, el slug viene de la URL.
+  const slug = isCustomDomain() ? getResolvedCustomSlug() : getTenantSlug()
+
   const [plantilla, setPlantilla] = useState(() => slug ? getCached(slug) : null)
 
   useEffect(() => {

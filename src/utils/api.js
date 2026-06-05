@@ -55,14 +55,23 @@ export function getTenantIdentifier() {
   return getTenantSlug() || 'default'
 }
 
-// Cache en memoria del slug resuelto para dominio custom (se llena desde TiendaPage/LandingProductoPage)
-let _resolvedCustomSlug = null
-export function setResolvedCustomSlug(slug) { _resolvedCustomSlug = slug }
+// Cache del slug resuelto para dominio custom.
+// Se persiste en sessionStorage para que funcione en cualquier ruta
+// sin depender de que TiendaPage haya montado primero.
+const _CUSTOM_SLUG_KEY = 'miracle_custom_slug'
+let _resolvedCustomSlug = (() => {
+  try { return sessionStorage.getItem(_CUSTOM_SLUG_KEY) || null } catch { return null }
+})()
+
+export function setResolvedCustomSlug(slug) {
+  _resolvedCustomSlug = slug
+  try { sessionStorage.setItem(_CUSTOM_SLUG_KEY, slug) } catch {}
+}
 export function getResolvedCustomSlug() { return _resolvedCustomSlug }
 
 /**
  * Devuelve el valor correcto para el header X-Tenant-Slug:
- * - Dominio custom: usa el slug resuelto (cacheado tras llamar al backend)
+ * - Dominio custom: usa el slug resuelto (cacheado en sessionStorage)
  * - Dominio principal: usa el slug de la URL
  */
 function getTenantSlugForHeader() {

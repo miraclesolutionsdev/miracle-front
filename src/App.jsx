@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { Routes, Route, Navigate, useParams } from 'react-router-dom'
 import { useAuth } from './context/AuthContext'
 import DashboardLayout from './components/layout/DashboardLayout'
@@ -17,8 +18,28 @@ import PoliticaEnvio from './components/policies/PoliticaEnvio'
 import MetodosPago from './components/public/MetodosPago'
 import BlogPage from './components/blog/BlogPage'
 import BlogArticulo from './components/blog/BlogArticulo'
-import { isCustomDomain } from './utils/api'
+import { isCustomDomain, BASE_URL, getResolvedCustomSlug, setResolvedCustomSlug } from './utils/api'
 import './App.css'
+
+// Resuelve el slug del tenant por hostname una sola vez al iniciar en dominio custom.
+// Lo persiste en sessionStorage vía setResolvedCustomSlug para que todos los
+// requests de api.js lo tengan disponible sin importar qué ruta cargó primero.
+function CustomDomainResolver({ children }) {
+  const [ready, setReady] = useState(!!getResolvedCustomSlug())
+
+  useEffect(() => {
+    if (getResolvedCustomSlug()) { setReady(true); return }
+    const hostname = window.location.hostname.replace(/^www\./, '')
+    fetch(`${BASE_URL}/store-config/dominio?hostname=${encodeURIComponent(hostname)}`)
+      .then((r) => r.json())
+      .then((d) => { if (d.slug) setResolvedCustomSlug(d.slug) })
+      .catch(() => {})
+      .finally(() => setReady(true))
+  }, [])
+
+  if (!ready) return <div style={{ minHeight: '100vh', background: '#f7f5f0' }} />
+  return children
+}
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useAuth()
@@ -36,20 +57,22 @@ function App() {
   // mostrar directamente la tienda de ese tenant en cualquier path.
   if (isCustomDomain()) {
     return (
-      <Routes>
-        {/* En dominio custom el tenant ya está implícito en el hostname.
-            La tienda vive en / y cada producto en /{productoId} */}
-        <Route path="/carrito" element={<CartPage />} />
-        <Route path="/blog" element={<BlogPage />} />
-        <Route path="/blog/:articuloId" element={<BlogArticulo />} />
-        <Route path="/politicas/garantia" element={<PoliticaGarantia />} />
-        <Route path="/contactanos" element={<Contactanos />} />
-        <Route path="/politicas/reembolso" element={<PoliticaReembolso />} />
-        <Route path="/politicas/envio" element={<PoliticaEnvio />} />
-        <Route path="/metodos-pago" element={<MetodosPago />} />
-        <Route path="/:productoId" element={<LandingProductoPage />} />
-        <Route path="*" element={<TiendaPage />} />
-      </Routes>
+      <CustomDomainResolver>
+        <Routes>
+          {/* En dominio custom el tenant está implícito en el hostname.
+              El slug se resuelve una sola vez en CustomDomainResolver. */}
+          <Route path="/carrito" element={<CartPage />} />
+          <Route path="/blog" element={<BlogPage />} />
+          <Route path="/blog/:articuloId" element={<BlogArticulo />} />
+          <Route path="/politicas/garantia" element={<PoliticaGarantia />} />
+          <Route path="/contactanos" element={<Contactanos />} />
+          <Route path="/politicas/reembolso" element={<PoliticaReembolso />} />
+          <Route path="/politicas/envio" element={<PoliticaEnvio />} />
+          <Route path="/metodos-pago" element={<MetodosPago />} />
+          <Route path="/:productoId" element={<LandingProductoPage />} />
+          <Route path="*" element={<TiendaPage />} />
+        </Routes>
+      </CustomDomainResolver>
     )
   }
 

@@ -2,6 +2,7 @@ import { useState, useRef, useMemo, useEffect, useCallback } from 'react'
 import { useLocation, useNavigate as useRRNavigate, Link } from 'react-router-dom'
 import useStoreData from '../useStoreData'
 import { fmt, getInitials, getProductoImagenSrc, buildStoreBase, buildCartUrl, buildProductUrl } from '../templateUtils'
+import { isCustomDomain } from '../../utils/api'
 import MiniCart from '../../components/store/MiniCart'
 
 function SkeletonCard() {
@@ -1263,7 +1264,7 @@ export default function ExclusiveStore({ slug: slugProp, tenantSlug }) {
             <div className="ex-footer-col">
               <p className="ex-footer-col-title">Categorías</p>
               <ul className="ex-footer-list">
-                {['Portátiles', 'Desktop', 'Gama Premium', 'Accesorios'].map((item) => (
+                {categorias.slice(0, 5).map((item) => (
                   <li key={item}>
                     <button type="button" className="ex-footer-list-btn" onClick={() => handleNavCat(item)}>{item}</button>
                   </li>
@@ -1275,11 +1276,11 @@ export default function ExclusiveStore({ slug: slugProp, tenantSlug }) {
             <div className="ex-footer-col">
               <p className="ex-footer-col-title">Servicio al cliente</p>
               <ul className="ex-footer-list">
-                <li><Link to={`${storeBase}/blog`} className="ex-footer-list-item ex-footer-flink">Blog</Link></li>
-                <li><Link to={`${storeBase}/politicas/garantia`} className="ex-footer-list-item ex-footer-flink">Garantía de satisfacción</Link></li>
-                <li><Link to={`${storeBase}/politicas/reembolso`} className="ex-footer-list-item ex-footer-flink">Devoluciones</Link></li>
-                <li><Link to={`${storeBase}/politicas/envio`} className="ex-footer-list-item ex-footer-flink">Envíos a Colombia</Link></li>
-                <li><Link to={`${storeBase}/metodos-pago`} className="ex-footer-list-item ex-footer-flink">Métodos de pago</Link></li>
+                <li><Link to={isCustomDomain() ? '/blog' : `${storeBase}/blog`} className="ex-footer-list-item ex-footer-flink">Blog</Link></li>
+                <li><Link to={isCustomDomain() ? '/politicas/garantia' : `${storeBase}/politicas/garantia`} className="ex-footer-list-item ex-footer-flink">Garantía de satisfacción</Link></li>
+                <li><Link to={isCustomDomain() ? '/politicas/reembolso' : `${storeBase}/politicas/reembolso`} className="ex-footer-list-item ex-footer-flink">Devoluciones</Link></li>
+                <li><Link to={isCustomDomain() ? '/politicas/envio' : `${storeBase}/politicas/envio`} className="ex-footer-list-item ex-footer-flink">Envíos a Colombia</Link></li>
+                <li><Link to={isCustomDomain() ? '/metodos-pago' : `${storeBase}/metodos-pago`} className="ex-footer-list-item ex-footer-flink">Métodos de pago</Link></li>
               </ul>
             </div>
 
